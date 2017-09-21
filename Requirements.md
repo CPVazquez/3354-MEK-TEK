@@ -1,5 +1,5 @@
 # Software Requirements Specification #
-# Definitions, Acronyms, and Abbreviations ##
+## Definitions, Acronyms, and Abbreviations ##
 | Term      |  Definition                                                |
 | --------- | ---------------------------------------------------------- |
 | ID        | Identification of Element                                  |
