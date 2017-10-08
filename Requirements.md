@@ -31,4 +31,4 @@
     6. The API, given an item ID, can return item details (frequency of occurrence, typical locations)
     7. The Database API can be given a new tabular data file to update itself
 ## Use Case Diagram ##
-[Diagram can be found here](UseCase.png)
+[Diagram can be found here](Diagrams/UseCase.png)
