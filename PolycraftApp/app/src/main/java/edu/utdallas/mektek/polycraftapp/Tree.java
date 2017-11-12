@@ -10,8 +10,23 @@ public class Tree {
 
     }
 
-    public void addNode(SuperNode node){
+    public void addNode(String id, SuperNode node){
+        SuperNode item = getNode(id);
+        int t = 0;
+        ArrayList<SuperNode> recPar = node.getParents();
 
+        for(int i=0; i < recPar.size(); i++){
+            if(recPar.get(i).getId().equals(id)){
+                t = i;
+                break;
+            }
+        }
+
+        SuperNode dup = recPar.remove(t);
+        dup.getChildren().remove(node);
+
+        item.getChildren().add(node);
+        node.getParents().add(item);
     }
 
     public void deleteNode(SuperNode node){
@@ -23,6 +38,7 @@ public class Tree {
     }
 
     public ArrayList<SuperNode> getDrawnNodes(){
+
         return null;
     }
 }
