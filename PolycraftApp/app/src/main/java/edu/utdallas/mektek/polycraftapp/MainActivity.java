@@ -98,5 +98,39 @@ public class MainActivity extends AppCompatActivity {
         }
     }*/
 
+    public void drawTree(Tree processTree){
+        // Initialize Network Graph
+        NetworkGraph processGraph = new NetworkGraph();
+        // Set currentNode to target
+        SuperNode currentNode = processTree.getTargetNode();
+        // Set the drawable node to target and draw it
+        Node graphPointer = new SimpleNode(currentNode.getId().toString());
+        processGraph.getVertex().add(new Vertex(graphPointer, ContextCompat.getDrawable(this, R.drawable.icon)));
 
+        // Start traversing through tree
+        while(currentNode != null){
+            SuperNode connectingNode = null;
+            Node holder = null;
+            // Draw each child on the graph
+            for (SuperNode child : currentNode.getChildren()) {
+                Node nodeToAdd = new SimpleNode(currentNode.getId().toString());
+                processGraph.getVertex().add(new Vertex(nodeToAdd, ContextCompat.getDrawable(this,R.drawable.icon)));
+                // Check if we should draw the connecting edge to this child
+                if(child.getParents().contains(currentNode)){
+                    // Draw edge
+                    processGraph.addEdge(new SimpleEdge(graphPointer, nodeToAdd, "Step"));
+                }
+                // Check if we found the connectingNode
+                if (!child.getChildren().isEmpty()) {
+                    connectingNode = child; // We found the connecting node and this will become currentNode
+                    holder = nodeToAdd; // Save the drawable of this node for later
+                }
+            }
+            graphPointer = holder;
+            currentNode = connectingNode;
+        }
+
+        GraphSurfaceView surface = (GraphSurfaceView) findViewById(R.id.mysurface);
+        surface.init(processGraph);
+    }
 }
