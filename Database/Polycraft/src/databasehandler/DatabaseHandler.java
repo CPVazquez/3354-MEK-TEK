@@ -133,15 +133,18 @@ public class DatabaseHandler{
 	private void getResults(String searchValue) throws SQLException {
 		ResultSet rs = queryDB(searchValue);
 		while(rs.next()) {
-			if(checkBaseCase(rs.getString(1))) {
-				System.out.println(rs.getString(1));
+			if(checkBaseCase(rs.getString(2))) {
+				System.out.println(rs.getString(2));
 				return;
 			}
 		}
-		rs.beforeFirst();
+	//	rs.beforeFirst();
+		rs = queryDB(searchValue);
 		
 		while(rs.next()) {
-			getResults(rs.getString(1));
+			//debugPrinter(rs);
+			System.out.println(rs.getString(2));
+			getResults(rs.getString(2));
 		}
 	}
 	
@@ -211,6 +214,6 @@ public class DatabaseHandler{
 	 public static void main(String[] args) {
 	     DatabaseHandler items = new DatabaseHandler("test.db");   
 	     //items.getItemID("Para");
-	     items.printList("Gravel");
+	     items.printList("Drum (Light Naphtha)");
 	    }
 }
