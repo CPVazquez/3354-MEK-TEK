@@ -18,6 +18,8 @@ import net.xqhs.graphs.graph.Node;
 import net.xqhs.graphs.graph.SimpleEdge;
 import net.xqhs.graphs.graph.SimpleNode;
 
+import java.util.ArrayList;
+
 import giwi.org.networkgraph.GraphSurfaceView;
 import giwi.org.networkgraph.beans.NetworkGraph;
 import giwi.org.networkgraph.beans.Vertex;
@@ -30,12 +32,30 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        /*
+        Item mockA = new Item("a", null, null, null, "element-a");
+        Tree process = new Tree(mockA);
+        Item elementA = new Item("a", new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), null, "element-a" );
+        Item elementB = new Item("b", new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), null, "element-b");
+        Item water = new Item("b", new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), null, "water");
+        SuperNode recipe = new Recipe("distill", new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), null, "recipie", null, null);
+        recipe.getParents().add(elementA);
+        recipe.getParents().add(elementB);
+        recipe.getChildren().add(water);
+        elementA.getChildren().add(recipe);
+        elementB.getChildren().add(recipe);
+        water.getParents().add(recipe);
 
+        process.addNode(recipe);
+
+        drawTree(process);
+
+        */
         // Get the Intent that started this activity and extract the string
         Intent intent = getIntent();
         String message = intent.getStringExtra(Search.EXTRA_MESSAGE);
 
-       /* NetworkGraph graph = new NetworkGraph();
+        NetworkGraph graph = new NetworkGraph();
 
         Node v1 = new SimpleNode("18");
         Node v2 = new SimpleNode("24");
@@ -44,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         graph.addEdge(new SimpleEdge(v1, v2, "12"));
 
         GraphSurfaceView surface = (GraphSurfaceView) findViewById(R.id.mysurface);
-        surface.init(graph);*/
+        surface.init(graph);
     }
 
     @Override

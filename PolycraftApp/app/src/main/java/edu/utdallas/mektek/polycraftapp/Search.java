@@ -10,8 +10,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
 
-import static edu.utdallas.mektek.polycraftapp.R.id.editTex;
-
 public class Search extends AppCompatActivity {
     public static final String EXTRA_MESSAGE = "edu.utdallas.mektek.polycraftapp.MESSAGE";
 
@@ -35,7 +33,7 @@ public class Search extends AppCompatActivity {
 
     public void sendMessage(View view) {
         Intent intent = new Intent(this, MainActivity.class);
-        @SuppressLint("WrongViewCast") EditText editText = (EditText) findViewById(editTex);
+        EditText editText = (EditText) findViewById(R.id.editText);
         String message = editText.getText().toString();
         intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);
