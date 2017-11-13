@@ -35,7 +35,7 @@ public class Tree {
                 for (SuperNode parent : nodeToAdd.getParents()) {
                     // Parent and child IDs match we make the connection here
                     if(child.getId().equals(parent.getId())){
-                        
+                        child = parent;
                         this.pointerNode = nodeToAdd;
                         break;
                     }
