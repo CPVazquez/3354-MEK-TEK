@@ -3,11 +3,20 @@ package edu.utdallas.mektek.polycraftapp;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import net.xqhs.graphs.graph.Node;
+import net.xqhs.graphs.graph.SimpleEdge;
+import net.xqhs.graphs.graph.SimpleNode;
+
+import giwi.org.networkgraph.GraphSurfaceView;
+import giwi.org.networkgraph.beans.NetworkGraph;
+import giwi.org.networkgraph.beans.Vertex;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,5 +57,41 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void drawTree(Tree processTree){
+        // Initialize Network Graph
+        NetworkGraph processGraph = new NetworkGraph();
+        // Set currentNode to target
+        SuperNode currentNode = processTree.getTargetNode();
+        // Set the drawable node to target and draw it
+        Node graphPointer = new SimpleNode(currentNode.getId().toString());
+        processGraph.getVertex().add(new Vertex(graphPointer, ContextCompat.getDrawable(this, R.drawable.icon)));
+
+        // Start traversing through tree
+        while(currentNode != null){
+            SuperNode connectingNode = null;
+            Node holder = null;
+            // Draw each child on the graph
+            for (SuperNode child : currentNode.getChildren()) {
+                Node nodeToAdd = new SimpleNode(currentNode.getId().toString());
+                processGraph.getVertex().add(new Vertex(nodeToAdd, ContextCompat.getDrawable(this,R.drawable.icon)));
+                // Check if we should draw the connecting edge to this child
+                if(child.getParents().contains(currentNode)){
+                    // Draw edge
+                    processGraph.addEdge(new SimpleEdge(graphPointer, nodeToAdd, "Step"));
+                }
+                // Check if we found the connectingNode
+                if (!child.getChildren().isEmpty()) {
+                    connectingNode = child; // We found the connecting node and this will become currentNode
+                    holder = nodeToAdd; // Save the drawable of this node for later
+                }
+            }
+            graphPointer = holder;
+            currentNode = connectingNode;
+        }
+
+        GraphSurfaceView surface = (GraphSurfaceView) findViewById(R.id.mysurface);
+        surface.init(processGraph);
     }
 }
