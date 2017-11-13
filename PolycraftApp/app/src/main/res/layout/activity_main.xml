@@ -30,4 +30,16 @@
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@android:drawable/ic_dialog_email" />
 
+    <giwi.org.networkgraph.GraphSurfaceView
+        android:id="@+id/mysurface"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        app:nodeBgColor="@android:color/white"
+        app:defaultColor="@android:color/black"
+        app:edgeColor="@android:color/holo_blue_light"
+        app:nodeColor="@android:color/holo_blue_light"
+        android:layout_margin="10dp"/>
+
 </android.support.design.widget.CoordinatorLayout>
