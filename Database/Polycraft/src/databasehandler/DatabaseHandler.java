@@ -1,5 +1,6 @@
 package databasehandler;
 import java.sql.*;
+import java.util.ArrayList;
 import java.nio.file.Paths;
 
 public class DatabaseHandler{
@@ -63,7 +64,7 @@ public class DatabaseHandler{
 			conn = DriverManager.getConnection(database);
 			String command = SQLquery.IDandName;
 			command += " WHERE itemName LIKE '%" + item + "%'";
-			System.out.println(command);
+			//System.out.println(command);
 			Statement stmt = conn.createStatement();
 			//CachedRowSetImpl crs = new CachedRowSetImpl();
 			ResultSet rs = stmt.executeQuery(command);
@@ -87,34 +88,7 @@ public class DatabaseHandler{
 		try {
 			conn = DriverManager.getConnection(database);
 			
-			getResults(rootItem);
-//			PreparedStatement stmt = StatementPrepper(query, params, rootItem); //conn.prepareStatement(SQLquery.DistillOut + addendum);
-//			
-//			ResultSet rs = stmt.executeQuery();
-//			
-//			//handle results, run recursively from here onwards.
-//			ResultSetMetaData rsms = rs.getMetaData();
-//			int columns = rsms.getColumnCount();
-//			for(int i = 0; i<columns; i++) {
-//				String columnname = rsms.getColumnLabel(i+1);
-//				System.out.print(columnname + "\t");
-//			}
-//			System.out.print("\n");
-//			while(rs.next()) {
-//				for(int i = 0; i<columns; i++) {
-//					String value = rs.getString(i+1);
-//					System.out.print(value + "\t");
-//					
-//					
-//				}
-//				System.out.print("\n");
-//				
-//				
-//			}
-//			
-//			//debugPrinter(rs);
-//			
-//			//stmt.setString(1, root);
+			System.out.println(getResults(rootItem).toString());
 
 		} catch (SQLException ex) {
 			System.out.println(ex.getMessage());
@@ -130,22 +104,31 @@ public class DatabaseHandler{
 
 	}
 	
-	private void getResults(String searchValue) throws SQLException {
+	private ArrayList <String> getResults(String searchValue) throws SQLException {
+		ArrayList <String> results = new ArrayList<String>();
+		if(searchValue==null || results.contains(searchValue))
+			{
+				System.out.println("null");
+				return results;
+			}
+
+		results.add(searchValue);
 		ResultSet rs = queryDB(searchValue);
 		while(rs.next()) {
 			if(checkBaseCase(rs.getString(2))) {
-				System.out.println(rs.getString(2));
-				return;
+				results.add(rs.getString(2));
+				return results;
 			}
 		}
-	//	rs.beforeFirst();
+		//rs.beforeFirst();
 		rs = queryDB(searchValue);
 		
 		while(rs.next()) {
-			//debugPrinter(rs);
-			System.out.println(rs.getString(2));
-			getResults(rs.getString(2));
+			results.addAll(getResults(rs.getString(2)));
+			return results;
 		}
+		
+		return results;
 	}
 	
 	private boolean checkBaseCase(String searchValue) throws SQLException {
@@ -168,13 +151,12 @@ public class DatabaseHandler{
 	private ResultSet queryDB(String searchValue) throws SQLException {
 		int params = 7;
 		String query = SQLquery.queryDistillRecipeData(params);
-		System.out.println(query);
+	//	System.out.println(query);
 		
 		PreparedStatement stmt = conn.prepareStatement(query);
 		for(int i = 1; i <= params; i++) {
 			stmt.setString(i, searchValue);
-		}
-		
+		}	
 		return stmt.executeQuery();
 
 	}
@@ -214,6 +196,6 @@ public class DatabaseHandler{
 	 public static void main(String[] args) {
 	     DatabaseHandler items = new DatabaseHandler("test.db");   
 	     //items.getItemID("Para");
-	     items.printList("Drum (Light Naphtha)");
+	     items.printList("Cartridge (Methane)");
 	    }
 }
