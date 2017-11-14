@@ -32,12 +32,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        /*
+
         Item mockA = new Item("a", null, null, null, "element-a");
         Tree process = new Tree(mockA);
         Item elementA = new Item("a", new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), null, "element-a" );
         Item elementB = new Item("b", new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), null, "element-b");
-        Item water = new Item("b", new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), null, "water");
+        Item water = new Item("water", new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), null, "water");
         SuperNode recipe = new Recipe("distill", new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), null, "recipie", null, null);
         recipe.getParents().add(elementA);
         recipe.getParents().add(elementB);
@@ -50,21 +50,21 @@ public class MainActivity extends AppCompatActivity {
 
         drawTree(process);
 
-        */
+
         // Get the Intent that started this activity and extract the string
-        Intent intent = getIntent();
+        /* Intent intent = getIntent();
         String message = intent.getStringExtra(Search.EXTRA_MESSAGE);
 
         NetworkGraph graph = new NetworkGraph();
 
         Node v1 = new SimpleNode("18");
         Node v2 = new SimpleNode("24");
-        graph.getVertex().add(new Vertex(v1, ContextCompat.getDrawable(this, R.drawable.avatar)));
-        graph.getVertex().add(new Vertex(v2, ContextCompat.getDrawable(this, R.drawable.avatar)));
+        graph.getVertex().add(new Vertex(v1, ContextCompat.getDrawable(this, R.drawable.icon)));
+        graph.getVertex().add(new Vertex(v2, ContextCompat.getDrawable(this, R.drawable.icon)));
         graph.addEdge(new SimpleEdge(v1, v2, "12"));
 
         GraphSurfaceView surface = (GraphSurfaceView) findViewById(R.id.mysurface);
-        surface.init(graph);
+        surface.init(graph); */
     }
 
     @Override
@@ -131,14 +131,19 @@ public class MainActivity extends AppCompatActivity {
         while(currentNode != null){
             SuperNode connectingNode = null;
             Node holder = null;
+            /*for (SuperNode parent : currentNode.getParents()){
+                Node nodeToDraw = new SimpleNode(parent.getId());
+                processGraph.getVertex().add(new Vertex(nodeToDraw, ContextCompat.getDrawable(this,R.drawable.icon)));
+                processGraph.addEdge(new SimpleEdge(nodeToDraw, ""));
+            }*/
             // Draw each child on the graph
             for (SuperNode child : currentNode.getChildren()) {
-                Node nodeToAdd = new SimpleNode(currentNode.getId().toString());
+                Node nodeToAdd = new SimpleNode(child.getId().toString());
                 processGraph.getVertex().add(new Vertex(nodeToAdd, ContextCompat.getDrawable(this,R.drawable.icon)));
                 // Check if we should draw the connecting edge to this child
                 if(child.getParents().contains(currentNode)){
                     // Draw edge
-                    processGraph.addEdge(new SimpleEdge(graphPointer, nodeToAdd, "Step"));
+                    processGraph.addEdge(new SimpleEdge(graphPointer, nodeToAdd, "12"));
                 }
                 // Check if we found the connectingNode
                 if (!child.getChildren().isEmpty()) {
