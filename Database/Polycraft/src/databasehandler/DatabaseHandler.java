@@ -9,6 +9,30 @@ public class DatabaseHandler{
 	private String database;
 	private Connection conn;
 	
+	private class SearchData{
+		public String name;
+		public int row;
+		
+		public SearchData(String nm, int rw) {
+			name=nm;
+			row=rw;
+		}
+		
+		@Override
+		public boolean equals(Object o) {
+			if (o==null)
+				return false;
+			if (((SearchData)o).name.equals(this.name))
+				return true;
+			else
+				return false;
+		}
+		
+		@Override
+		public String toString() {
+			return this.name+" "+this.row;
+		}
+	}
 	public DatabaseHandler(String dbname) {
 		connect(dbname);
 	}
@@ -104,31 +128,38 @@ public class DatabaseHandler{
 
 	}
 	
-	private ArrayList <String> getResults(String searchValue) throws SQLException {
-		ArrayList <String> results = new ArrayList<String>();
-		if(searchValue==null || results.contains(searchValue))
+	
+	@SuppressWarnings("unlikely-arg-type")
+	private ArrayList <SearchData> getResults(String searchValue) throws SQLException {
+		ArrayList <SearchData> data = new ArrayList<SearchData>();
+		//ArrayList <Integer> rows = new ArrayList<Integer>();
+		if(searchValue==null || data.contains(searchValue))
 			{
 				System.out.println("null");
-				return results;
+				return data;
 			}
 
-		results.add(searchValue);
 		ResultSet rs = queryDB(searchValue);
+		if(rs.next()) {
+			data.add(new SearchData(searchValue,Integer.parseInt(rs.getString(1))));
+		}
+		
+		rs = queryDB(searchValue);
 		while(rs.next()) {
 			if(checkBaseCase(rs.getString(2))) {
-				results.add(rs.getString(2));
-				return results;
+				data.add(new SearchData(rs.getString(2),Integer.parseInt(rs.getString(1))));
+				return data;
 			}
 		}
 		//rs.beforeFirst();
 		rs = queryDB(searchValue);
 		
 		while(rs.next()) {
-			results.addAll(getResults(rs.getString(2)));
-			return results;
+			data.addAll(getResults(rs.getString(2)));
+			return data;
 		}
 		
-		return results;
+		return data;
 	}
 	
 	private boolean checkBaseCase(String searchValue) throws SQLException {
@@ -196,6 +227,7 @@ public class DatabaseHandler{
 	 public static void main(String[] args) {
 	     DatabaseHandler items = new DatabaseHandler("test.db");   
 	     //items.getItemID("Para");
-	     items.printList("Cartridge (Methane)");
+	     items.printList("Flask (Ethylene)");
+	     
 	    }
 }

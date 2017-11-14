@@ -4,7 +4,7 @@ package databasehandler;
 public final class SQLquery {
 	public static final String debugItemInfo = "SELECT * FROM iteminfo";
 	public static final String debugDistill = "SELECT * FROM distillrecipe";
-	public static final String DistillOut = "SELECT rowid, input1, inQuant1 FROM distillrecipe";
+	public static final String distillOut = "SELECT rowid, input1, inQuant1 FROM distillrecipe";
 	public static final String IDandName = "SELECT gameID, itemName FROM iteminfo";
 	public static final  String NatOccur = "SELECT itemNatural FROM iteminfo";
 	////public static final String outputSearch =
@@ -17,7 +17,7 @@ public final class SQLquery {
 			addendum += "output" + (i+1) + " = ? OR ";
 		}
 		addendum += "output" + params + " = ?";
-		String query = SQLquery.DistillOut + addendum;
+		String query = SQLquery.distillOut + addendum;
 		
 		return query;
 	}
