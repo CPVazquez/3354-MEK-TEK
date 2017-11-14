@@ -8,14 +8,15 @@ public class DatabaseHandler{
 	static String dbtest="chinook.db";
 	private String database;
 	private Connection conn;
+	private int maxColumns=7;
 	
 	private class SearchData{
 		public String name;
-		public int row;
+		public ArrayList<String> siblings;
 		
-		public SearchData(String nm, int rw) {
+		public SearchData(String nm, ArrayList<String> sibs) {
 			name=nm;
-			row=rw;
+			this.setSiblings(sibs);
 		}
 		
 		@Override
@@ -28,9 +29,13 @@ public class DatabaseHandler{
 				return false;
 		}
 		
+		public void setSiblings(ArrayList<String> sibs) {
+			this.siblings=sibs;
+		}
+		
 		@Override
 		public String toString() {
-			return this.name+" "+this.row;
+			return this.name+" "+this.siblings.toString();
 		}
 	}
 	public DatabaseHandler(String dbname) {
@@ -129,36 +134,37 @@ public class DatabaseHandler{
 	}
 	
 	
-	@SuppressWarnings("unlikely-arg-type")
 	private ArrayList <SearchData> getResults(String searchValue) throws SQLException {
 		ArrayList <SearchData> data = new ArrayList<SearchData>();
-		//ArrayList <Integer> rows = new ArrayList<Integer>();
-		if(searchValue==null || data.contains(searchValue))
-			{
-				System.out.println("null");
+		if(searchValue==null || data.contains(searchValue)){
 				return data;
 			}
-
-		ResultSet rs = queryDB(searchValue);
-		if(rs.next()) {
-			data.add(new SearchData(searchValue,Integer.parseInt(rs.getString(1))));
-		}
-		
-		rs = queryDB(searchValue);
-		while(rs.next()) {
-			if(checkBaseCase(rs.getString(2))) {
-				data.add(new SearchData(rs.getString(2),Integer.parseInt(rs.getString(1))));
-				return data;
-			}
-		}
-		//rs.beforeFirst();
-		rs = queryDB(searchValue);
-		
-		while(rs.next()) {
-			data.addAll(getResults(rs.getString(2)));
+		if(checkBaseCase(searchValue)) {
+			data.add(new SearchData(searchValue, new ArrayList<String>()));
 			return data;
 		}
 		
+		ResultSet rs = queryDB(searchValue);
+		if(rs.next()) {
+			SearchData currentData;
+			ArrayList<String> siblings = new ArrayList<String>();
+			
+				int i=1;
+				String sib;
+				do{
+					sib=rs.getString("output"+i);
+					siblings.add(sib);
+					i++;
+				}while (i<maxColumns && sib.length()>0);
+			
+			currentData=new SearchData(searchValue,siblings);
+			data.add(currentData);
+			
+			data.addAll(getResults(rs.getString("input1")));
+		}
+		else {
+			data.add(new SearchData(searchValue, new ArrayList<String>()));
+		}
 		return data;
 	}
 	
@@ -180,7 +186,7 @@ public class DatabaseHandler{
 	}
 	
 	private ResultSet queryDB(String searchValue) throws SQLException {
-		int params = 7;
+		int params = maxColumns;
 		String query = SQLquery.queryDistillRecipeData(params);
 	//	System.out.println(query);
 		
@@ -226,8 +232,11 @@ public class DatabaseHandler{
 
 	 public static void main(String[] args) {
 	     DatabaseHandler items = new DatabaseHandler("test.db");   
-	     //items.getItemID("Para");
-	     items.printList("Flask (Ethylene)");
+	    items.printList("Flask (Ethylene)");
+	    // items.printList("Vial (Pentane Isomers)");
+	     
+	   //  items.printList("Bucket");
+	     //items.printList("Drum (Light Naphtha)");
 	     
 	    }
 }

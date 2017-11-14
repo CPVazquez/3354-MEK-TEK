@@ -17,7 +17,7 @@ public final class SQLquery {
 			addendum += "output" + (i+1) + " = ? OR ";
 		}
 		addendum += "output" + params + " = ?";
-		String query = SQLquery.distillOut + addendum;
+		String query = SQLquery.debugDistill+ addendum;
 		
 		return query;
 	}
