@@ -35,7 +35,7 @@ public class DatabaseHandler{
 		
 		@Override
 		public String toString() {
-			return this.name+" "+this.siblings.toString();
+			return this.name+" "+this.siblings.toString() + "\n";
 		}
 	}
 	public DatabaseHandler(String dbname) {
@@ -116,8 +116,13 @@ public class DatabaseHandler{
 	public void printList(String rootItem) {
 		try {
 			conn = DriverManager.getConnection(database);
+			ArrayList<SearchData> results = getResults(rootItem);
 			
-			System.out.println(getResults(rootItem).toString());
+			System.out.println(results.toString());
+			
+			
+			
+			//System.out.println(getResults(rootItem).toString());
 
 		} catch (SQLException ex) {
 			System.out.println(ex.getMessage());
@@ -133,10 +138,27 @@ public class DatabaseHandler{
 
 	}
 	
+	private SuperNode getNodes(String searchValue, SuperNode child) throws SQLException {
+		SuperNode node = null;
+		
+		if(searchValue == null) {
+			return node;
+		}
+		
+		if(checkBaseCase(searchValue)) {
+			ArrayList<SuperNode> par = new ArrayList<>();
+			par.add(child);
+			par.addAll(child.getParents());
+			node = new Item("0", par, null, null, searchValue);
+			return node;
+		}
+		
+		return node;
+	}
 	
 	private ArrayList <SearchData> getResults(String searchValue) throws SQLException {
 		ArrayList <SearchData> data = new ArrayList<SearchData>();
-		if(searchValue==null || data.contains(searchValue)){
+		if(searchValue==null) {// || data.contains(searchValue)){
 				return data;
 			}
 		if(checkBaseCase(searchValue)) {
@@ -176,7 +198,7 @@ public class DatabaseHandler{
 		ResultSet rs = stmt.executeQuery(); //
 		
 		while(rs.next()) {
-			String holder = rs.getString(1);
+			String holder = rs.getString(1); //TODO: change magic number 1 to a static final int
 			if(holder.contains("1")) {
 				return true;
 			}
@@ -232,11 +254,12 @@ public class DatabaseHandler{
 
 	 public static void main(String[] args) {
 	     DatabaseHandler items = new DatabaseHandler("test.db");   
-	    items.printList("Flask (Ethylene)");
+	    //items.printList("Flask (Ethylene)");
 	    // items.printList("Vial (Pentane Isomers)");
 	     
 	   //  items.printList("Bucket");
-	     //items.printList("Drum (Light Naphtha)");
-	     
+	     //items.printList("Drum (Light Olefins)");
+	     items.printList("Drum (n-Butane)");
+	     items.printList("Cartridge (Ethane)");
 	    }
 }
