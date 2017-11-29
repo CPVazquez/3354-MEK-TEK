@@ -148,6 +148,7 @@ public class GraphSurfaceView extends SurfaceView {
         paint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_nodeColor, graph.getNodeColor()));
         for (Vertex node : graph.getVertex()) {
             Point2D position = layout.transform(node.getNode());
+            node.setPosition(position);
             canvas.drawCircle((float) position.getX(), (float) position.getY(), 40, whitePaint);
             if (node.getIcon() != null) {
                 Bitmap b = ((BitmapDrawable) node.getIcon()).getBitmap();

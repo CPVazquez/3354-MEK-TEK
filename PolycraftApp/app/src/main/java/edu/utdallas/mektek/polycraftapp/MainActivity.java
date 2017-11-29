@@ -1,12 +1,7 @@
 package edu.utdallas.mektek.polycraftapp;
 
-import android.content.Intent;
-import android.os.AsyncTask;
+
 import android.os.Bundle;
-import android.os.SystemClock;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -14,11 +9,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.view.SurfaceView;
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.TextView;
 
 import net.xqhs.graphs.graph.Node;
 import net.xqhs.graphs.graph.SimpleEdge;
@@ -27,12 +17,15 @@ import net.xqhs.graphs.graph.SimpleNode;
 import java.util.ArrayList;
 
 import giwi.org.networkgraph.GraphSurfaceView;
+import giwi.org.networkgraph.beans.Dimension;
 import giwi.org.networkgraph.beans.NetworkGraph;
+import giwi.org.networkgraph.beans.Point2D;
 import giwi.org.networkgraph.beans.Vertex;
 
 public class MainActivity extends AppCompatActivity {
 
     private GraphSurfaceView surface;
+    private NetworkGraph processGraph;
     private GestureDetectorCompat mDetector;
 
     @Override
@@ -121,11 +114,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void drawTree(Tree processTree){
         // Initialize Network Graph
-        NetworkGraph processGraph = new NetworkGraph();
+        processGraph = new NetworkGraph();
         // Set currentNode to target
         SuperNode currentNode = processTree.getTargetNode();
         // Set the drawable node to target and draw it
-        Node graphPointer = new SimpleNode(currentNode.getId().toString());
+        Node graphPointer = new SimpleNode(currentNode.getId());
         processGraph.getVertex().add(new Vertex(graphPointer, ContextCompat.getDrawable(this, R.drawable.icon)));
 
         // Start traversing through tree
@@ -139,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
             }*/
             // Draw each child on the graph
             for (SuperNode child : currentNode.getChildren()) {
-                Node nodeToAdd = new SimpleNode(child.getId().toString());
+                Node nodeToAdd = new SimpleNode(child.getId());
                 processGraph.getVertex().add(new Vertex(nodeToAdd, ContextCompat.getDrawable(this,R.drawable.icon)));
                 // Check if we should draw the connecting edge to this child
                 if(child.getParents().contains(currentNode)){
@@ -172,8 +165,16 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public boolean onDoubleTap(MotionEvent ev) {
             float xTest = ev.getRawX();
-            float yTest = ev.getRawY();
-            Log.d("Gestures", "onDoubleTableEvent: " + ev.toString());
+            float yTest = ev.getRawY() - 280;
+            //Log.d("Gestures", "onDoubleTableEvent: x: " + xTest + " y: " + yTest);
+            for(Vertex node : processGraph.getVertex()){
+                Point2D position = node.getPosition();
+                Log.d("Node", "x: " + position.getX() + " y: " + position.getY());
+                if(xTest <= position.getX() + 20 && xTest >= position.getX() - 20  && yTest<= position.getY() + 20 && yTest >= position.getY() - 20 ){
+                    Log.d("Node", "yay!"); //Abble to tap node, now launch Activity
+                    break;
+                }
+            }
             return true;
         }
     }

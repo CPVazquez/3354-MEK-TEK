@@ -11,7 +11,20 @@ public class Vertex {
 
     private Node node;
 
-    private Drawable icon;
+    private Point2D position; //carla added
+
+    private Drawable icon; //not carla added
+
+    //pointer to node?
+
+    public void setPosition(Point2D point){
+        this.position = point;
+    }
+
+    public Point2D getPosition(){
+        return position;
+    }
+    //end carla added
 
     /**
      * Instantiates a new Vertex.
