@@ -4,11 +4,17 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,6 +32,9 @@ import giwi.org.networkgraph.beans.Vertex;
 
 public class MainActivity extends AppCompatActivity {
 
+    private GraphSurfaceView surface;
+    private GestureDetectorCompat mDetector;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,9 +42,11 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mDetector = new GestureDetectorCompat(this, new MyGestureListener());
+
         Item mockA = new Item("a", null, null, null, "element-a");
         Tree process = new Tree(mockA);
-        Item elementA = new Item("a", new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), null, "element-a" );
+        Item elementA = new Item("a", new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), null, "element-a");
         Item elementB = new Item("b", new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), null, "element-b");
         Item water = new Item("water", new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), null, "water");
         SuperNode recipe = new Recipe("distill", new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), null, "recipie", null, null);
@@ -49,22 +60,12 @@ public class MainActivity extends AppCompatActivity {
         process.addNode(recipe);
 
         drawTree(process);
-
+        Log.d("TREE", "Tree is drawn");
+    }
 
         // Get the Intent that started this activity and extract the string
         /* Intent intent = getIntent();
         String message = intent.getStringExtra(Search.EXTRA_MESSAGE);
-
-        NetworkGraph graph = new NetworkGraph();
-
-        Node v1 = new SimpleNode("18");
-        Node v2 = new SimpleNode("24");
-        graph.getVertex().add(new Vertex(v1, ContextCompat.getDrawable(this, R.drawable.icon)));
-        graph.getVertex().add(new Vertex(v2, ContextCompat.getDrawable(this, R.drawable.icon)));
-        graph.addEdge(new SimpleEdge(v1, v2, "12"));
-
-        GraphSurfaceView surface = (GraphSurfaceView) findViewById(R.id.mysurface);
-        surface.init(graph); */
     }
 
     @Override
@@ -155,7 +156,25 @@ public class MainActivity extends AppCompatActivity {
             currentNode = connectingNode;
         }
 
-        GraphSurfaceView surface = (GraphSurfaceView) findViewById(R.id.mysurface);
+        this.surface = (GraphSurfaceView) findViewById(R.id.mysurface);
         surface.init(processGraph);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        this.mDetector.onTouchEvent(ev);
+        Log.d("GRAPH", "graph is tapped");
+        return super.onTouchEvent(ev);
+    }
+
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onDoubleTap(MotionEvent ev) {
+            float xTest = ev.getRawX();
+            float yTest = ev.getRawY();
+            Log.d("Gestures", "onDoubleTableEvent: " + ev.toString());
+            return true;
+        }
     }
 }
