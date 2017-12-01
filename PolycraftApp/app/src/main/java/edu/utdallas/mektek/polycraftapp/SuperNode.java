@@ -20,6 +20,10 @@ public abstract class SuperNode {
         image = img;
     }
 
+    @Override
+    public String toString() {
+    		return nodeId;
+    }
     public abstract String getId();
     public abstract ArrayList<SuperNode> getParents();
     public abstract ArrayList<SuperNode> getChildren();
