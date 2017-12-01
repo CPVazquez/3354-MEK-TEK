@@ -6,42 +6,13 @@ import java.nio.file.Paths;
 
 @SuppressWarnings("unused")
 public class DatabaseHandler{
-	public boolean debug = true;
-	static String dbtest="chinook.db";
-	private String database;
+	private String databaseName;
 	private Connection conn;
-	private int maxColumns=7;
+	private int maxColumns;
 	
-	private class SearchData{
-		public String name;
-		public ArrayList<String> siblings;
-		
-		public SearchData(String nm, ArrayList<String> sibs) {
-			name=nm;
-			this.setSiblings(sibs);
-		}
-		
-		@Override
-		public boolean equals(Object o) {
-			if (o==null)
-				return false;
-			if (((SearchData)o).name.equals(this.name))
-				return true;
-			else
-				return false;
-		}
-		
-		public void setSiblings(ArrayList<String> sibs) {
-			this.siblings=sibs;
-		}
-		
-		@Override
-		public String toString() {
-			return this.name+" "+this.siblings.toString() + "\n";
-		}
-	}
-	public DatabaseHandler(String dbname) {
+	public DatabaseHandler(String dbname, int columnQuantity) {
 		connect(dbname);
+		maxColumns=columnQuantity;
 	}
 
 	public void connect(String dbname) {
@@ -49,19 +20,17 @@ public class DatabaseHandler{
        String path=Paths.get(".").toAbsolutePath().normalize().toString();
 
         try {
-            // db parameters
-            database = "jdbc:sqlite:"+path+"/"+dbname;
-            // create a connection to the database
-            conn = DriverManager.getConnection(database);
-            
-            System.out.println("Connection to SQLite has been established.");
+	            databaseName = "jdbc:sqlite:"+path+"/"+dbname;
+	            conn = DriverManager.getConnection(databaseName);
+	            
+	            System.out.println("Connection to SQLite has been established.");
             
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         } finally {
             try {
-                if (conn != null) {
-                    conn.close();
+	                if (conn != null) {
+	                    conn.close();
                 }
             } catch (SQLException ex) {
                 System.out.println(ex.getMessage());
@@ -69,41 +38,18 @@ public class DatabaseHandler{
         }
 	}//connect	
 
-	public void createTable() {
-        
-        // SQL statement for creating a new table
-        String command = "CREATE TABLE IF NOT EXISTS warehouses (\n"
-                + "	id integer PRIMARY KEY,\n"
-                + "	name text NOT NULL,\n"
-                + "	capacity real\n"
-                + ");";
-        try {
-			this.conn = DriverManager.getConnection(database);
-			Statement stmt=this.conn.createStatement();
-	        stmt.execute(command);
-	        System.out.println(command);
-
-
-        }
-       catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-    }
 	
 	public void getItemID(String item) {
 		try {
-			conn = DriverManager.getConnection(database);
-			String command = SQLquery.IDandName;
-			command += " WHERE itemName LIKE '%" + item + "%'";
-			//System.out.println(command);
-			Statement stmt = conn.createStatement();
-			//CachedRowSetImpl crs = new CachedRowSetImpl();
-			ResultSet rs = stmt.executeQuery(command);
-
-			debugPrinter(rs);
+				conn = DriverManager.getConnection(databaseName);
+				String command = SQLquery.IDandName;
+				command += " WHERE itemName LIKE '%" + item + "%'";
+				Statement stmt = conn.createStatement();
+				ResultSet rs = stmt.executeQuery(command);
+	
+				debugPrinter(rs);
 			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			System.out.println(e.getMessage());
 		} finally {
 			try {
@@ -117,17 +63,10 @@ public class DatabaseHandler{
 	
 	public void printList(String rootItem) {
 		try {
-			conn = DriverManager.getConnection(database);
-			ArrayList<SearchData> results = getResults(rootItem);
+				conn = DriverManager.getConnection(databaseName);		
+				System.out.println(getProcessTree(rootItem));
+				System.out.println(getRecipeId(rootItem).toString());
 			
-			System.out.println(results.toString());
-			System.out.println(getProcessTree(rootItem));
-			System.out.println(getRecipeId(rootItem).toString());
-			
-			
-			
-			//System.out.println(getResults(rootItem).toString());
-
 		} catch (SQLException ex) {
 			System.out.println(ex.getMessage());
 		} finally {
@@ -145,12 +84,6 @@ public class DatabaseHandler{
 	private Tree getProcessTree(String searchValue) throws SQLException {
 		
 		Tree myTree = new Tree(createItem(searchValue));
-		//myTree.addNode(runRecursiveSearch(searchValue));
-		//Item sn = (Item) myTree.getTargetNode();
-		//if (sn.isNatural()) {
-		//	return myTree;
-		//}
-		
 		ArrayList<String> recipeIds = getRecipeId(searchValue);
 		for(String rowId : recipeIds) {
 			Recipe item = createRecipe(rowId);
@@ -171,19 +104,17 @@ public class DatabaseHandler{
 
 		
 		while(rs.next()) {
-			//ArrayList<String> children = new ArrayList<String>();
 			ArrayList<String> parents = new ArrayList<String>();
 			ArrayList<Integer> parQ = new ArrayList<Integer>();
 			
 			//TODO: Encapsulate these calls into a do-while to handle multiple input columns
-			ArrayList<String> childName = new ArrayList<>();
-			childName.add(rs.getString("input1"));
-			
+			ArrayList<String> children = new ArrayList<>();
 			ArrayList<Integer> childQuantity = new ArrayList<Integer>();
+			children.add(rs.getString("input1"));
+			
 			try {
 				childQuantity.add(Integer.parseInt(rs.getString("inQuant1")));
 			} catch (NumberFormatException e1) {
-				// TODO Auto-generated catch block
 				childQuantity.add(0);
 			}
 			
@@ -208,7 +139,7 @@ public class DatabaseHandler{
 			}
 			
 			ArrayList<SuperNode> childItems = new ArrayList<SuperNode>();
-			for (String itemName : childName) {
+			for (String itemName : children) {
 				childItems.add(createItem(itemName));
 			}
 			
@@ -268,39 +199,6 @@ public class DatabaseHandler{
 	}
 	
 	
-	private ArrayList <SearchData> getResults(String searchValue) throws SQLException {
-		ArrayList <SearchData> data = new ArrayList<SearchData>();
-		if(searchValue==null) {// || data.contains(searchValue)){
-				return data;
-			}
-		if(checkBaseCase(searchValue)) {
-			data.add(new SearchData(searchValue, new ArrayList<String>()));
-			return data;
-		}
-		
-		ResultSet rs = queryDB(searchValue);
-		if(rs.next()) {
-			SearchData currentData;
-			ArrayList<String> siblings = new ArrayList<String>();
-			
-				int i=1;
-				String sib;
-				do{
-					sib=rs.getString("output"+i);
-					siblings.add(sib);
-					i++;
-				}while (i<maxColumns && sib.length()>0);
-			
-			currentData=new SearchData(searchValue,siblings);
-			data.add(currentData);
-			
-			data.addAll(getResults(rs.getString("input1")));
-		}
-		else {
-			data.add(new SearchData(searchValue, new ArrayList<String>()));
-		}
-		return data;
-	}
 	
 	private boolean checkBaseCase(String searchValue) throws SQLException {
 		
@@ -386,7 +284,7 @@ public class DatabaseHandler{
 	}
 
 	 public static void main(String[] args) {
-	     DatabaseHandler items = new DatabaseHandler("test.db");   
+	     DatabaseHandler items = new DatabaseHandler("test.db",7);   
 	    //items.printList("Flask (Ethylene)");
 	    // items.printList("Vial (Pentane Isomers)");
 	     
