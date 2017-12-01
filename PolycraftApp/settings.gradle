@@ -1,1 +1,2 @@
-include ':app'
+include ':app', ':network-graph'
+project(':network-graph').projectDir = new File('libs/android-network-graph/network-graph')
