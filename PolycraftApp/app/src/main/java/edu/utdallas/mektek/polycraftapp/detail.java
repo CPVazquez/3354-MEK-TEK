@@ -28,7 +28,7 @@ public class detail extends AppCompatActivity {
         Intent intent = getIntent();
         String info = (String) intent.getStringExtra(MainActivity.EXTRA_INFO);
         Log.d("DEBUG-Detail", "String received " + info);
-        new GetBitmap((ImageView) findViewById(R.id.imageView)).execute("http://java.sogeti.nl/JavaBlog/wp-content/uploads/2009/04/android_icon_256.png");
+        new GetBitmap((ImageView) findViewById(R.id.imageView)).execute("https://minecraft.gamepedia.com/media/minecraft.gamepedia.com/c/c2/Potato.png");
     }
 
     @Override
@@ -57,7 +57,7 @@ public class detail extends AppCompatActivity {
                 options.inSampleSize = 2;
                 options.inJustDecodeBounds = false;
                 InputStream in = new BufferedInputStream(new java.net.URL(urldisplay).openStream());
-                mIcon11 = BitmapFactory.decodeStream(in,null,options);
+                mIcon11 = BitmapFactory.decodeStream(in);
                 in.close();
             } catch (Exception e) {
                 e.printStackTrace();
