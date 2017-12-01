@@ -1,45 +1,18 @@
 package databasehandler;
 import java.sql.*;
 import java.util.ArrayList;
+import java.io.File;
 import java.nio.file.Paths;
 
+@SuppressWarnings("unused")
 public class DatabaseHandler{
-	public boolean debug = true;
-	static String dbtest="chinook.db";
-	private String database;
+	private String databaseName;
 	private Connection conn;
-	private int maxColumns=7;
+	private int maxColumns;
 	
-	private class SearchData{
-		public String name;
-		public ArrayList<String> siblings;
-		
-		public SearchData(String nm, ArrayList<String> sibs) {
-			name=nm;
-			this.setSiblings(sibs);
-		}
-		
-		@Override
-		public boolean equals(Object o) {
-			if (o==null)
-				return false;
-			if (((SearchData)o).name.equals(this.name))
-				return true;
-			else
-				return false;
-		}
-		
-		public void setSiblings(ArrayList<String> sibs) {
-			this.siblings=sibs;
-		}
-		
-		@Override
-		public String toString() {
-			return this.name+" "+this.siblings.toString() + "\n";
-		}
-	}
-	public DatabaseHandler(String dbname) {
+	public DatabaseHandler(String dbname, int columnQuantity) {
 		connect(dbname);
+		maxColumns=columnQuantity;
 	}
 
 	public void connect(String dbname) {
@@ -47,19 +20,17 @@ public class DatabaseHandler{
        String path=Paths.get(".").toAbsolutePath().normalize().toString();
 
         try {
-            // db parameters
-            database = "jdbc:sqlite:"+path+"/"+dbname;
-            // create a connection to the database
-            conn = DriverManager.getConnection(database);
-            
-            System.out.println("Connection to SQLite has been established.");
+	            databaseName = "jdbc:sqlite:"+path+"/"+dbname;
+	            conn = DriverManager.getConnection(databaseName);
+	            
+	            System.out.println("Connection to SQLite has been established.");
             
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         } finally {
             try {
-                if (conn != null) {
-                    conn.close();
+	                if (conn != null) {
+	                    conn.close();
                 }
             } catch (SQLException ex) {
                 System.out.println(ex.getMessage());
@@ -67,41 +38,18 @@ public class DatabaseHandler{
         }
 	}//connect	
 
-	public void createTable() {
-        
-        // SQL statement for creating a new table
-        String command = "CREATE TABLE IF NOT EXISTS warehouses (\n"
-                + "	id integer PRIMARY KEY,\n"
-                + "	name text NOT NULL,\n"
-                + "	capacity real\n"
-                + ");";
-        try {
-			this.conn = DriverManager.getConnection(database);
-			Statement stmt=this.conn.createStatement();
-	        stmt.execute(command);
-	        System.out.println(command);
-
-
-        }
-       catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-    }
 	
 	public void getItemID(String item) {
 		try {
-			conn = DriverManager.getConnection(database);
-			String command = SQLquery.IDandName;
-			command += " WHERE itemName LIKE '%" + item + "%'";
-			//System.out.println(command);
-			Statement stmt = conn.createStatement();
-			//CachedRowSetImpl crs = new CachedRowSetImpl();
-			ResultSet rs = stmt.executeQuery(command);
-
-			debugPrinter(rs);
+				conn = DriverManager.getConnection(databaseName);
+				String command = SQLquery.IDandName;
+				command += " WHERE itemName LIKE '%" + item + "%'";
+				Statement stmt = conn.createStatement();
+				ResultSet rs = stmt.executeQuery(command);
+	
+				debugPrinter(rs);
 			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			System.out.println(e.getMessage());
 		} finally {
 			try {
@@ -115,15 +63,10 @@ public class DatabaseHandler{
 	
 	public void printList(String rootItem) {
 		try {
-			conn = DriverManager.getConnection(database);
-			ArrayList<SearchData> results = getResults(rootItem);
+				conn = DriverManager.getConnection(databaseName);		
+				System.out.println(getProcessTree(rootItem));
+				System.out.println(getRecipeId(rootItem).toString());
 			
-			System.out.println(results.toString());
-			
-			
-			
-			//System.out.println(getResults(rootItem).toString());
-
 		} catch (SQLException ex) {
 			System.out.println(ex.getMessage());
 		} finally {
@@ -138,57 +81,124 @@ public class DatabaseHandler{
 
 	}
 	
-	private SuperNode getNodes(String searchValue, SuperNode child) throws SQLException {
-		SuperNode node = null;
+	private Tree getProcessTree(String searchValue) throws SQLException {
 		
-		if(searchValue == null) {
-			return node;
+		Tree myTree = new Tree(createItem(searchValue));
+		ArrayList<String> recipeIds = getRecipeId(searchValue);
+		for(String rowId : recipeIds) {
+			Recipe item = createRecipe(rowId);
+			myTree.addNode(item);
 		}
-		
-		if(checkBaseCase(searchValue)) {
-			ArrayList<SuperNode> par = new ArrayList<>();
-			par.add(child);
-			par.addAll(child.getParents());
-			node = new Item("0", par, null, null, searchValue);
-			return node;
-		}
-		
-		return node;
+		return myTree;
 	}
 	
-	private ArrayList <SearchData> getResults(String searchValue) throws SQLException {
-		ArrayList <SearchData> data = new ArrayList<SearchData>();
+
+	private Recipe createRecipe(String rowId) throws SQLException {
+		
+		String query = SQLquery.querySpecificRecipeDetails(rowId);
+		PreparedStatement pstmt = conn.prepareStatement(query);
+		Recipe newRecipe = null;
+		
+		ResultSet rs = pstmt.executeQuery();
+		
+
+		
+		while(rs.next()) {
+			ArrayList<String> parents = new ArrayList<String>();
+			ArrayList<Integer> parQ = new ArrayList<Integer>();
+			
+			//TODO: Encapsulate these calls into a do-while to handle multiple input columns
+			ArrayList<String> children = new ArrayList<>();
+			ArrayList<Integer> childQuantity = new ArrayList<Integer>();
+			children.add(rs.getString("input1"));
+			
+			try {
+				childQuantity.add(Integer.parseInt(rs.getString("inQuant1")));
+			} catch (NumberFormatException e1) {
+				childQuantity.add(0);
+			}
+			
+			int i=1;
+			String par;
+			int parQuantity;
+			do{
+				par=rs.getString("output"+i);
+				parents.add(par);
+				try {
+					parQuantity = Integer.parseInt(rs.getString("outQuant" + i));
+				}catch(NumberFormatException e) {
+					parQuantity = 0;
+				}
+				parQ.add(parQuantity);
+				i++;
+			}while (i<maxColumns && par.length()>0);
+			
+			ArrayList<SuperNode> parentItems = new ArrayList<SuperNode>();
+			for (String itemName : parents) {
+				parentItems.add(createItem(itemName));
+			}
+			
+			ArrayList<SuperNode> childItems = new ArrayList<SuperNode>();
+			for (String itemName : children) {
+				childItems.add(createItem(itemName));
+			}
+			
+			newRecipe = new Recipe("DistillationColumn", rowId, parentItems, childItems, new File("/Distillation_Column.ping"), parQ, childQuantity);
+			
+		}
+		
+		return newRecipe;
+	}
+
+	private Item createItem(String itemName) throws SQLException { 
+		
+		String query = SQLquery.queryItemDetails(itemName);
+		PreparedStatement pstmt = conn.prepareStatement(query);
+		Item newItem = null;
+		
+		ResultSet rs = pstmt.executeQuery();
+		
+		while(rs.next()) {
+			newItem = new Item(rs.getString("gameID"), rs.getString("itemName"), new File(rs.getString("itemImage")), rs.getString("itemURL"), Integer.parseInt(rs.getString("itemNatural")));
+			return newItem;
+		}
+		
+		throw new SQLException("ERROR ITEM NOT FOUND");
+		
+		//return newItem;
+	}
+	
+	private boolean checkBaseCase(Item inputItem) {
+			
+		
+		return false;
+	}
+	
+	private ArrayList <String> getRecipeId(String searchValue) throws SQLException {
+		ArrayList <String> data = new ArrayList<String>();
 		if(searchValue==null) {// || data.contains(searchValue)){
 				return data;
 			}
 		if(checkBaseCase(searchValue)) {
-			data.add(new SearchData(searchValue, new ArrayList<String>()));
+			//data.add("");
 			return data;
 		}
 		
-		ResultSet rs = queryDB(searchValue);
+		ResultSet rs = queryDBRecipeId(searchValue);
 		if(rs.next()) {
-			SearchData currentData;
-			ArrayList<String> siblings = new ArrayList<String>();
+
+			data.add(rs.getString("rowid"));
 			
-				int i=1;
-				String sib;
-				do{
-					sib=rs.getString("output"+i);
-					siblings.add(sib);
-					i++;
-				}while (i<maxColumns && sib.length()>0);
-			
-			currentData=new SearchData(searchValue,siblings);
-			data.add(currentData);
-			
-			data.addAll(getResults(rs.getString("input1")));
+			data.addAll(getRecipeId(rs.getString("input1")));
 		}
 		else {
-			data.add(new SearchData(searchValue, new ArrayList<String>()));
+			data.add("");
+			
 		}
 		return data;
 	}
+	
+	
 	
 	private boolean checkBaseCase(String searchValue) throws SQLException {
 		
@@ -206,6 +216,27 @@ public class DatabaseHandler{
 		
 		return false;
 	}
+	
+//	Create a Item object -> corresponds to user input
+//	run sql query to get item parent. 
+//	check base case
+//	
+//	getResults() on Item object's parents
+//	
+	
+	private ResultSet queryDBRecipeId(String searchValue) throws SQLException {
+		int params = maxColumns;
+		String query = SQLquery.queryDistillRecipeRowId(params);
+	//	System.out.println(query);
+		
+		PreparedStatement stmt = conn.prepareStatement(query);
+		for(int i = 1; i <= params; i++) {
+			stmt.setString(i, searchValue);
+		}	
+		return stmt.executeQuery();
+
+	}
+	
 	
 	private ResultSet queryDB(String searchValue) throws SQLException {
 		int params = maxColumns;
@@ -253,7 +284,7 @@ public class DatabaseHandler{
 	}
 
 	 public static void main(String[] args) {
-	     DatabaseHandler items = new DatabaseHandler("test.db");   
+	     DatabaseHandler items = new DatabaseHandler("test.db",7);   
 	    //items.printList("Flask (Ethylene)");
 	    // items.printList("Vial (Pentane Isomers)");
 	     
