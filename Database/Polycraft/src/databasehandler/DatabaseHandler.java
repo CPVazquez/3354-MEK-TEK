@@ -121,6 +121,7 @@ public class DatabaseHandler{
 			ArrayList<SearchData> results = getResults(rootItem);
 			
 			System.out.println(results.toString());
+			System.out.println(getProcessTree(rootItem));
 			System.out.println(getRecipeId(rootItem).toString());
 			
 			
@@ -179,7 +180,12 @@ public class DatabaseHandler{
 			childName.add(rs.getString("input1"));
 			
 			ArrayList<Integer> childQuantity = new ArrayList<Integer>();
-			childQuantity.add(Integer.parseInt(rs.getString("inQuant1")));
+			try {
+				childQuantity.add(Integer.parseInt(rs.getString("inQuant1")));
+			} catch (NumberFormatException e1) {
+				// TODO Auto-generated catch block
+				childQuantity.add(0);
+			}
 			
 			int i=1;
 			String par;
@@ -187,7 +193,11 @@ public class DatabaseHandler{
 			do{
 				par=rs.getString("output"+i);
 				parents.add(par);
-				parQuantity = Integer.parseInt(rs.getString("outQuant" + i));
+				try {
+					parQuantity = Integer.parseInt(rs.getString("outQuant" + i));
+				}catch(NumberFormatException e) {
+					parQuantity = 0;
+				}
 				parQ.add(parQuantity);
 				i++;
 			}while (i<maxColumns && par.length()>0);
@@ -218,7 +228,7 @@ public class DatabaseHandler{
 		ResultSet rs = pstmt.executeQuery();
 		
 		while(rs.next()) {
-			newItem = new Item(rs.getString(0), rs.getString(1), new File(rs.getString(2)), rs.getString(3), Integer.parseInt(rs.getString(4)));
+			newItem = new Item(rs.getString("gameID"), rs.getString("itemName"), new File(rs.getString("itemImage")), rs.getString("itemURL"), Integer.parseInt(rs.getString("itemNatural")));
 			return newItem;
 		}
 		
