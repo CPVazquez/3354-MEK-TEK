@@ -73,4 +73,8 @@ public class Recipe extends SuperNode {
     public Integer getParentQuant(String id) {
         return parentQuant.get(id);
     }
+    
+    public String toString() {
+    	return this.children.get(0).toString();
+    }
 }
