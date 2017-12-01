@@ -99,29 +99,60 @@ public class MainActivity extends AppCompatActivity {
         // Initialize Network Graph
         processGraph = new NetworkGraph();
         // Set currentNode to target
-        SuperNode currentNode = processTree.getTargetNode();
+        //SuperNode currentNode = processTree.getTargetNode();
         // Set the drawable node to target and draw it
-        Node graphPointer = new SimpleNode(currentNode.getId());
-        processGraph.getVertex().add(new Vertex(graphPointer, ContextCompat.getDrawable(this, R.drawable.icon)));
 
+        // Set a pointer to the current Recipe and a graphPointer will be the last recipe drawn
+        SuperNode currentRecipe = processTree.getTargetNode().getChildren().get(0);
+        SuperNode oldRecipe = null;
+        Node oldDrawnRecipe = null;
+
+        while(currentRecipe != null){
+
+            // Draw the recipe
+            Node drawnRecipe = new SimpleNode(currentRecipe.getId());
+            processGraph.getVertex().add(new Vertex(drawnRecipe, ContextCompat.getDrawable(this,R.drawable.icon)));
+
+            // Draw parents of recipe
+            for(SuperNode parent : currentRecipe.getParents()) {
+                Node nodeToAdd = new SimpleNode(parent.getId());
+                processGraph.getVertex().add(new Vertex(nodeToAdd, ContextCompat.getDrawable(this, R.drawable.icon)));
+                processGraph.addEdge(new SimpleEdge(nodeToAdd, drawnRecipe, "1"));
+                // Check if the parent of the recipe is where we make the connection to the old recipe
+                if(oldRecipe != null){
+                    if(parent.getId().equals(oldRecipe.getChildren().get(0))){
+                        processGraph.addEdge(new SimpleEdge(nodeToAdd, oldDrawnRecipe, "2"));
+                    }
+                }
+            }
+            oldDrawnRecipe = drawnRecipe;
+            oldRecipe = currentRecipe;
+            if(!currentRecipe.getChildren().get(0).getChildren().isEmpty()){
+                currentRecipe = currentRecipe.getChildren().get(0).getChildren().get(0);
+            }
+            else{
+                // Draw child!!!
+                SuperNode child = currentRecipe.getChildren().get(0);
+                Node childToDraw = new SimpleNode(child.getId());
+                processGraph.getVertex().add(new Vertex(childToDraw, ContextCompat.getDrawable(this, R.drawable.icon)));
+                processGraph.addEdge(new SimpleEdge(drawnRecipe, childToDraw, "3" ));
+                currentRecipe = null;
+            }
+        }
         // Start traversing through tree
-        while(currentNode != null){
+        /*while(currentNode != null){
             SuperNode connectingNode = null;
             Node holder = null;
-            /*for (SuperNode parent : currentNode.getParents()){
-                Node nodeToDraw = new SimpleNode(parent.getId());
-                processGraph.getVertex().add(new Vertex(nodeToDraw, ContextCompat.getDrawable(this,R.drawable.icon)));
-                processGraph.addEdge(new SimpleEdge(nodeToDraw, ""));
-            }*/
             // Draw each child on the graph
             for (SuperNode child : currentNode.getChildren()) {
                 Node nodeToAdd = new SimpleNode(child.getId());
                 processGraph.getVertex().add(new Vertex(nodeToAdd, ContextCompat.getDrawable(this,R.drawable.icon)));
+                processGraph.addEdge(new SimpleEdge(nodeToAdd, graphPointer, "11"));
                 // Check if we should draw the connecting edge to this child
-                if(child.getParents().contains(currentNode)){
+                //if(child.getParents().contains(currentNode)){
                     // Draw edge
-                    processGraph.addEdge(new SimpleEdge(graphPointer, nodeToAdd, "12"));
-                }
+                    //processGraph.addEdge(new SimpleEdge(nodeToAdd, graphPointer, "12"));
+                //}
                 // Check if we found the connectingNode
                 if (!child.getChildren().isEmpty()) {
                     connectingNode = child; // We found the connecting node and this will become currentNode
@@ -130,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
             }
             graphPointer = holder;
             currentNode = connectingNode;
-        }
+        }*/
 
         this.surface = (GraphSurfaceView) findViewById(R.id.mysurface);
         surface.init(processGraph);
