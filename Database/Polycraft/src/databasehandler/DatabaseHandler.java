@@ -1,8 +1,10 @@
 package databasehandler;
 import java.sql.*;
 import java.util.ArrayList;
+import java.io.File;
 import java.nio.file.Paths;
 
+@SuppressWarnings("unused")
 public class DatabaseHandler{
 	public boolean debug = true;
 	static String dbtest="chinook.db";
@@ -119,6 +121,7 @@ public class DatabaseHandler{
 			ArrayList<SearchData> results = getResults(rootItem);
 			
 			System.out.println(results.toString());
+			System.out.println(getRecipeId(rootItem).toString());
 			
 			
 			
@@ -138,23 +141,122 @@ public class DatabaseHandler{
 
 	}
 	
-	private SuperNode getNodes(String searchValue, SuperNode child) throws SQLException {
-		SuperNode node = null;
+	private Tree getProcessTree(String searchValue) throws SQLException {
 		
-		if(searchValue == null) {
-			return node;
+		Tree myTree = new Tree(createItem(searchValue));
+		//myTree.addNode(runRecursiveSearch(searchValue));
+		//Item sn = (Item) myTree.getTargetNode();
+		//if (sn.isNatural()) {
+		//	return myTree;
+		//}
+		
+		ArrayList<String> recipeIds = getRecipeId(searchValue);
+		for(String rowId : recipeIds) {
+			Recipe item = createRecipe(rowId);
+			myTree.addNode(item);
 		}
-		
-		if(checkBaseCase(searchValue)) {
-			ArrayList<SuperNode> par = new ArrayList<>();
-			par.add(child);
-			par.addAll(child.getParents());
-			node = new Item("0", par, null, null, searchValue);
-			return node;
-		}
-		
-		return node;
+		return myTree;
 	}
+	
+
+	private Recipe createRecipe(String rowId) throws SQLException {
+		
+		String query = SQLquery.querySpecificRecipeDetails(rowId);
+		PreparedStatement pstmt = conn.prepareStatement(query);
+		Recipe newRecipe = null;
+		
+		ResultSet rs = pstmt.executeQuery();
+		
+
+		
+		while(rs.next()) {
+			//ArrayList<String> children = new ArrayList<String>();
+			ArrayList<String> parents = new ArrayList<String>();
+			ArrayList<Integer> parQ = new ArrayList<Integer>();
+			
+			//TODO: Encapsulate these calls into a do-while to handle multiple input columns
+			ArrayList<String> childName = new ArrayList<>();
+			childName.add(rs.getString("input1"));
+			
+			ArrayList<Integer> childQuantity = new ArrayList<Integer>();
+			childQuantity.add(Integer.parseInt(rs.getString("inQuant1")));
+			
+			int i=1;
+			String par;
+			int parQuantity;
+			do{
+				par=rs.getString("output"+i);
+				parents.add(par);
+				parQuantity = Integer.parseInt(rs.getString("outQuant" + i));
+				parQ.add(parQuantity);
+				i++;
+			}while (i<maxColumns && par.length()>0);
+			
+			ArrayList<SuperNode> parentItems = new ArrayList<SuperNode>();
+			for (String itemName : parents) {
+				parentItems.add(createItem(itemName));
+			}
+			
+			ArrayList<SuperNode> childItems = new ArrayList<SuperNode>();
+			for (String itemName : childName) {
+				childItems.add(createItem(itemName));
+			}
+			
+			newRecipe = new Recipe("DistillationColumn", rowId, parentItems, childItems, new File("/Distillation_Column.ping"), parQ, childQuantity);
+			
+		}
+		
+		return newRecipe;
+	}
+
+	private Item createItem(String itemName) throws SQLException { 
+		
+		String query = SQLquery.queryItemDetails(itemName);
+		PreparedStatement pstmt = conn.prepareStatement(query);
+		Item newItem = null;
+		
+		ResultSet rs = pstmt.executeQuery();
+		
+		while(rs.next()) {
+			newItem = new Item(rs.getString(0), rs.getString(1), new File(rs.getString(2)), rs.getString(3), Integer.parseInt(rs.getString(4)));
+			return newItem;
+		}
+		
+		throw new SQLException("ERROR ITEM NOT FOUND");
+		
+		//return newItem;
+	}
+	
+	private boolean checkBaseCase(Item inputItem) {
+			
+		
+		return false;
+	}
+	
+	private ArrayList <String> getRecipeId(String searchValue) throws SQLException {
+		ArrayList <String> data = new ArrayList<String>();
+		if(searchValue==null) {// || data.contains(searchValue)){
+				return data;
+			}
+		if(checkBaseCase(searchValue)) {
+			//data.add("");
+			return data;
+		}
+		
+		ResultSet rs = queryDBRecipeId(searchValue);
+		if(rs.next()) {
+
+			data.add(rs.getString("rowid"));
+			
+			data.addAll(getRecipeId(rs.getString("input1")));
+		}
+		else {
+			data.add("");
+			
+		}
+		return data;
+	}
+	
 	
 	private ArrayList <SearchData> getResults(String searchValue) throws SQLException {
 		ArrayList <SearchData> data = new ArrayList<SearchData>();
@@ -206,6 +308,27 @@ public class DatabaseHandler{
 		
 		return false;
 	}
+	
+//	Create a Item object -> corresponds to user input
+//	run sql query to get item parent. 
+//	check base case
+//	
+//	getResults() on Item object's parents
+//	
+	
+	private ResultSet queryDBRecipeId(String searchValue) throws SQLException {
+		int params = maxColumns;
+		String query = SQLquery.queryDistillRecipeRowId(params);
+	//	System.out.println(query);
+		
+		PreparedStatement stmt = conn.prepareStatement(query);
+		for(int i = 1; i <= params; i++) {
+			stmt.setString(i, searchValue);
+		}	
+		return stmt.executeQuery();
+
+	}
+	
 	
 	private ResultSet queryDB(String searchValue) throws SQLException {
 		int params = maxColumns;

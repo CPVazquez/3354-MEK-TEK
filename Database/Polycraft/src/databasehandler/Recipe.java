@@ -10,13 +10,27 @@ import java.util.ArrayList;
 
 public class Recipe extends SuperNode {
     private String inventory;
-    private HashMap<String, Integer> childQuant;
-    private HashMap<String, Integer> parentQuant;
+    private HashMap<SuperNode, Integer> childQuant;
+    private HashMap<SuperNode, Integer> parentQuant;
+    private ArrayList<Integer> childQuantities;
+    private ArrayList<Integer> parentQuantities;
+    
+    //parent is polycraft output
+    //child is polycraft input
 
-    public Recipe(String id, ArrayList<SuperNode> par, ArrayList<SuperNode> child, File img, String in, HashMap<String, Integer> parQ, HashMap<String, Integer> chiQ){
+    public Recipe(String id, ArrayList<SuperNode> par, ArrayList<SuperNode> child,
+    		File img, String in, HashMap<SuperNode, Integer> parQ, HashMap<SuperNode, Integer> chiQ){
         super(id, par, child, img);
         childQuant = chiQ;
         parentQuant = parQ;
+        this.inventory = in;
+    }
+    
+    public Recipe(String in, String id, ArrayList<SuperNode> par, ArrayList<SuperNode> child,
+    		File img, ArrayList<Integer> parQ, ArrayList<Integer> chiQ){
+        super(id, par, child, img);
+        childQuantities = chiQ;
+        parentQuantities = parQ;
         this.inventory = in;
     }
     

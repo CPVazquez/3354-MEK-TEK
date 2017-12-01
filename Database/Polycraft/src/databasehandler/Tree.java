@@ -14,6 +14,11 @@ public class Tree {
     }
 
     // Attach this node to pointerNode
+    public void addAllNodes(ArrayList<SuperNode> nodes) {
+    		//iterator for arraylist
+    		//addNode(nodes.next();)
+    }
+    
     public void addNode(SuperNode nodeToAdd){
 
         // This tree was just created, add the node to target
