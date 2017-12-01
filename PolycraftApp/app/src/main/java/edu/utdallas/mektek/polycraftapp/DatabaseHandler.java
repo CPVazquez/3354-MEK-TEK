@@ -81,8 +81,8 @@ public class DatabaseHandler{
 
 	}
 	
-	private Tree getProcessTree(String searchValue) throws SQLException {
-		
+	public Tree getProcessTree(String searchValue) throws SQLException {
+
 		Tree myTree = new Tree(createItem(searchValue));
 		ArrayList<String> recipeIds = getRecipeId(searchValue);
 		for(String rowId : recipeIds) {
@@ -150,7 +150,7 @@ public class DatabaseHandler{
 		return newRecipe;
 	}
 
-	private Item createItem(String itemName) throws SQLException { 
+	private Item createItem(String itemName) throws SQLException {
 		
 		String query = SQLquery.queryItemDetails(itemName);
 		PreparedStatement pstmt = conn.prepareStatement(query);

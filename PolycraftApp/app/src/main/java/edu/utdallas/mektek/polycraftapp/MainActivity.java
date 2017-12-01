@@ -16,6 +16,7 @@ import net.xqhs.graphs.graph.Node;
 import net.xqhs.graphs.graph.SimpleEdge;
 import net.xqhs.graphs.graph.SimpleNode;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import giwi.org.networkgraph.GraphSurfaceView;
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
         mDetector = new GestureDetectorCompat(this, new MyGestureListener());
 
-        Item mockA = new Item("a", null, null, null, "element-a");
+       /* Item mockA = new Item("a", null, null, null, "element-a");
         Tree process = new Tree(mockA);
         Item elementA = new Item("a", new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), null, "element-a");
         Item elementB = new Item("b", new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), null, "element-b");
@@ -55,7 +56,15 @@ public class MainActivity extends AppCompatActivity {
         water.getParents().add(recipe);
 
         process.addNode(recipe);
+*/
 
+        DatabaseHandler dbh= new DatabaseHandler("test.db",7);
+        Tree process = null;
+        try {
+            process = dbh.getProcessTree("Cartridge (Ethane)");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         new DrawTree().execute(process);
         Log.d("TREE", "Tree is drawn");
     }
