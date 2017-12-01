@@ -2,6 +2,7 @@ package edu.utdallas.mektek.polycraftapp;
 
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GestureDetectorCompat;
@@ -18,7 +19,6 @@ import net.xqhs.graphs.graph.SimpleNode;
 import java.util.ArrayList;
 
 import giwi.org.networkgraph.GraphSurfaceView;
-import giwi.org.networkgraph.beans.Dimension;
 import giwi.org.networkgraph.beans.NetworkGraph;
 import giwi.org.networkgraph.beans.Point2D;
 import giwi.org.networkgraph.beans.Vertex;
@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
         process.addNode(recipe);
 
-        drawTree(process);
+        new DrawTree().execute(process);
         Log.d("TREE", "Tree is drawn");
     }
 
@@ -86,35 +86,14 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
-   /* private class GetProcessTree extends AsyncTask<Void, Integer, Void> {
+*/
+    private class DrawTree extends AsyncTask<Tree, Object, Void> {
         @Override
-        protected Void doInBackground(Void... params) {
-            // This runs in a background thread
-            for (int i = 0; i < 5; i++) {
-                SystemClock.sleep(1000);
-
-                // We use this method to communicate with the UI thread
-                publishProgress(i + 1);
-            }
-
+        protected Void doInBackground(Tree... processTree) {
+            drawTree(processTree[0]);
             return null;
         }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            // UI cannot be modified from a background thread, so we do it here. This method is
-            // executed on the UI thread
-            textView.setText(String.valueOf(values[0]));
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            // This is also executed on the UI thread when the background process finishes
-            Toast.makeText(ThreadsActivity.this, "Done counting", Toast.LENGTH_SHORT)
-                    .show();
-        }
-    }*/
+    }
 
     public void drawTree(Tree processTree){
         // Initialize Network Graph
