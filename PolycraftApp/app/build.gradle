@@ -28,6 +28,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.android.support:design:26.+'
-    compile 'org.giwi:android-network-graph:0.0.1'
+    compile project(":network-graph")
     testCompile 'junit:junit:4.12'
 }
