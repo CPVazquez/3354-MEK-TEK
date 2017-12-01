@@ -216,18 +216,11 @@ public class DatabaseHandler{
 		
 		return false;
 	}
-	
-//	Create a Item object -> corresponds to user input
-//	run sql query to get item parent. 
-//	check base case
-//	
-//	getResults() on Item object's parents
-//	
+
 	
 	private ResultSet queryDBRecipeId(String searchValue) throws SQLException {
 		int params = maxColumns;
 		String query = SQLquery.queryDistillRecipeRowId(params);
-	//	System.out.println(query);
 		
 		PreparedStatement stmt = conn.prepareStatement(query);
 		for(int i = 1; i <= params; i++) {
@@ -241,7 +234,6 @@ public class DatabaseHandler{
 	private ResultSet queryDB(String searchValue) throws SQLException {
 		int params = maxColumns;
 		String query = SQLquery.queryDistillRecipeData(params);
-	//	System.out.println(query);
 		
 		PreparedStatement stmt = conn.prepareStatement(query);
 		for(int i = 1; i <= params; i++) {
@@ -288,7 +280,7 @@ public class DatabaseHandler{
 	    //items.printList("Flask (Ethylene)");
 	    // items.printList("Vial (Pentane Isomers)");
 	     
-	   //  items.printList("Bucket");
+	     //items.printList("Bucket");
 	     //items.printList("Drum (Light Olefins)");
 	     items.printList("Drum (n-Butane)");
 	     items.printList("Cartridge (Ethane)");
