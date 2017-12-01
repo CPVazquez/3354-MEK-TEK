@@ -1,6 +1,7 @@
 package edu.utdallas.mektek.polycraftapp;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GestureDetectorCompat;
@@ -24,6 +25,8 @@ import giwi.org.networkgraph.beans.Vertex;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String EXTRA_INFO = "edu.utdallas.mektek.polycraftapp.INFO";
+
     private GraphSurfaceView surface;
     private NetworkGraph processGraph;
     private GestureDetectorCompat mDetector;
@@ -34,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mDetector = new GestureDetectorCompat(this, new MyGestureListener());
 
@@ -160,7 +164,20 @@ public class MainActivity extends AppCompatActivity {
         return super.onTouchEvent(ev);
     }
 
-    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+    // Pull up node detail
+    public void startIntent(String info){
+        Intent intent = new Intent(this, detail.class);
+        intent.putExtra(EXTRA_INFO, info);
+        startActivity(intent);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp(){
+        finish();
+        return true;
+    }
+
+    private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
 
         @Override
         public boolean onDoubleTap(MotionEvent ev) {
@@ -171,7 +188,10 @@ public class MainActivity extends AppCompatActivity {
                 Point2D position = node.getPosition();
                 Log.d("Node", "x: " + position.getX() + " y: " + position.getY());
                 if(xTest <= position.getX() + 20 && xTest >= position.getX() - 20  && yTest<= position.getY() + 20 && yTest >= position.getY() - 20 ){
-                    Log.d("Node", "yay!"); //Abble to tap node, now launch Activity
+                    Log.d("Node", "yay!"); //Able to tap node, now launch Activity
+                    // Call to database
+                    String info = "https://minecraft.gamepedia.com/media/minecraft.gamepedia.com/4/43/Nether_Wart.png";
+                    startIntent(info);
                     break;
                 }
             }

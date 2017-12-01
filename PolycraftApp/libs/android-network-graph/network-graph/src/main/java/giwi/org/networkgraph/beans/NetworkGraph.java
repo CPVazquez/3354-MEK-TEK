@@ -12,7 +12,7 @@ public class NetworkGraph extends net.xqhs.graphs.graph.SimpleGraph {
 
     private int defaultColor = android.R.color.black;
 
-    private int edgeColor = android.R.color.holo_blue_light;
+    private int edgeColor = android.R.color.black;
 
     private int nodeColor = android.R.color.holo_blue_light;
 
