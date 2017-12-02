@@ -7,14 +7,13 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.sql.*;
 import java.util.ArrayList;
 import java.io.File;
-import java.nio.file.Paths;
+
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 
 import static java.lang.Integer.parseInt;
 
 @SuppressWarnings("unused")
 public class DatabaseHandler extends SQLiteAssetHelper{
-	//private String databaseName;
 	private static final String DBNAME = "PolycraftAppData.db";
 	private SQLiteDatabase database;
 	private int maxColumns = 7;
@@ -22,34 +21,31 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 	private static DatabaseHandler dbHandler; //Singleton Design Pattern
 
 
-	private DatabaseHandler(Context context) {//}, String name, SQLiteDatabase.CursorFactory factory, int version) {
-		super(context, DBNAME, null, VERSION);
-		//if(dbHandler == null)
-		//	dbHandler = new SQLiteAssetHelper(context, DBNAME, null, VERSION);
-		//return dbHandler;
+	private DatabaseHandler(Context context) {
+		super(context, DBNAME, null, VERSION);// Call to SQLiteAssetHelper constructor
 	}
 
 	public static DatabaseHandler getInstance(Context context){
 		if(dbHandler == null){
 			dbHandler = new DatabaseHandler(context);
 		}
-		return dbHandler;
+		return dbHandler;// singleton
 	}
 
 	public void open() {
-		this.database = dbHandler.getReadableDatabase();
-	}
+
+        this.database = dbHandler.getReadableDatabase();
+	}//open connection to database
 
 	public void close() {
 		if(this.database != null){
 			this.database.close();
-		}
+		}//closes open database
 	}
 	
 	public void getItemID(String item) {
 		try {
-				//conn = DriverManager.getConnection(databaseName);
-				String command = SQLquery.IDandName;
+				String command = SQLquery.selectIdsAndNames;
 				command += " WHERE itemName LIKE '%" + item + "%'";
 				Cursor rs =   database.rawQuery(command,null);
 	
