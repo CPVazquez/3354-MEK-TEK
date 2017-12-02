@@ -76,4 +76,8 @@ public class Recipe extends SuperNode {
     public String toString() {
     	return this.children.get(0).toString();
     }
+
+    public String getName(){
+        return this.inventory;
+    }
 }
