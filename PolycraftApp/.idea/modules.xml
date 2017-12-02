@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/PolycraftApp.iml" filepath="$PROJECT_DIR$/PolycraftApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/libs/android-network-graph/network-graph/network-graph.iml" filepath="$PROJECT_DIR$/libs/android-network-graph/network-graph/network-graph.iml" />
+      <module fileurl="file://$PROJECT_DIR$/libs/android-network-graph/network-graph/network-graph.iml" filepath="$PROJECT_DIR$/libs/android-network-graph/network-graph/network-graph.iml" />
     </modules>
   </component>
 </project>
