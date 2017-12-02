@@ -40,6 +40,43 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 			this.database.close();
 		}//closes open database
 	}
+
+	//CARLA: Use this to get your item
+	//TODO: Refactor this with createItem to streamline the code
+	public Item getItemWithId(String gameID) throws SQLException{
+		String query = SQLquery.queryItemDetailsWithId(gameID);
+		Item newItem;
+		Cursor rs = database.rawQuery(query,null);
+		if(rs.getCount()<=0) {
+			throw new SQLException("No such item.");
+		}
+		rs.moveToFirst();
+
+		String gameId = rs.getString(rs.getColumnIndex("gameID"));
+		String itmName = rs.getString(rs.getColumnIndex("itemName"));
+		File itmImage = new File(rs.getString(rs.getColumnIndex("itemImage")));
+		String itemURL = rs.getString(rs.getColumnIndex("itemURL"));
+		int itemNatural = parseInt(rs.getString(rs.getColumnIndex("itemNatural")));
+
+		newItem = new Item(gameId, itmName, itmImage, itemURL, itemNatural);
+		return newItem;
+	}
+
+
+	/*
+		CARLA: use this to get your recipe
+		Be sure to call this properly from mainActivity:
+
+		this.dbh = DatabaseHandler.getInstance(this);
+		dbh.open() //connects to sql database -> maybe anshu is taking care of this command in the "onCreate() function?"
+		dbh.getRecipeWithId("123") //will fail if .open() has not been called earlier in the function -> maybe Anshu is taking care of this?
+		dbh.close() //call this at the end to prevent memory leakage -> maybe Anshu is taking care of this on "onPause()"?
+
+
+	 */
+	public Recipe getRecipeWithId(String rowID) throws SQLException{
+		return createRecipe(rowID);
+	}
 	
 	public void getItemID(String item) {
 				String command = SQLquery.selectIdsAndNames;
@@ -151,7 +188,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		
 		String query = SQLquery.queryItemDetails(itemName);
 		Item newItem;
-		Cursor rs =   database.rawQuery(query,null);
+		Cursor rs = database.rawQuery(query,null);
 		if(rs.getCount()<=0) {
             throw new SQLException("No such item.");
         }

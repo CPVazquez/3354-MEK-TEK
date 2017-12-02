@@ -54,4 +54,11 @@ public final class SQLquery {
 		query += " LIMIT 1"; //prevent multiple items from being called here.
 		return query;
 	}
+
+	public static final String queryItemDetailsWithId(String gameID) {
+		String query = selectItems;
+		query += " WHERE gameID LIKE '%" + gameID + "%'";
+		query += " LIMIT 1"; //prevent multiple items from being called here.
+		return query;
+	}
 }
