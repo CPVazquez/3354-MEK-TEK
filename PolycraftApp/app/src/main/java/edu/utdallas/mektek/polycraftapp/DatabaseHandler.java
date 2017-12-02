@@ -10,6 +10,8 @@ import java.io.File;
 import java.nio.file.Paths;
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 
+import static java.lang.Integer.parseInt;
+
 @SuppressWarnings("unused")
 public class DatabaseHandler extends SQLiteAssetHelper{
 	//private String databaseName;
@@ -85,21 +87,21 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		String query = SQLquery.querySpecificRecipeDetails(rowId);
 		Recipe newRecipe = null;
 		
-		ResultSet rs = pstmt.executeQuery();
+		Cursor rs = database.rawQuery(query,null);
 		
 
 		
-		while(rs.next()) {
+		while(!rs.isAfterLast()) {
 			ArrayList<String> parents = new ArrayList<String>();
 			ArrayList<Integer> parQ = new ArrayList<Integer>();
 			
 			//TODO: Encapsulate these calls into a do-while to handle multiple input columns
 			ArrayList<String> children = new ArrayList<>();
 			ArrayList<Integer> childQuantity = new ArrayList<Integer>();
-			children.add(rs.getString("input1"));
+			children.add(rs.getString(rs.getColumnIndex("input1")));
 			
 			try {
-				childQuantity.add(Integer.parseInt(rs.getString("inQuant1")));
+				childQuantity.add(Integer.parseInt(rs.getString(rs.getColumnIndex("inQuant1"))));
 			} catch (NumberFormatException e1) {
 				childQuantity.add(0);
 			}
@@ -108,10 +110,10 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 			String par;
 			int parQuantity;
 			do{
-				par=rs.getString("output"+i);
+				par = rs.getString(rs.getColumnIndex("output" + i));
 				parents.add(par);
 				try {
-					parQuantity = Integer.parseInt(rs.getString("outQuant" + i));
+					parQuantity = parseInt(rs.getString(rs.getColumnIndex("outQuant" + i)));
 				}catch(NumberFormatException e) {
 					parQuantity = 0;
 				}
@@ -141,10 +143,10 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		String query = SQLquery.queryItemDetails(itemName);
 		Item newItem = null;
 		
-		ResultSet rs = pstmt.executeQuery();
+		Cursor rs = database.rawQuery(query,null);
 		
-		while(rs.next()) {
-			newItem = new Item(rs.getString("gameID"), rs.getString("itemName"), new File(rs.getString("itemImage")), rs.getString("itemURL"), Integer.parseInt(rs.getString("itemNatural")));
+		while(!rs.isAfterLast()) {
+			newItem = new Item(rs.getString(rs.getColumnIndex("gameID")), rs.getString(rs.getColumnIndex("itemName")), new File(rs.getString(rs.getColumnIndex("itemImage"))), rs.getString(rs.getColumnIndex("itemURL")), parseInt(rs.getString(rs.getColumnIndex("itemNatural"))));
 			return newItem;
 		}
 		
@@ -169,12 +171,12 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 			return data;
 		}
 		
-		ResultSet rs = queryDBRecipeId(searchValue);
-		if(rs.next()) {
+		Cursor rs = queryDBRecipeId(searchValue);
+		if(!rs.isAfterLast()) {
 
-			data.add(rs.getString("rowid"));
+			data.add(rs.getString(rs.getColumnIndex("rowid")));
 			
-			data.addAll(getRecipeId(rs.getString("input1")));
+			data.addAll(getRecipeId(rs.getString(rs.getColumnIndex("input1"))));
 		}
 		else {
 			data.add("");
@@ -189,9 +191,9 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		
 		String query = SQLquery.queryItemIsNatural(searchValue);
 
-		ResultSet rs = stmt.executeQuery(); //
+		Cursor rs = database.rawQuery(query,null); //
 		
-		while(rs.next()) {
+		while(!rs.isAfterLast()) {
 			String holder = rs.getString(1); //TODO: change magic number 1 to a static final int
 			if(holder.contains("1")) {
 				return true;
@@ -202,26 +204,28 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 	}
 
 	
-	private ResultSet queryDBRecipeId(String searchValue) throws SQLException {
+	private Cursor queryDBRecipeId(String searchValue) throws SQLException {
 		int params = maxColumns;
 		String query = SQLquery.queryDistillRecipeRowId(params);
-		
+
+		String[] selectionArgs = new String[params];
 		for(int i = 1; i <= params; i++) {
-			stmt.setString(i, searchValue);
-		}	
-		return stmt.executeQuery();
+			selectionArgs[i-1]=searchValue;
+		}
+		return database.rawQuery(query,selectionArgs);
 
 	}
 	
 	
-	private ResultSet queryDB(String searchValue) throws SQLException {
+	private Cursor queryDB(String searchValue) throws SQLException {
 		int params = maxColumns;
 		String query = SQLquery.queryDistillRecipeData(params);
-		
+
+		String[] selectionArgs = new String[params];
 		for(int i = 1; i <= params; i++) {
-			stmt.setString(i, searchValue);
-		}	
-		return stmt.executeQuery();
+			selectionArgs[i-1]=searchValue;
+		}
+		return database.rawQuery(query,selectionArgs);
 
 	}
 
