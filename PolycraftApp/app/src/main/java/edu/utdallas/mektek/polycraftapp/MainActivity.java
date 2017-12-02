@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         process.addNode(recipe);
 */
 
-        DatabaseHandler dbh= new DatabaseHandler("test.db",7);
+        DatabaseHandler dbh = DatabaseHandler.getInstance(this);
         Tree process = null;
         try {
             process = dbh.getProcessTree("Cartridge (Ethane)");
