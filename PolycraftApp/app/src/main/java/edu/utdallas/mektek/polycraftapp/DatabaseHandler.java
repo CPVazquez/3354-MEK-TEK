@@ -144,7 +144,6 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		Item newItem = null;
 		System.out.println(query);
 		Cursor rs =   database.rawQuery(query,null);
-		rs.moveToPosition(1);
 		debugPrinter(rs);
 		
 		while(!rs.isAfterLast()) {
@@ -200,14 +199,16 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 
 		Cursor rs = database.rawQuery(query,null); //
 
-		for(int row = 0; row<rs.getCount(); row++) {
+
+		for(int row = 1; row<rs.getCount(); row++) {
 			rs.moveToPosition(row);
-			String holder = rs.getString(1); //TODO: change magic number 1 to a static final int
+			String holder = rs.getString(5); //TODO: change magic number 1 to a static final int
 			if(holder.contains("1")) {
+				System.out.println("Natural");
 				return true;
 			}
 		}
-		
+		System.out.println("Not Natural");
 		return false;
 	}
 
