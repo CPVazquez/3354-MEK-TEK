@@ -4,4 +4,8 @@
     <string name="title_activity_search">Search</string>
     <string name="search_message">Search for a polymer</string>
     <string name="button_send">send</string>
+    <string name="item_name">item name:</string>
+    <string name="item_wiki">item wiki:</string>
+    <string name="naturally_ocurring">naturally occurring:</string>
+    <string name="item_image">item image</string>
 </resources>

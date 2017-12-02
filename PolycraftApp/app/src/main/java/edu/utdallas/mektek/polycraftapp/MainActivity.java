@@ -209,6 +209,7 @@ public class MainActivity extends AppCompatActivity {
                 if(xTest <= position.getX() + 20 && xTest >= position.getX() - 20  && yTest<= position.getY() + 20 && yTest >= position.getY() - 20 ){
                     Log.d("Node", "yay!"); //Able to tap node, now launch Activity
                     // Call to database
+
                     String info = "https://minecraft.gamepedia.com/media/minecraft.gamepedia.com/4/43/Nether_Wart.png";
                     startIntent(info);
                     break;
