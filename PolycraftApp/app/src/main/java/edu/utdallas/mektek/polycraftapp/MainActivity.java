@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         this.dbh = DatabaseHandler.getInstance(this);
         Tree process = null;
         try {
-            process = new GetTree().execute("Cartridge (Ethane)").get();
+            process = new GetTree().execute("Drum (Light Parrafins)").get();
         }
         catch(Exception e){
             // Handle error
@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
             dbh.open();
             Tree process = null;
             try {
-                process = dbh.getProcessTree("Cartridge (Ethane)");
+                process = dbh.getProcessTree("Drum (Light Parrafins)");
             } catch (SQLException e) {
                 e.printStackTrace();
             }

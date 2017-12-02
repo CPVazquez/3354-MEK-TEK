@@ -51,7 +51,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 				//conn = DriverManager.getConnection(databaseName);
 				String command = SQLquery.IDandName;
 				command += " WHERE itemName LIKE '%" + item + "%'";
-				Cursor rs = database.rawQuery(command,null);
+				Cursor rs =   database.rawQuery(command,null);
 	
 				debugPrinter(rs);
 			
@@ -87,7 +87,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		String query = SQLquery.querySpecificRecipeDetails(rowId);
 		Recipe newRecipe = null;
 		
-		Cursor rs = database.rawQuery(query,null);
+		Cursor rs =   database.rawQuery(query,null);
 		
 
 		
@@ -142,11 +142,18 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		
 		String query = SQLquery.queryItemDetails(itemName);
 		Item newItem = null;
-		
-		Cursor rs = database.rawQuery(query,null);
+		System.out.println(query);
+		Cursor rs =   database.rawQuery(query,null);
+		rs.moveToPosition(1);
+		debugPrinter(rs);
 		
 		while(!rs.isAfterLast()) {
-			newItem = new Item(rs.getString(rs.getColumnIndex("gameID")), rs.getString(rs.getColumnIndex("itemName")), new File(rs.getString(rs.getColumnIndex("itemImage"))), rs.getString(rs.getColumnIndex("itemURL")), parseInt(rs.getString(rs.getColumnIndex("itemNatural"))));
+			String gameId = rs.getString(rs.getColumnIndex("gameID"));
+			String itmName = rs.getString(rs.getColumnIndex("itemName"));
+			File itmImage = new File(rs.getString(rs.getColumnIndex("itemImage")));
+			String itemURL = rs.getString(rs.getColumnIndex("itemURL"));
+			int itemNatural = parseInt(rs.getString(rs.getColumnIndex("itemNatural")));
+			newItem = new Item(gameId, itmName, itmImage, itemURL, itemNatural);
 			return newItem;
 		}
 		
@@ -192,8 +199,9 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		String query = SQLquery.queryItemIsNatural(searchValue);
 
 		Cursor rs = database.rawQuery(query,null); //
-		
-		while(!rs.isAfterLast()) {
+
+		for(int row = 0; row<rs.getCount(); row++) {
+			rs.moveToPosition(row);
 			String holder = rs.getString(1); //TODO: change magic number 1 to a static final int
 			if(holder.contains("1")) {
 				return true;
@@ -210,7 +218,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 
 		String[] selectionArgs = new String[params];
 		for(int i = 1; i <= params; i++) {
-			selectionArgs[i-1]=searchValue;
+			selectionArgs[i]=searchValue;
 		}
 		return database.rawQuery(query,selectionArgs);
 
@@ -223,7 +231,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 
 		String[] selectionArgs = new String[params];
 		for(int i = 1; i <= params; i++) {
-			selectionArgs[i-1]=searchValue;
+			selectionArgs[i]=searchValue;
 		}
 		return database.rawQuery(query,selectionArgs);
 
@@ -233,33 +241,35 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 	private void debugPrinter(Cursor rs) throws SQLException {
 		int columns = rs.getColumnCount();
 		for(int i = 0; i<columns; i++) {
-			String columnname = rs.getColumnName(i+1);
+			String columnname = rs.getColumnName(i);
 			System.out.print(columnname + "\t\t");
 		}
 		System.out.print("\n");
 
+		rs.moveToPosition(1);
+		for(int row = 0; row<rs.getCount(); row++) {
+            rs.moveToPosition(row);
 
-		while(!rs.isAfterLast()) {
-			for(int i = 0; i<columns; i++) {
-				String value = rs.getString(i+1);
+            for(int i = 0; i<columns; i++) {
+				String value = rs.getString(i);
 				System.out.print(value + "\t\t");
 			}
 			System.out.print("\n");
-			rs.move(1);
 		}
 		
-		rs.close();
 	}
+/*
 
-
-	// public static void main(String[] args) {
-	     //DatabaseHandler items = new DatabaseHandler("test.db",7);
-	    //items.printList("Flask (Ethylene)");
-	    // items.printList("Vial (Pentane Isomers)");
+	 public static void main(String[] args) {
+	     DatabaseHandler items;
+		 items = new DatabaseHandler(context);
+		 items.printList("Flask (Ethylene)");
+	     items.printList("Vial (Pentane Isomers)");
 	     
-	     //items.printList("Bucket");
-	     //items.printList("Drum (Light Olefins)");
-	     //items.printList("Drum (n-Butane)");
-	     //items.printList("Cartridge (Ethane)");
-	 //   }
+	     items.printList("Bucket");
+	     items.printList("Drum (Light Olefins)");
+	     items.printList("Drum (n-Butane)");
+	     items.printList("Cartridge (Ethane)");
+	    }
+	    */
 }
