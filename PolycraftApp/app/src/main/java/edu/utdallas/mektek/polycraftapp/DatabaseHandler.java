@@ -171,20 +171,21 @@ public class DatabaseHandler extends SQLiteAssetHelper{
         }
 
         newRecipe = new Recipe("DistillationColumn", rowId, parentItems, childItems, new File("/Distillation_Column.ping"), parQ, childQuantity);
+        setAsChild(newRecipe, parentItems);
+        
+		rs.close();
+		return newRecipe;
+	}
+
+    private void setAsChild(Recipe newRecipe, ArrayList<SuperNode> parentItems) {
         ArrayList<SuperNode> recArr= new ArrayList<>();
         recArr.add(newRecipe);
         for (SuperNode it : parentItems){
             it.setChildren(recArr);
         }
+    }
 
-
-
-
-		rs.close();
-		return newRecipe;
-	}
-
-	private Item createItem(String itemName) throws SQLException {
+    private Item createItem(String itemName) throws SQLException {
 		
 		String query = SQLquery.queryItemDetails(itemName);
 		Item newItem;
@@ -203,12 +204,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
         newItem = new Item(gameId, itmName, itmImage, itemURL, itemNatural);
         return newItem;
 	}
-	
-	private boolean checkBaseCase(Item inputItem) {
-			
-		
-		return false;
-	}
+
 	
 	private ArrayList <String> getRecipeId(String searchValue) throws SQLException {
 		ArrayList <String> data = new ArrayList<String>();
