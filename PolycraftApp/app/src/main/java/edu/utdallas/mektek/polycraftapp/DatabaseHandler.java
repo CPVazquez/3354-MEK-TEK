@@ -1,5 +1,6 @@
 package edu.utdallas.mektek.polycraftapp;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -48,43 +49,25 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 				//conn = DriverManager.getConnection(databaseName);
 				String command = SQLquery.IDandName;
 				command += " WHERE itemName LIKE '%" + item + "%'";
-				Statement stmt = conn.createStatement();
-				ResultSet rs = stmt.executeQuery(command);
+				Cursor rs = database.rawQuery(command,null);
 	
 				debugPrinter(rs);
 			
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
-		} finally {
-			try {
-				if(conn != null) {conn.close();}
-				
-			} catch(SQLException ex) {
-				System.out.println(ex.getMessage());
-			}
 		}
 	}
 	
 	public void printList(String rootItem) {
 		try {
-				conn = DriverManager.getConnection(databaseName);
 				System.out.println(getProcessTree(rootItem));
 				System.out.println(getRecipeId(rootItem).toString());
 			
 		} catch (SQLException ex) {
 			System.out.println(ex.getMessage());
-		} finally {
-			try {
-				if (conn != null) {
-					conn.close();
-				}
-			} catch (SQLException ex) {
-				System.out.println(ex.getMessage());
-			}
 		}
-
 	}
-	
+
 	public Tree getProcessTree(String searchValue) throws SQLException {
 
 		Tree myTree = new Tree(createItem(searchValue));
@@ -100,7 +83,6 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 	private Recipe createRecipe(String rowId) throws SQLException {
 		
 		String query = SQLquery.querySpecificRecipeDetails(rowId);
-		PreparedStatement pstmt = conn.prepareStatement(query);
 		Recipe newRecipe = null;
 		
 		ResultSet rs = pstmt.executeQuery();
@@ -157,7 +139,6 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 	private Item createItem(String itemName) throws SQLException {
 		
 		String query = SQLquery.queryItemDetails(itemName);
-		PreparedStatement pstmt = conn.prepareStatement(query);
 		Item newItem = null;
 		
 		ResultSet rs = pstmt.executeQuery();
@@ -207,8 +188,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 	private boolean checkBaseCase(String searchValue) throws SQLException {
 		
 		String query = SQLquery.queryItemIsNatural(searchValue);
-		PreparedStatement stmt = conn.prepareStatement(query);
-		
+
 		ResultSet rs = stmt.executeQuery(); //
 		
 		while(rs.next()) {
@@ -226,7 +206,6 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		int params = maxColumns;
 		String query = SQLquery.queryDistillRecipeRowId(params);
 		
-		PreparedStatement stmt = conn.prepareStatement(query);
 		for(int i = 1; i <= params; i++) {
 			stmt.setString(i, searchValue);
 		}	
@@ -239,7 +218,6 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		int params = maxColumns;
 		String query = SQLquery.queryDistillRecipeData(params);
 		
-		PreparedStatement stmt = conn.prepareStatement(query);
 		for(int i = 1; i <= params; i++) {
 			stmt.setString(i, searchValue);
 		}	
@@ -247,33 +225,23 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 
 	}
 
-	public PreparedStatement StatementPrepper(String query, int params, String searchValue) throws SQLException {
-		PreparedStatement stmt = null;
-		
-		stmt = conn.prepareStatement(query);
-		for(int i = 1; i <= params; i++) {
-			stmt.setString(i, searchValue);
-		}
-		System.out.println(stmt.toString());
-		
-		return stmt;
-	}
 	
-	public void debugPrinter(ResultSet rs) throws SQLException {
-		ResultSetMetaData rsms = rs.getMetaData();
-		int columns = rsms.getColumnCount();
+	private void debugPrinter(Cursor rs) throws SQLException {
+		int columns = rs.getColumnCount();
 		for(int i = 0; i<columns; i++) {
-			String columnname = rsms.getColumnLabel(i+1);
+			String columnname = rs.getColumnName(i+1);
 			System.out.print(columnname + "\t\t");
 		}
 		System.out.print("\n");
-	
-		while(rs.next()) {
+
+
+		while(!rs.isAfterLast()) {
 			for(int i = 0; i<columns; i++) {
 				String value = rs.getString(i+1);
 				System.out.print(value + "\t\t");
 			}
 			System.out.print("\n");
+			rs.move(1);
 		}
 		
 		rs.close();

@@ -26,7 +26,7 @@
         android:layout_height="27dp"
         android:layout_marginStart="52dp"
         android:layout_marginTop="36dp"
-        android:text="Item Wiki: "
+        android:text="@string/item_wiki"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
@@ -36,7 +36,7 @@
         android:layout_height="70dp"
         android:layout_marginStart="52dp"
         android:layout_marginTop="36dp"
-        android:text="Naturally Occurring?: "
+        android:text="@string/naturally_ocurring"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
@@ -47,10 +47,11 @@
         android:layout_marginBottom="8dp"
         android:layout_marginStart="144dp"
         android:layout_marginTop="44dp"
+        android:contentDescription="@string/item_image"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.144"/>
+        app:layout_constraintVertical_bias="0.144" />
 
     <TextView
         android:id="@+id/textView"
@@ -58,7 +59,7 @@
         android:layout_height="27dp"
         android:layout_marginStart="52dp"
         android:layout_marginTop="44dp"
-        android:text="Item Name: "
+        android:text="@string/item_name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
