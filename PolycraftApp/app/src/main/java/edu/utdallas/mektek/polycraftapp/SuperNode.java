@@ -31,4 +31,8 @@ public abstract class SuperNode {
     //public abstract Long getDrawnId();
     public abstract String getName();
     public abstract void setDrawnId(Long id);
+   // public abstract void setParents(ArrayList<SuperNode> par);
+    public abstract void setChildren(ArrayList<SuperNode> chi);
+
+
 }

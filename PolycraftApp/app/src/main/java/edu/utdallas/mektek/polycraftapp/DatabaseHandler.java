@@ -80,8 +80,8 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 
 		ArrayList<String> recipeIds = getRecipeId(searchValue);
 		for(String rowId : recipeIds) {
-			Recipe item = createRecipe(rowId);
-			myTree.addNode(item);
+			Recipe recipe = createRecipe(rowId);
+			myTree.addNode(recipe);
 		}
 		return myTree;
 	}
@@ -129,6 +129,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 			
 			ArrayList<SuperNode> parentItems = new ArrayList<SuperNode>();
 			for (String itemName : parents) {
+
 				parentItems.add(createItem(itemName));
 			}
 			
@@ -138,7 +139,11 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 			}
 			
 			newRecipe = new Recipe("DistillationColumn", rowId, parentItems, childItems, new File("/Distillation_Column.ping"), parQ, childQuantity);
-			
+			ArrayList<SuperNode> recArr= new ArrayList<>();
+			recArr.add(newRecipe);
+			for (SuperNode it : parentItems){
+				it.setChildren(recArr);
+			}
 		}
 		
 		return newRecipe;

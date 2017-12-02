@@ -47,6 +47,11 @@ public class Item extends SuperNode {
     }
 
     @Override
+    public void setChildren(ArrayList<SuperNode> chi){
+        this.children=chi;
+    }
+
+    @Override
     public File getImage() {
         return image;
     }

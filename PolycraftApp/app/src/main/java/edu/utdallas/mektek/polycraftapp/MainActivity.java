@@ -115,7 +115,17 @@ public class MainActivity extends AppCompatActivity {
         processGraph = new NetworkGraph();
 
         // Set a pointer to the current Recipe and a graphPointer will be the last recipe drawn
-        SuperNode currentRecipe = processTree.getTargetNode().getChildren().get(0);
+        SuperNode target=processTree.getTargetNode();
+        SuperNode currentRecipe;
+        if(target.getChildren().size()>0) {
+            currentRecipe = target.getChildren().get(0);
+        }
+
+        //TODO: create recipe with only one child
+        else {
+            currentRecipe=null;
+        }
+
         SuperNode oldRecipe = null;
         Node oldDrawnRecipe = null;
 
