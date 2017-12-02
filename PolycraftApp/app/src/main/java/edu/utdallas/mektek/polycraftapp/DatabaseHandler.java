@@ -91,56 +91,55 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		Recipe newRecipe = null;
 
 		Cursor rs =   database.rawQuery(query,null);
+        rs.moveToFirst();
 
-        for(int row = 0; row<rs.getCount(); row++) {
-            rs.moveToPosition(row);
-			ArrayList<String> parents = new ArrayList<String>();
-			ArrayList<Integer> parQ = new ArrayList<Integer>();
+        ArrayList<String> parents = new ArrayList<String>();
+        ArrayList<Integer> parQ = new ArrayList<Integer>();
 
-			//TODO: Encapsulate these calls into a do-while to handle multiple input columns
-			ArrayList<String> children = new ArrayList<>();
-			ArrayList<Integer> childQuantity = new ArrayList<Integer>();
-			children.add(rs.getString(rs.getColumnIndex("input1")));
+        //TODO: Encapsulate these calls into a do-while to handle multiple input columns
+        ArrayList<String> children = new ArrayList<>();
+        ArrayList<Integer> childQuantity = new ArrayList<Integer>();
+        children.add(rs.getString(rs.getColumnIndex("input1")));
 
-			try {
-				childQuantity.add(Integer.parseInt(rs.getString(rs.getColumnIndex("inQuant1"))));
-			} catch (NumberFormatException e1) {
-				childQuantity.add(0);
-			}
+        try {
+            childQuantity.add(Integer.parseInt(rs.getString(rs.getColumnIndex("inQuant1"))));
+        } catch (NumberFormatException e1) {
+            childQuantity.add(0);
+        }
 
-			int i=1;
-			String par;
-			int parQuantity;
-			do{
-				par = rs.getString(rs.getColumnIndex("output" + i));
-				parents.add(par);
-				try {
-					parQuantity = parseInt(rs.getString(rs.getColumnIndex("outQuant" + i)));
-				}catch(NumberFormatException e) {
-					parQuantity = 0;
-				}
-				parQ.add(parQuantity);
-				i++;
-			}while (i<maxColumns && par.length()>0);
+        int i=1;
+        String par;
+        int parQuantity;
+        do{
+            par = rs.getString(rs.getColumnIndex("output" + i));
+            parents.add(par);
+            try {
+                parQuantity = parseInt(rs.getString(rs.getColumnIndex("outQuant" + i)));
+            }catch(NumberFormatException e) {
+                parQuantity = 0;
+            }
+            parQ.add(parQuantity);
+            i++;
+        }while (i<maxColumns && par.length()>0);
 
-			ArrayList<SuperNode> parentItems = new ArrayList<SuperNode>();
-			for (String itemName : parents) {
+        ArrayList<SuperNode> parentItems = new ArrayList<SuperNode>();
+        for (String itemName : parents) {
 
-				parentItems.add(createItem(itemName));
-			}
+            parentItems.add(createItem(itemName));
+        }
 
-			ArrayList<SuperNode> childItems = new ArrayList<SuperNode>();
-			for (String itemName : children) {
-				childItems.add(createItem(itemName));
-			}
+        ArrayList<SuperNode> childItems = new ArrayList<SuperNode>();
+        for (String itemName : children) {
+            childItems.add(createItem(itemName));
+        }
 
-			newRecipe = new Recipe("DistillationColumn", rowId, parentItems, childItems, new File("/Distillation_Column.ping"), parQ, childQuantity);
-			ArrayList<SuperNode> recArr= new ArrayList<>();
-			recArr.add(newRecipe);
-			for (SuperNode it : parentItems){
-				it.setChildren(recArr);
-			}
-		}
+        newRecipe = new Recipe("DistillationColumn", rowId, parentItems, childItems, new File("/Distillation_Column.ping"), parQ, childQuantity);
+        ArrayList<SuperNode> recArr= new ArrayList<>();
+        recArr.add(newRecipe);
+        for (SuperNode it : parentItems){
+            it.setChildren(recArr);
+        }
+
 
 
 
@@ -156,7 +155,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		if(rs.getCount()<=0) {
             throw new SQLException("No such item.");
         }
-		rs.moveToPosition(0);
+		rs.moveToFirst();
 
         String gameId = rs.getString(rs.getColumnIndex("gameID"));
         String itmName = rs.getString(rs.getColumnIndex("itemName"));
@@ -185,7 +184,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		}
 		
 		Cursor rs = queryDBRecipeId(searchValue);
-		rs.moveToPosition(0);
+		rs.moveToFirst();
 		if(!rs.isAfterLast()) {
 
 			data.add(rs.getString(rs.getColumnIndex("rowid")));
