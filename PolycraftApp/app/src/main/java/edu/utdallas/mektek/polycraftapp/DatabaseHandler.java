@@ -72,7 +72,12 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 
 	public Tree getProcessTree(String searchValue) throws SQLException {
 
-		Tree myTree = new Tree(createItem(searchValue));
+        Item searchedItem=createItem(searchValue);
+        if (searchedItem == null){
+            return null;
+        }
+		Tree myTree = new Tree(searchedItem);
+
 		ArrayList<String> recipeIds = getRecipeId(searchValue);
 		for(String rowId : recipeIds) {
 			Recipe item = createRecipe(rowId);
@@ -145,7 +150,9 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		Item newItem = null;
 		Cursor rs =   database.rawQuery(query,null);
 		//debugPrinter(rs);
-		
+		if(rs.getCount()<=0) {
+            return null;
+        }
 		rs.moveToPosition(0);
 			String gameId = rs.getString(rs.getColumnIndex("gameID"));
 			String itmName = rs.getString(rs.getColumnIndex("itemName"));
