@@ -88,10 +88,11 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		Recipe newRecipe = null;
 		
 		Cursor rs =   database.rawQuery(query,null);
-		
 
-		
-		while(!rs.isAfterLast()) {
+
+
+        for(int row = 0; row<rs.getCount(); row++) {
+            rs.moveToPosition(row);
 			ArrayList<String> parents = new ArrayList<String>();
 			ArrayList<Integer> parQ = new ArrayList<Integer>();
 			
@@ -142,11 +143,10 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		
 		String query = SQLquery.queryItemDetails(itemName);
 		Item newItem = null;
-		System.out.println(query);
 		Cursor rs =   database.rawQuery(query,null);
-		debugPrinter(rs);
+		//debugPrinter(rs);
 		
-		while(!rs.isAfterLast()) {
+		rs.moveToPosition(0);
 			String gameId = rs.getString(rs.getColumnIndex("gameID"));
 			String itmName = rs.getString(rs.getColumnIndex("itemName"));
 			File itmImage = new File(rs.getString(rs.getColumnIndex("itemImage")));
@@ -154,10 +154,9 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 			int itemNatural = parseInt(rs.getString(rs.getColumnIndex("itemNatural")));
 			newItem = new Item(gameId, itmName, itmImage, itemURL, itemNatural);
 			return newItem;
-		}
+
 		
-		throw new SQLException("ERROR ITEM NOT FOUND");
-		
+
 		//return newItem;
 	}
 	
@@ -178,6 +177,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		}
 		
 		Cursor rs = queryDBRecipeId(searchValue);
+		rs.moveToPosition(0);
 		if(!rs.isAfterLast()) {
 
 			data.add(rs.getString(rs.getColumnIndex("rowid")));
@@ -185,8 +185,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 			data.addAll(getRecipeId(rs.getString(rs.getColumnIndex("input1"))));
 		}
 		else {
-			data.add("");
-			
+
 		}
 		return data;
 	}
@@ -204,11 +203,9 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 			rs.moveToPosition(row);
 			String holder = rs.getString(5); //TODO: change magic number 1 to a static final int
 			if(holder.contains("1")) {
-				System.out.println("Natural");
 				return true;
 			}
 		}
-		System.out.println("Not Natural");
 		return false;
 	}
 
@@ -218,7 +215,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		String query = SQLquery.queryDistillRecipeRowId(params);
 
 		String[] selectionArgs = new String[params];
-		for(int i = 1; i <= params; i++) {
+		for(int i = 0; i < params; i++) {
 			selectionArgs[i]=searchValue;
 		}
 		return database.rawQuery(query,selectionArgs);
@@ -240,6 +237,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 
 	
 	private void debugPrinter(Cursor rs) throws SQLException {
+	    int startpos=rs.getPosition();
 		int columns = rs.getColumnCount();
 		for(int i = 0; i<columns; i++) {
 			String columnname = rs.getColumnName(i);
@@ -257,7 +255,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 			}
 			System.out.print("\n");
 		}
-		
+		rs.moveToPosition(startpos);
 	}
 /*
 

@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
             Tree process = null;
             try {
                 process = dbh.getProcessTree("Drum (Light Parrafins)");
+                System.out.println(process);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
