@@ -9,6 +9,7 @@ import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
@@ -16,6 +17,7 @@ import net.xqhs.graphs.graph.Node;
 import net.xqhs.graphs.graph.SimpleEdge;
 import net.xqhs.graphs.graph.SimpleNode;
 
+import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -31,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private GraphSurfaceView surface;
     private NetworkGraph processGraph;
     private GestureDetectorCompat mDetector;
+    private DatabaseHandler dbh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,45 +60,47 @@ public class MainActivity extends AppCompatActivity {
 
         process.addNode(recipe);
 */
+        Intent intent = getIntent();
+        String message = intent.getStringExtra(Search.EXTRA_MESSAGE);
 
-        DatabaseHandler dbh = DatabaseHandler.getInstance(this);
+        this.dbh = DatabaseHandler.getInstance(this);
         Tree process = null;
         try {
-            process = dbh.getProcessTree("Cartridge (Ethane)");
-        } catch (SQLException e) {
-            e.printStackTrace();
+            process = new GetTree().execute("Cartridge (Ethane)").get();
         }
-        new DrawTree().execute(process);
+        catch(Exception e){
+            // Handle error
+
+        }
+
+        if(process != null){
+            new DrawTree().execute(process);
+        }
+
         Log.d("TREE", "Tree is drawn");
     }
 
-        // Get the Intent that started this activity and extract the string
-        /* Intent intent = getIntent();
-        String message = intent.getStringExtra(Search.EXTRA_MESSAGE);
-    }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    public void onPause() {
+        super.onPause();
+        this.dbh.close();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+    private class GetTree extends AsyncTask<String, Object, Tree>{
+        @Override
+        protected Tree doInBackground(String... query){
+            dbh.open();
+            Tree process = null;
+            try {
+                process = dbh.getProcessTree("Cartridge (Ethane)");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return process;
         }
-
-        return super.onOptionsItemSelected(item);
     }
-*/
+
     private class DrawTree extends AsyncTask<Tree, Object, Void> {
         @Override
         protected Void doInBackground(Tree... processTree) {
@@ -107,9 +112,6 @@ public class MainActivity extends AppCompatActivity {
     public void drawTree(Tree processTree){
         // Initialize Network Graph
         processGraph = new NetworkGraph();
-        // Set currentNode to target
-        //SuperNode currentNode = processTree.getTargetNode();
-        // Set the drawable node to target and draw it
 
         // Set a pointer to the current Recipe and a graphPointer will be the last recipe drawn
         SuperNode currentRecipe = processTree.getTargetNode().getChildren().get(0);
@@ -148,29 +150,6 @@ public class MainActivity extends AppCompatActivity {
                 currentRecipe = null;
             }
         }
-        // Start traversing through tree
-        /*while(currentNode != null){
-            SuperNode connectingNode = null;
-            Node holder = null;
-            // Draw each child on the graph
-            for (SuperNode child : currentNode.getChildren()) {
-                Node nodeToAdd = new SimpleNode(child.getId());
-                processGraph.getVertex().add(new Vertex(nodeToAdd, ContextCompat.getDrawable(this,R.drawable.icon)));
-                processGraph.addEdge(new SimpleEdge(nodeToAdd, graphPointer, "11"));
-                // Check if we should draw the connecting edge to this child
-                //if(child.getParents().contains(currentNode)){
-                    // Draw edge
-                    //processGraph.addEdge(new SimpleEdge(nodeToAdd, graphPointer, "12"));
-                //}
-                // Check if we found the connectingNode
-                if (!child.getChildren().isEmpty()) {
-                    connectingNode = child; // We found the connecting node and this will become currentNode
-                    holder = nodeToAdd; // Save the drawable of this node for later
-                }
-            }
-            graphPointer = holder;
-            currentNode = connectingNode;
-        }*/
 
         this.surface = (GraphSurfaceView) findViewById(R.id.mysurface);
         surface.init(processGraph);
@@ -196,13 +175,19 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+
     private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
 
         @Override
         public boolean onDoubleTap(MotionEvent ev) {
+            float actionBarHeight = 0;
+            TypedValue tv = new TypedValue();
+            if( getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)){
+                actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
+            }
             float xTest = ev.getRawX();
-            float yTest = ev.getRawY() - 280;
-            //Log.d("Gestures", "onDoubleTableEvent: x: " + xTest + " y: " + yTest);
+            float yTest = ev.getRawY() - actionBarHeight;
+            Log.d("Gestures", "onDoubleTableEvent: x: " + xTest + " y: " + yTest);
             for(Vertex node : processGraph.getVertex()){
                 Point2D position = node.getPosition();
                 Log.d("Node", "x: " + position.getX() + " y: " + position.getY());
