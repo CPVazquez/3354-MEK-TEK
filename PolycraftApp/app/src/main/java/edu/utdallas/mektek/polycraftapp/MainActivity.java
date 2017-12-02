@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
             Tree process = null;
             try {
                 process = dbh.getProcessTree(query[0]);
+                //TODO print error message if process is null at this point
                 System.out.println(process);
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -121,8 +122,8 @@ public class MainActivity extends AppCompatActivity {
             currentRecipe = target.getChildren().get(0);
         }
 
-        //TODO: create recipe with only one child
         else {
+            //TODO: Display that they searched a base item
             currentRecipe=null;
         }
 
