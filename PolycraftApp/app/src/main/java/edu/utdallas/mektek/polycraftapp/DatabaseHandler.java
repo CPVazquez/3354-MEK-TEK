@@ -26,7 +26,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		//return dbHandler;
 	}
 
-	public DatabaseHandler getInstance(Context context){
+	public static DatabaseHandler getInstance(Context context){
 		if(dbHandler == null){
 			dbHandler = new DatabaseHandler(context);
 		}
