@@ -39,8 +39,6 @@ public class detail extends AppCompatActivity {
         TextView textView3 = (TextView) findViewById(R.id.textView3);
         textView3.setText(arr[2]);
 
-
-
         //Log.d("DEBUG-Detail", "String received " + info);
         //new GetBitmap((ImageView) findViewById(R.id.imageView)).execute("https://minecraft.gamepedia.com/media/minecraft.gamepedia.com/c/c2/Potato.png");
     }

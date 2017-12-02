@@ -23,7 +23,6 @@
     <include layout="@layout/content_main" />
 
 
-
     <giwi.org.networkgraph.GraphSurfaceView
         android:id="@+id/mysurface"
         android:layout_width="match_parent"
@@ -34,6 +33,7 @@
         app:defaultColor="@android:color/black"
         app:edgeColor="@android:color/holo_blue_light"
         app:nodeBgColor="@android:color/white"
-        app:nodeColor="@android:color/holo_blue_light" />
+        app:nodeColor="@android:color/holo_blue_light"
+        tools:layout_editor_absoluteY="406dp" />
 
 </android.support.design.widget.CoordinatorLayout>
