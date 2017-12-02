@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         process.addNode(recipe);
 */
 
-        DatabaseHandler dbh= new DatabaseHandler("test.db",7);
+        DatabaseHandler dbh = DatabaseHandler.getInstance(this);
         Tree process = null;
         try {
             process = dbh.getProcessTree("Cartridge (Ethane)");
@@ -119,13 +119,13 @@ public class MainActivity extends AppCompatActivity {
         while(currentRecipe != null){
 
             // Draw the recipe
-            Node drawnRecipe = new SimpleNode(currentRecipe.getId());
-            processGraph.getVertex().add(new Vertex(drawnRecipe, ContextCompat.getDrawable(this,R.drawable.icon)));
+            Node drawnRecipe = new SimpleNode(currentRecipe.getName());
+            processGraph.getVertex().add(new Vertex(drawnRecipe, ContextCompat.getDrawable(this,R.drawable.icon), currentRecipe.getId()));
 
             // Draw parents of recipe
             for(SuperNode parent : currentRecipe.getParents()) {
-                Node nodeToAdd = new SimpleNode(parent.getId());
-                processGraph.getVertex().add(new Vertex(nodeToAdd, ContextCompat.getDrawable(this, R.drawable.icon)));
+                Node nodeToAdd = new SimpleNode(parent.getName());
+                processGraph.getVertex().add(new Vertex(nodeToAdd, ContextCompat.getDrawable(this, R.drawable.icon), parent.getId()));
                 processGraph.addEdge(new SimpleEdge(nodeToAdd, drawnRecipe, "1"));
                 // Check if the parent of the recipe is where we make the connection to the old recipe
                 if(oldRecipe != null){
@@ -142,8 +142,8 @@ public class MainActivity extends AppCompatActivity {
             else{
                 // Draw child!!!
                 SuperNode child = currentRecipe.getChildren().get(0);
-                Node childToDraw = new SimpleNode(child.getId());
-                processGraph.getVertex().add(new Vertex(childToDraw, ContextCompat.getDrawable(this, R.drawable.icon)));
+                Node childToDraw = new SimpleNode(child.getName());
+                processGraph.getVertex().add(new Vertex(childToDraw, ContextCompat.getDrawable(this, R.drawable.icon), child.getId()));
                 processGraph.addEdge(new SimpleEdge(drawnRecipe, childToDraw, "3" ));
                 currentRecipe = null;
             }

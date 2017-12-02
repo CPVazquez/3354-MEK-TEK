@@ -1,47 +1,51 @@
 package edu.utdallas.mektek.polycraftapp;
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.io.File;
 import java.nio.file.Paths;
+import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 
 @SuppressWarnings("unused")
-public class DatabaseHandler{
-	private String databaseName;
-	private Connection conn;
-	private int maxColumns;
-	
-	public DatabaseHandler(String dbname, int columnQuantity) {
-		connect(dbname);
-		maxColumns=columnQuantity;
+public class DatabaseHandler extends SQLiteAssetHelper{
+	//private String databaseName;
+	private static final String DBNAME = "PolycraftAppData.db";
+	private SQLiteDatabase database;
+	private int maxColumns = 7;
+	private static final int VERSION = 1;
+	private static DatabaseHandler dbHandler; //Singleton Design Pattern
+
+
+	private DatabaseHandler(Context context) {//}, String name, SQLiteDatabase.CursorFactory factory, int version) {
+		super(context, DBNAME, null, VERSION);
+		//if(dbHandler == null)
+		//	dbHandler = new SQLiteAssetHelper(context, DBNAME, null, VERSION);
+		//return dbHandler;
 	}
 
-	public void connect(String dbname) {
-       conn = null;
-       String path="";//Paths.get(".").toAbsolutePath().normalize().toString();
+	public static DatabaseHandler getInstance(Context context){
+		if(dbHandler == null){
+			dbHandler = new DatabaseHandler(context);
+		}
+		return dbHandler;
+	}
 
-        try {
-	            databaseName = "jdbc:sqlite:"+path+"/"+dbname;
-	            conn = DriverManager.getConnection(databaseName);
-	            
-	            System.out.println("Connection to SQLite has been established.");
-            
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        } finally {
-            try {
-	                if (conn != null) {
-	                    conn.close();
-                }
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
-            }
-        }
-	}//connect	
+	public void open() {
+		this.database = dbHandler.getReadableDatabase();
+	}
 
+	public void close() {
+		if(this.database != null){
+			this.database.close();
+		}
+	}
 	
 	public void getItemID(String item) {
 		try {
-				conn = DriverManager.getConnection(databaseName);
+				//conn = DriverManager.getConnection(databaseName);
 				String command = SQLquery.IDandName;
 				command += " WHERE itemName LIKE '%" + item + "%'";
 				Statement stmt = conn.createStatement();
@@ -63,7 +67,7 @@ public class DatabaseHandler{
 	
 	public void printList(String rootItem) {
 		try {
-				conn = DriverManager.getConnection(databaseName);		
+				conn = DriverManager.getConnection(databaseName);
 				System.out.println(getProcessTree(rootItem));
 				System.out.println(getRecipeId(rootItem).toString());
 			
@@ -275,14 +279,15 @@ public class DatabaseHandler{
 		rs.close();
 	}
 
-	 public static void main(String[] args) {
-	     DatabaseHandler items = new DatabaseHandler("test.db",7);   
+
+	// public static void main(String[] args) {
+	     //DatabaseHandler items = new DatabaseHandler("test.db",7);
 	    //items.printList("Flask (Ethylene)");
 	    // items.printList("Vial (Pentane Isomers)");
 	     
 	     //items.printList("Bucket");
 	     //items.printList("Drum (Light Olefins)");
-	     items.printList("Drum (n-Butane)");
-	     items.printList("Cartridge (Ethane)");
-	    }
+	     //items.printList("Drum (n-Butane)");
+	     //items.printList("Cartridge (Ethane)");
+	 //   }
 }
