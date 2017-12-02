@@ -56,6 +56,7 @@ public class Item extends SuperNode {
         return nodeId;
     }
 
+    @Override
     public String getName() {
         return name;
     }

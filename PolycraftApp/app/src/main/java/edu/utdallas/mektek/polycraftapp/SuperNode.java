@@ -29,6 +29,6 @@ public abstract class SuperNode {
     public abstract ArrayList<SuperNode> getChildren();
     public abstract File getImage();
     //public abstract Long getDrawnId();
-
+    public abstract String getName();
     public abstract void setDrawnId(Long id);
 }
