@@ -12,11 +12,11 @@ import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 @SuppressWarnings("unused")
 public class DatabaseHandler extends SQLiteAssetHelper{
 	//private String databaseName;
-	private static final String DBNAME = "polycraft.db";
+	private static final String DBNAME = "PolycraftAppData.db";
 	private SQLiteDatabase database;
 	private int maxColumns = 7;
 	private static final int VERSION = 1;
-	private static DatabaseHandler dbHandler;
+	private static DatabaseHandler dbHandler; //Singleton Design Pattern
 
 
 	private DatabaseHandler(Context context) {//}, String name, SQLiteDatabase.CursorFactory factory, int version) {
