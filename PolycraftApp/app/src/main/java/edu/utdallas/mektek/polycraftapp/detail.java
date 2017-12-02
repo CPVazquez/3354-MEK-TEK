@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -26,9 +27,20 @@ public class detail extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
-        String info = (String) intent.getStringExtra(MainActivity.EXTRA_INFO);
-        Log.d("DEBUG-Detail", "String received " + info);
-        new GetBitmap((ImageView) findViewById(R.id.imageView)).execute("https://minecraft.gamepedia.com/media/minecraft.gamepedia.com/c/c2/Potato.png");
+        String info = intent.getStringExtra(MainActivity.EXTRA_INFO);
+        String[] arr = info.split("|");
+
+        TextView textView = (TextView) findViewById(R.id.textView);
+        textView.setText(arr[0]);
+
+        TextView textView2 = (TextView) findViewById(R.id.textView2);
+        textView2.setText(arr[1]);
+
+        TextView textView3 = (TextView) findViewById(R.id.textView3);
+        textView3.setText(arr[2]);
+
+        //Log.d("DEBUG-Detail", "String received " + info);
+        //new GetBitmap((ImageView) findViewById(R.id.imageView)).execute("https://minecraft.gamepedia.com/media/minecraft.gamepedia.com/c/c2/Potato.png");
     }
 
     @Override
@@ -37,7 +49,7 @@ public class detail extends AppCompatActivity {
         return true;
     }
 
-    private class GetBitmap extends AsyncTask<String, Void, Bitmap> {
+    /*private class GetBitmap extends AsyncTask<String, Void, Bitmap> {
 
         private Exception exception;
         private String link;
@@ -69,5 +81,5 @@ public class detail extends AppCompatActivity {
         protected void onPostExecute(Bitmap result) {
             this.view.setImageBitmap(result);
         }
-    }
+    }*/
 }
