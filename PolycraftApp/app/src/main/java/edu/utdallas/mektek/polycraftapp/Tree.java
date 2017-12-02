@@ -6,16 +6,25 @@ public class Tree {
 
     private SuperNode targetNode;
     private SuperNode pointerNode;
+    private String contents="";
+    private int numSteps=0;
 
     public Tree(SuperNode target){
 
         this.targetNode = target;
+        contents+=targetNode.toString()+":\n";
         this.pointerNode = null;
     }
 
     // Attach this node to pointerNode
+    public void addAllNodes(ArrayList<SuperNode> nodes) {
+    		//iterator for arraylist
+    		//addNode(nodes.next();)
+    }
+    
     public void addNode(SuperNode nodeToAdd){
-
+    	contents+=nodeToAdd.toString()+"\n";
+    	numSteps++;
         // This tree was just created, add the node to target
         if(this.pointerNode == null){
             // Make parent and child connection
@@ -55,5 +64,10 @@ public class Tree {
 
     public SuperNode getTargetNode(){
         return this.targetNode;
+    }
+    
+    public String toString() {
+    	
+    	return numSteps+" steps to get "+contents;
     }
 }

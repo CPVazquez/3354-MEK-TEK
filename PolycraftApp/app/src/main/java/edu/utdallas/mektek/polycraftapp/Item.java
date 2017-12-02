@@ -9,10 +9,31 @@ import java.util.ArrayList;
 
 public class Item extends SuperNode {
     private String name;
+    private String url = "";
+    private boolean isNatural = false;
 
+    //ITEMS ONLY HAVE ONE CHILD AND ONE PARENT
+    
+    
     public Item (String id, ArrayList<SuperNode> par, ArrayList<SuperNode> child, File img, String name){
         super(id, par, child, img);
         this.name = name;
+    }
+    
+    //Constructor for empty item creation.
+    public Item (String id, String name, File img, String url, int isNatural){
+        super(id, new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), img);
+        this.name = name;
+        this.url = url;
+        if(isNatural == 1) {
+        		this.isNatural = true;
+        }
+    }
+    
+    
+    @Override
+    public String toString() {
+    		return name;
     }
 
     @Override
@@ -26,6 +47,11 @@ public class Item extends SuperNode {
     }
 
     @Override
+    public void setChildren(ArrayList<SuperNode> chi){
+        this.children=chi;
+    }
+
+    @Override
     public File getImage() {
         return image;
     }
@@ -35,6 +61,7 @@ public class Item extends SuperNode {
         return nodeId;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -43,4 +70,10 @@ public class Item extends SuperNode {
     public void setDrawnId(Long id) {
         drawnId = id;
     }
+
+	public boolean isNatural() {
+		return isNatural;
+	}
+
 }
+

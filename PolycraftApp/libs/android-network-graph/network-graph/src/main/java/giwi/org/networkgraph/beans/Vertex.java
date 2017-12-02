@@ -15,6 +15,8 @@ public class Vertex {
 
     private Drawable icon; //not carla added
 
+    private String id;
+
     //pointer to node?
 
     public void setPosition(Point2D point){
@@ -32,9 +34,10 @@ public class Vertex {
      * @param node the node
      * @param icon the icon
      */
-    public Vertex(final Node node, final Drawable icon) {
+    public Vertex(final Node node, final Drawable icon, final String iden) {
         this.node = node;
         this.icon = icon;
+        this.id = iden;
     }
 
     /**

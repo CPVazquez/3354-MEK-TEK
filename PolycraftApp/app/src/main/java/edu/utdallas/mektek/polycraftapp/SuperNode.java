@@ -20,11 +20,19 @@ public abstract class SuperNode {
         image = img;
     }
 
+    @Override
+    public String toString() {
+    		return nodeId;
+    }
     public abstract String getId();
     public abstract ArrayList<SuperNode> getParents();
     public abstract ArrayList<SuperNode> getChildren();
     public abstract File getImage();
     //public abstract Long getDrawnId();
-
+    public abstract String getName();
     public abstract void setDrawnId(Long id);
+   // public abstract void setParents(ArrayList<SuperNode> par);
+    public abstract void setChildren(ArrayList<SuperNode> chi);
+
+
 }
