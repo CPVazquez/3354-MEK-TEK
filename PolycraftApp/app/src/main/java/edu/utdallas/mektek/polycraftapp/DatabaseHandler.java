@@ -101,13 +101,21 @@ public class DatabaseHandler extends SQLiteAssetHelper{
         return newItem;
     }
 
-	public void getItemID(String item) {
+	public String getItemID(String searchValue) {
 				String command = SQLquery.selectIdsAndNames;
-				command += " WHERE itemName LIKE '%" + item + "%'";
+				command += " WHERE itemName LIKE '%" + searchValue + "%'";
 				Cursor rs =   database.rawQuery(command,null);
+				return rs.getString(rs.getColumnIndex("gameID"));
+
 	}
-	public void getRecipeId(String recipe){
-        //TODO: Reimplement this method using getRowIdOfAncestors
+	public String getRecipeId(String searchValue) throws SQLException {
+        ArrayList<String> ancestorIds;
+        try {
+            ancestorIds = getRowIdOfAncestors(searchValue);
+        }catch(SQLException ex){
+            throw ex;
+        }
+        return ancestorIds.get(0);
     }
 
     public Tree getProcessTree(String searchValue) throws SQLException {
@@ -183,18 +191,21 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 			//data.add("");
 			return data;
 		}
-		
-		Cursor rs = queryDBRecipeId(searchValue);
-		rs.moveToFirst();
-		if(!rs.isAfterLast()) {
 
-			data.add(rs.getString(rs.getColumnIndex("rowid")));
-			
-			data.addAll(getRowIdOfAncestors(rs.getString(rs.getColumnIndex("input1"))));
-		}
-		else {
+		try {
+            Cursor rs = queryDBRecipeId(searchValue);
+            rs.moveToFirst();
+            if (!rs.isAfterLast()) {
 
-		}
+                data.add(rs.getString(rs.getColumnIndex("rowid")));
+
+                data.addAll(getRowIdOfAncestors(rs.getString(rs.getColumnIndex("input1"))));
+            } else {
+
+            }
+        }catch(SQLException ex){
+		    throw ex;
+        }
 		return data;
 	}
 
@@ -218,6 +229,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 
 	
 	private Cursor queryDBRecipeId(String searchValue) throws SQLException {
+        Cursor rs;
 		int params = maxColumns;
 		String query = SQLquery.queryDistillRecipeRowId(params);
 
@@ -225,8 +237,14 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		for(int i = 0; i < params; i++) {
 			selectionArgs[i]=searchValue;
 		}
-		return database.rawQuery(query,selectionArgs);
 
+        rs = database.rawQuery(query, selectionArgs);
+
+        if(rs.getCount()<=0){
+            throw new SQLException();
+        }
+
+        return rs;
 	}
 
 
