@@ -41,29 +41,37 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		}//closes open database
 	}
 
-	//CARLA: Use this to get your item
-	//TODO: Refactor this with createItem to streamline the code
-	public Item getItemWithId(String gameID) throws SQLException{
-		String query = SQLquery.queryItemDetailsWithId(gameID);
-		Item newItem;
-		Cursor rs = database.rawQuery(query,null);
-		if(rs.getCount()<=0) {
-			throw new SQLException("No such item.");
-		}
-		rs.moveToFirst();
+	//CARLA: Use this to get your item. Pass 1 as second parameter to use id to search
 
-		String gameId = rs.getString(rs.getColumnIndex("gameID"));
-		String itmName = rs.getString(rs.getColumnIndex("itemName"));
-		File itmImage = new File(rs.getString(rs.getColumnIndex("itemImage")));
-		String itemURL = rs.getString(rs.getColumnIndex("itemURL"));
-		int itemNatural = parseInt(rs.getString(rs.getColumnIndex("itemNatural")));
+    private Item createItem(String key, int method) throws SQLException, ArrayIndexOutOfBoundsException {
 
-		newItem = new Item(gameId, itmName, itmImage, itemURL, itemNatural);
-		return newItem;
-	}
+        String[] queries = {SQLquery.queryItemDetails(key), SQLquery.queryItemDetailsWithId(key)};
+        Item newItem;
+        String query;
+
+        if(method!=0 && method!=1){
+            throw new ArrayIndexOutOfBoundsException();
+        }
+        query = queries[method];
+
+        Cursor rs = database.rawQuery(query,null);
+        if(rs.getCount()<=0) {
+            throw new SQLException("No such item.");
+        }
+        rs.moveToFirst();
+
+        String gameId = rs.getString(rs.getColumnIndex("gameID"));
+        String itmName = rs.getString(rs.getColumnIndex("itemName"));
+        File itmImage = new File(rs.getString(rs.getColumnIndex("itemImage")));
+        String itemURL = rs.getString(rs.getColumnIndex("itemURL"));
+        int itemNatural = parseInt(rs.getString(rs.getColumnIndex("itemNatural")));
+
+        newItem = new Item(gameId, itmName, itmImage, itemURL, itemNatural);
+        return newItem;
+    }
 
 
-	/*
+    /*
 		CARLA: use this to get your recipe
 		Be sure to call this properly from mainActivity:
 
@@ -98,7 +106,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 
         Item searchedItem;
 	    try {
-             searchedItem = createItem(searchValue);
+             searchedItem = createItem(searchValue,0);
         }
         catch (SQLException ex) {
             throw ex;
@@ -152,25 +160,6 @@ public class DatabaseHandler extends SQLiteAssetHelper{
         }
     }
 
-    private Item createItem(String itemName) throws SQLException {
-		
-		String query = SQLquery.queryItemDetails(itemName);
-		Item newItem;
-		Cursor rs = database.rawQuery(query,null);
-		if(rs.getCount()<=0) {
-            throw new SQLException("No such item.");
-        }
-		rs.moveToFirst();
-
-        String gameId = rs.getString(rs.getColumnIndex("gameID"));
-        String itmName = rs.getString(rs.getColumnIndex("itemName"));
-        File itmImage = new File(rs.getString(rs.getColumnIndex("itemImage")));
-        String itemURL = rs.getString(rs.getColumnIndex("itemURL"));
-        int itemNatural = parseInt(rs.getString(rs.getColumnIndex("itemNatural")));
-
-        newItem = new Item(gameId, itmName, itmImage, itemURL, itemNatural);
-        return newItem;
-	}
 
 	
 	private ArrayList <String> getRecipeId(String searchValue) throws SQLException {
@@ -313,7 +302,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
             parentItems = new ArrayList<SuperNode>();
             for (String itemName : parents) {
 
-                parentItems.add(createItem(itemName));
+                parentItems.add(createItem(itemName,0));
             }
             return this;
         }
@@ -333,7 +322,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 
             childItems = new ArrayList<SuperNode>();
             for (String itemName : children) {
-                childItems.add(createItem(itemName));
+                childItems.add(createItem(itemName,0));
             }
             return this;
         }
