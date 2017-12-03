@@ -41,7 +41,38 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		}//closes open database
 	}
 
-	//CARLA: Use this to get your item. Pass 1 as second parameter to use id to search
+	/*CARLA: Use this to get your item.
+        Be sure to call this properly from mainActivity:
+
+		this.dbh = DatabaseHandler.getInstance(this);
+		dbh.open() //connects to sql database -> maybe anshu is taking care of this command in the "onCreate() function?"
+		dbh.getItemWithId("123") //will fail if .open() has not been called earlier in the function -> maybe Anshu is taking care of this?
+		dbh.close() //call this at the end to prevent memory leakage -> maybe Anshu is taking care of this on "onPause()"?
+		*/
+    public Item getItemWithId(String gameId) throws SQLException {
+        Item item;
+	    try {
+            item=createItem(gameId, 1);
+        }catch(SQLException ex){
+	        throw ex;
+        }
+	 return item;
+    }
+
+
+    /*
+		CARLA: use this to get your recipe
+
+	 */
+
+    public Recipe getRecipeWithId(String rowID) throws SQLException{
+        try {
+            return createRecipe(rowID);
+        }catch(SQLException ex){
+            throw ex;
+        }
+    }
+
 
     private Item createItem(String key, int method) throws SQLException, ArrayIndexOutOfBoundsException {
 
@@ -70,39 +101,16 @@ public class DatabaseHandler extends SQLiteAssetHelper{
         return newItem;
     }
 
-
-    /*
-		CARLA: use this to get your recipe
-		Be sure to call this properly from mainActivity:
-
-		this.dbh = DatabaseHandler.getInstance(this);
-		dbh.open() //connects to sql database -> maybe anshu is taking care of this command in the "onCreate() function?"
-		dbh.getRecipeWithId("123") //will fail if .open() has not been called earlier in the function -> maybe Anshu is taking care of this?
-		dbh.close() //call this at the end to prevent memory leakage -> maybe Anshu is taking care of this on "onPause()"?
-
-
-	 */
-	public Recipe getRecipeWithId(String rowID) throws SQLException{
-		return createRecipe(rowID);
-	}
-	
 	public void getItemID(String item) {
 				String command = SQLquery.selectIdsAndNames;
 				command += " WHERE itemName LIKE '%" + item + "%'";
 				Cursor rs =   database.rawQuery(command,null);
 	}
-	
-	public void printList(String rootItem) {
-		try {
-				System.out.println(getProcessTree(rootItem));
-				System.out.println(getRowIdOfAncestors(rootItem).toString());
-			
-		} catch (SQLException ex) {
-			System.out.println(ex.getMessage());
-		}
-	}
+	public void getRecipeId(String recipe){
+        //TODO: Reimplement this method using getRowIdOfAncestors
+    }
 
-	public Tree getProcessTree(String searchValue) throws SQLException {
+    public Tree getProcessTree(String searchValue) throws SQLException {
 
         Item searchedItem;
 	    try {
@@ -131,25 +139,29 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 	
 
 	private Recipe createRecipe(String rowId) throws SQLException {
-        Recipe newRecipe = null;
-        String query = SQLquery.querySpecificRecipeDetails(rowId);
-		Cursor rs =   database.rawQuery(query,null);
-        rs.moveToFirst();
+        Recipe newRecipe;
+        try {
+            String query = SQLquery.querySpecificRecipeDetails(rowId);
+            Cursor rs = database.rawQuery(query, null);
+            rs.moveToFirst();
 
-        ItemList children = new ItemList(rs).childList();
-        ArrayList<SuperNode> childItems = children.getChildItems();
-        ArrayList<Integer> childQuant = children.getChildQuant();
-
-
-        ItemList parents = new ItemList(rs).parentList();
-        ArrayList<SuperNode> parentItems = parents.getParentItems();
-        ArrayList<Integer> parentQuant = parents.getParentQuant();
+            ItemList children = new ItemList(rs).childList();
+            ArrayList<SuperNode> childItems = children.getChildItems();
+            ArrayList<Integer> childQuant = children.getChildQuant();
 
 
-        newRecipe = new Recipe("DistillationColumn", rowId, parentItems, childItems, new File("/Distillation_Column.ping"), parentQuant, childQuant);
-        setAsChild(newRecipe, parentItems);
+            ItemList parents = new ItemList(rs).parentList();
+            ArrayList<SuperNode> parentItems = parents.getParentItems();
+            ArrayList<Integer> parentQuant = parents.getParentQuant();
 
-		rs.close();
+
+            newRecipe = new Recipe("DistillationColumn", rowId, parentItems, childItems, new File("/Distillation_Column.ping"), parentQuant, childQuant);
+            setAsChild(newRecipe, parentItems);
+
+            rs.close();
+        }catch(SQLException ex){
+            throw ex;
+        }
 		return newRecipe;
 	}
 
