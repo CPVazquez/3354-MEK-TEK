@@ -123,56 +123,23 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 	
 
 	private Recipe createRecipe(String rowId) throws SQLException {
-		
-		String query = SQLquery.querySpecificRecipeDetails(rowId);
-		Recipe newRecipe = null;
-
+        Recipe newRecipe = null;
+        String query = SQLquery.querySpecificRecipeDetails(rowId);
 		Cursor rs =   database.rawQuery(query,null);
         rs.moveToFirst();
+        ItemList children = new ItemList(rs).childList();
+        ArrayList<SuperNode> childItems = children.getChildItems();
+        ArrayList<Integer> childQuant = children.getChildQuant();
 
-        ArrayList<String> parents = new ArrayList<String>();
-        ArrayList<Integer> parQ = new ArrayList<Integer>();
 
-        //TODO: Encapsulate these calls into a do-while to handle multiple input columns
-        ArrayList<String> children = new ArrayList<>();
-        ArrayList<Integer> childQuantity = new ArrayList<Integer>();
-        children.add(rs.getString(rs.getColumnIndex("input1")));
+        ItemList parents = new ItemList(rs).parentList();
+        ArrayList<SuperNode> parentItems = parents.getParentItems();
+        ArrayList<Integer> parentQuant = parents.getParentQuant();
 
-        try {
-            childQuantity.add(Integer.parseInt(rs.getString(rs.getColumnIndex("inQuant1"))));
-        } catch (NumberFormatException e1) {
-            childQuantity.add(0);
-        }
 
-        int i=1;
-        String par;
-        int parQuantity;
-        do{
-            par = rs.getString(rs.getColumnIndex("output" + i));
-            parents.add(par);
-            try {
-                parQuantity = parseInt(rs.getString(rs.getColumnIndex("outQuant" + i)));
-            }catch(NumberFormatException e) {
-                parQuantity = 0;
-            }
-            parQ.add(parQuantity);
-            i++;
-        }while (i<maxColumns && par.length()>0);
-
-        ArrayList<SuperNode> parentItems = new ArrayList<SuperNode>();
-        for (String itemName : parents) {
-
-            parentItems.add(createItem(itemName));
-        }
-
-        ArrayList<SuperNode> childItems = new ArrayList<SuperNode>();
-        for (String itemName : children) {
-            childItems.add(createItem(itemName));
-        }
-
-        newRecipe = new Recipe("DistillationColumn", rowId, parentItems, childItems, new File("/Distillation_Column.ping"), parQ, childQuantity);
+        newRecipe = new Recipe("DistillationColumn", rowId, parentItems, childItems, new File("/Distillation_Column.ping"), parentQuant, childQuant);
         setAsChild(newRecipe, parentItems);
-        
+
 		rs.close();
 		return newRecipe;
 	}
@@ -297,6 +264,84 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		}
 		rs.moveToPosition(startpos);
 	}
+
+    private class ItemList {
+        private Cursor rs;
+        private ArrayList<Integer> parentQuant;
+        private ArrayList<SuperNode> parentItems;
+        private ArrayList<Integer> childQuant;
+        private ArrayList<SuperNode> childItems;
+
+        public ItemList(Cursor rs) {
+            this.rs = rs;
+        }
+
+        public ArrayList<Integer> getParentQuant() {
+            return parentQuant;
+        }
+
+        public ArrayList<Integer> getChildQuant() {
+            return childQuant;
+        }
+
+        public ArrayList<SuperNode> getChildItems() {
+            return childItems;
+        }
+
+        public ArrayList<SuperNode> getParentItems() {
+            return parentItems;
+        }
+
+        public ItemList parentList() throws SQLException {
+            ArrayList<String> parents = new ArrayList<String>();
+            parentQuant = new ArrayList<Integer>();
+            int i=1;
+            String par;
+            int parQuantity;
+            do{
+                par = rs.getString(rs.getColumnIndex("output" + i));
+                parents.add(par);
+                try {
+                    parQuantity = parseInt(rs.getString(rs.getColumnIndex("outQuant" + i)));
+                }catch(NumberFormatException e) {
+                    parQuantity = 0;
+                }
+                parentQuant.add(parQuantity);
+                i++;
+            }while (i<maxColumns && par.length()>0);
+
+            parentItems = new ArrayList<SuperNode>();
+            for (String itemName : parents) {
+
+                parentItems.add(createItem(itemName));
+            }
+            return this;
+        }
+
+        public ItemList childList() throws SQLException {
+            //TODO: Encapsulate these calls into a do-while to handle multiple input columns
+            ArrayList<String> children = new ArrayList<>();
+            childQuant = new ArrayList<Integer>();
+            children.add(rs.getString(rs.getColumnIndex("input1")));
+
+            try {
+                childQuant.add(Integer.parseInt(rs.getString(rs.getColumnIndex("inQuant1"))));
+            } catch (NumberFormatException e1) {
+                childQuant.add(0);
+            }
+
+
+            childItems = new ArrayList<SuperNode>();
+            for (String itemName : children) {
+                childItems.add(createItem(itemName));
+            }
+            return this;
+        }
+    }//ItemList Class
+
+
+
+
 /*
 
 	 public static void main(String[] args) {
