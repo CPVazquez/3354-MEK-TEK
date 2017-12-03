@@ -95,7 +95,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 	public void printList(String rootItem) {
 		try {
 				System.out.println(getProcessTree(rootItem));
-				System.out.println(getRecipeId(rootItem).toString());
+				System.out.println(getRowIdOfAncestors(rootItem).toString());
 			
 		} catch (SQLException ex) {
 			System.out.println(ex.getMessage());
@@ -116,7 +116,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		Tree myTree = new Tree(searchedItem);
 
 
-		ArrayList<String> recipeIds = getRecipeId(searchValue);
+		ArrayList<String> recipeIds = getRowIdOfAncestors(searchValue);
 		try{
 		for(String rowId : recipeIds) {
 			Recipe recipe = createRecipe(rowId);
@@ -135,6 +135,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
         String query = SQLquery.querySpecificRecipeDetails(rowId);
 		Cursor rs =   database.rawQuery(query,null);
         rs.moveToFirst();
+
         ItemList children = new ItemList(rs).childList();
         ArrayList<SuperNode> childItems = children.getChildItems();
         ArrayList<Integer> childQuant = children.getChildQuant();
@@ -160,9 +161,8 @@ public class DatabaseHandler extends SQLiteAssetHelper{
         }
     }
 
-
 	
-	private ArrayList <String> getRecipeId(String searchValue) throws SQLException {
+	private ArrayList <String> getRowIdOfAncestors(String searchValue) throws SQLException {
 		ArrayList <String> data = new ArrayList<String>();
 		if(searchValue==null) {// || data.contains(searchValue)){
 				return data;
@@ -178,15 +178,14 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 
 			data.add(rs.getString(rs.getColumnIndex("rowid")));
 			
-			data.addAll(getRecipeId(rs.getString(rs.getColumnIndex("input1"))));
+			data.addAll(getRowIdOfAncestors(rs.getString(rs.getColumnIndex("input1"))));
 		}
 		else {
 
 		}
 		return data;
 	}
-	
-	
+
 	
 	private boolean checkBaseCase(String searchValue) throws SQLException {
 		
@@ -217,42 +216,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		return database.rawQuery(query,selectionArgs);
 
 	}
-	
-	
-	private Cursor queryDB(String searchValue) throws SQLException {
-		int params = maxColumns;
-		String query = SQLquery.queryDistillRecipeData(params);
 
-		String[] selectionArgs = new String[params];
-		for(int i = 1; i <= params; i++) {
-			selectionArgs[i]=searchValue;
-		}
-		return database.rawQuery(query,selectionArgs);
-
-	}
-
-	
-	private void debugPrinter(Cursor rs) throws SQLException {
-	    int startpos=rs.getPosition();
-		int columns = rs.getColumnCount();
-		for(int i = 0; i<columns; i++) {
-			String columnname = rs.getColumnName(i);
-			System.out.print(columnname + "\t\t");
-		}
-		System.out.print("\n");
-
-		rs.moveToPosition(1);
-		for(int row = 0; row<rs.getCount(); row++) {
-            rs.moveToPosition(row);
-
-            for(int i = 0; i<columns; i++) {
-				String value = rs.getString(i);
-				System.out.print(value + "\t\t");
-			}
-			System.out.print("\n");
-		}
-		rs.moveToPosition(startpos);
-	}
 
     private class ItemList {
         private Cursor rs;
@@ -329,20 +293,4 @@ public class DatabaseHandler extends SQLiteAssetHelper{
     }//ItemList Class
 
 
-
-
-/*
-
-	 public static void main(String[] args) {
-	     DatabaseHandler items;
-		 items = new DatabaseHandler(context);
-		 items.printList("Flask (Ethylene)");
-	     items.printList("Vial (Pentane Isomers)");
-	     
-	     items.printList("Bucket");
-	     items.printList("Drum (Light Olefins)");
-	     items.printList("Drum (n-Butane)");
-	     items.printList("Cartridge (Ethane)");
-	    }
-	    */
 }
