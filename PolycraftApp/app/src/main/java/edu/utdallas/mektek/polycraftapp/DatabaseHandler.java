@@ -292,5 +292,4 @@ public class DatabaseHandler extends SQLiteAssetHelper{
         }
     }//ItemList Class
 
-
 }
