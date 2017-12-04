@@ -27,17 +27,20 @@ public class detail extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
-        String info = intent.getStringExtra(MainActivity.EXTRA_INFO);
-        String[] arr = info.split("|");
+        Item item = (Item)intent.getSerializableExtra("Detail");
 
         TextView textView = (TextView) findViewById(R.id.textView);
-        textView.setText(arr[0]);
+        textView.setText(item.getName());
 
         TextView textView2 = (TextView) findViewById(R.id.textView2);
-        textView2.setText(arr[1]);
+        textView2.setText(item.getUrl());
+
+        String natural = "no";
+        if(item.isNatural())
+            natural = "yes";
 
         TextView textView3 = (TextView) findViewById(R.id.textView3);
-        textView3.setText(arr[2]);
+        textView3.setText(natural);
 
         //Log.d("DEBUG-Detail", "String received " + info);
         //new GetBitmap((ImageView) findViewById(R.id.imageView)).execute("https://minecraft.gamepedia.com/media/minecraft.gamepedia.com/c/c2/Potato.png");

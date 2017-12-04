@@ -17,7 +17,9 @@ public class Vertex {
 
     private String id;
 
-    //pointer to node?
+    public String getId() {
+        return id;
+    }
 
     public void setPosition(Point2D point){
         this.position = point;

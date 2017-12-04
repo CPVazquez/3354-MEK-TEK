@@ -6,7 +6,7 @@ import java.io.*;
  * Created by trishaire on 11/8/17.
  */
 
-public abstract class SuperNode {
+public abstract class SuperNode implements Serializable{
     protected String nodeId;
     protected ArrayList<SuperNode> parents;
     protected ArrayList<SuperNode> children;

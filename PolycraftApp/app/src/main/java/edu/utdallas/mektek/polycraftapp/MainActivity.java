@@ -99,7 +99,27 @@ public class MainActivity extends AppCompatActivity {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+            dbh.close();
             return process;
+        }
+    }
+
+    private class GetSuperNode extends AsyncTask<Vertex, Void, Void>{
+        @Override
+        protected Void doInBackground(Vertex ... node){
+            dbh.open();
+            SuperNode ver = null;
+            try{
+                ver = dbh.getRecipeWithId(node[0].getId());
+            }catch (SQLException ex){
+                try {
+                    ver = dbh.getItemWithId(node[0].getId());
+                }catch (SQLException ec){
+                    Log.d("Details", "no details");
+                }
+            }
+            dbh.close();
+            return null;
         }
     }
 
@@ -175,9 +195,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Pull up node detail
-    public void startIntent(String info){
-        Intent intent = new Intent(this, detail.class);
-        intent.putExtra(EXTRA_INFO, info);
+    public void startIntent(SuperNode ver){
+        Intent intent;
+        if(ver instanceof Recipe)
+            intent = new Intent(this, RecipeDetail.class);
+        else
+            intent = new Intent(this, detail.class);
+        intent.putExtra("Detail", ver);
         startActivity(intent);
     }
 
@@ -192,11 +216,12 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public boolean onDoubleTap(MotionEvent ev) {
-            float actionBarHeight = 0;
+            float actionBarHeight  = 0;
             TypedValue tv = new TypedValue();
             if( getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)){
                 actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
             }
+            Log.d("Height", "action bar hight: " +actionBarHeight);
             float xTest = ev.getRawX();
             float yTest = ev.getRawY() - actionBarHeight;
             Log.d("Gestures", "onDoubleTableEvent: x: " + xTest + " y: " + yTest);
@@ -205,10 +230,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("Node", "x: " + position.getX() + " y: " + position.getY());
                 if(xTest <= position.getX() + 20 && xTest >= position.getX() - 20  && yTest<= position.getY() + 20 && yTest >= position.getY() - 20 ){
                     Log.d("Node", "yay!"); //Able to tap node, now launch Activity
-                    // Call to database
-
-                    String info = "https://minecraft.gamepedia.com/media/minecraft.gamepedia.com/4/43/Nether_Wart.png";
-                    startIntent(info);
+                    new GetSuperNode().execute(node);
                     break;
                 }
             }

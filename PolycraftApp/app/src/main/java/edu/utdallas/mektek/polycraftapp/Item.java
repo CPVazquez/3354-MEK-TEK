@@ -66,6 +66,8 @@ public class Item extends SuperNode {
         return name;
     }
 
+    public String getUrl() { return url;  }
+
     @Override
     public void setDrawnId(Long id) {
         drawnId = id;
