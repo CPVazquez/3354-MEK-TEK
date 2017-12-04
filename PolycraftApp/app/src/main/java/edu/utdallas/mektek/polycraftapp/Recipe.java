@@ -84,4 +84,8 @@ public class Recipe extends SuperNode {
     public String getName(){
         return this.inventory;
     }
+
+    public ArrayList<Integer> getChildQuantities(){ return this.childQuantities; }
+
+    public ArrayList<Integer> getParentQuantities(){ return this.parentQuantities; }
 }

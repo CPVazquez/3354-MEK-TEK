@@ -29,20 +29,19 @@ public class detail extends AppCompatActivity {
         Intent intent = getIntent();
         Item item = (Item)intent.getSerializableExtra("Detail");
 
-        TextView textView = (TextView) findViewById(R.id.textView);
+        TextView textView = (TextView) findViewById(R.id.textView5);
         textView.setText(item.getName());
 
-        TextView textView2 = (TextView) findViewById(R.id.textView2);
+        TextView textView2 = (TextView) findViewById(R.id.textView4);
         textView2.setText(item.getUrl());
 
-        String natural = "no";
+        String natural = "No";
         if(item.isNatural())
-            natural = "yes";
+            natural = "Yes";
 
-        TextView textView3 = (TextView) findViewById(R.id.textView3);
+        TextView textView3 = (TextView) findViewById(R.id.textView6);
         textView3.setText(natural);
 
-        //Log.d("DEBUG-Detail", "String received " + info);
         //new GetBitmap((ImageView) findViewById(R.id.imageView)).execute("https://minecraft.gamepedia.com/media/minecraft.gamepedia.com/c/c2/Potato.png");
     }
 

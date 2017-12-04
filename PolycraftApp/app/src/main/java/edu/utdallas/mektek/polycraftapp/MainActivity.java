@@ -197,11 +197,16 @@ public class MainActivity extends AppCompatActivity {
     // Pull up node detail
     public void startIntent(SuperNode ver){
         Intent intent;
-        if(ver instanceof Recipe)
+        if(ver instanceof Recipe){
             intent = new Intent(this, RecipeDetail.class);
-        else
+            Recipe casted = (Recipe) ver;
+            intent.putExtra("Detail", casted);
+        }
+        else{
             intent = new Intent(this, detail.class);
-        intent.putExtra("Detail", ver);
+            Item casted = (Item) ver;
+            intent.putExtra("Detail", casted);
+        }
         startActivity(intent);
     }
 
