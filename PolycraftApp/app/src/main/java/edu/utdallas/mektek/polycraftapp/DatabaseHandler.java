@@ -41,64 +41,88 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		}//closes open database
 	}
 
-	//CARLA: Use this to get your item
-	//TODO: Refactor this with createItem to streamline the code
-	public Item getItemWithId(String gameID) throws SQLException{
-		String query = SQLquery.queryItemDetailsWithId(gameID);
-		Item newItem;
-		Cursor rs = database.rawQuery(query,null);
-		if(rs.getCount()<=0) {
-			throw new SQLException("No such item.");
-		}
-		rs.moveToFirst();
-
-		String gameId = rs.getString(rs.getColumnIndex("gameID"));
-		String itmName = rs.getString(rs.getColumnIndex("itemName"));
-		File itmImage = new File(rs.getString(rs.getColumnIndex("itemImage")));
-		String itemURL = rs.getString(rs.getColumnIndex("itemURL"));
-		int itemNatural = parseInt(rs.getString(rs.getColumnIndex("itemNatural")));
-
-		newItem = new Item(gameId, itmName, itmImage, itemURL, itemNatural);
-		return newItem;
-	}
-
-
-	/*
-		CARLA: use this to get your recipe
-		Be sure to call this properly from mainActivity:
+	/*CARLA: Use this to get your item.
+        Be sure to call this properly from mainActivity:
 
 		this.dbh = DatabaseHandler.getInstance(this);
 		dbh.open() //connects to sql database -> maybe anshu is taking care of this command in the "onCreate() function?"
-		dbh.getRecipeWithId("123") //will fail if .open() has not been called earlier in the function -> maybe Anshu is taking care of this?
+		dbh.getItemWithId("123") //will fail if .open() has not been called earlier in the function -> maybe Anshu is taking care of this?
 		dbh.close() //call this at the end to prevent memory leakage -> maybe Anshu is taking care of this on "onPause()"?
+		*/
+    public Item getItemWithId(String gameId) throws SQLException {
+        Item item;
+	    try {
+            item=createItem(gameId, 1);
+        }catch(SQLException ex){
+	        throw ex;
+        }
+	 return item;
+    }
 
+
+    /*
+		CARLA: use this to get your recipe
 
 	 */
-	public Recipe getRecipeWithId(String rowID) throws SQLException{
-		return createRecipe(rowID);
-	}
-	
-	public void getItemID(String item) {
-				String command = SQLquery.selectIdsAndNames;
-				command += " WHERE itemName LIKE '%" + item + "%'";
-				Cursor rs =   database.rawQuery(command,null);
-	}
-	
-	public void printList(String rootItem) {
-		try {
-				System.out.println(getProcessTree(rootItem));
-				System.out.println(getRecipeId(rootItem).toString());
-			
-		} catch (SQLException ex) {
-			System.out.println(ex.getMessage());
-		}
-	}
 
-	public Tree getProcessTree(String searchValue) throws SQLException {
+    public Recipe getRecipeWithId(String rowID) throws SQLException{
+        try {
+            return createRecipe(rowID);
+        }catch(SQLException ex){
+            throw ex;
+        }
+    }
+
+
+    private Item createItem(String key, int method) throws SQLException, ArrayIndexOutOfBoundsException {
+
+        String[] queries = {SQLquery.queryItemDetails(key), SQLquery.queryItemDetailsWithId(key)};
+        Item newItem;
+        String query;
+
+        if(method!=0 && method!=1){
+            throw new ArrayIndexOutOfBoundsException();
+        }
+        query = queries[method];
+
+        Cursor rs = database.rawQuery(query,null);
+        if(rs.getCount()<=0) {
+            throw new SQLException("No such item.");
+        }
+        rs.moveToFirst();
+
+        String gameId = rs.getString(rs.getColumnIndex("gameID"));
+        String itmName = rs.getString(rs.getColumnIndex("itemName"));
+        File itmImage = new File(rs.getString(rs.getColumnIndex("itemImage")));
+        String itemURL = rs.getString(rs.getColumnIndex("itemURL"));
+        int itemNatural = parseInt(rs.getString(rs.getColumnIndex("itemNatural")));
+
+        newItem = new Item(gameId, itmName, itmImage, itemURL, itemNatural);
+        return newItem;
+    }
+
+	public String getItemID(String searchValue) {
+				String command = SQLquery.selectIdsAndNames;
+				command += " WHERE itemName LIKE '%" + searchValue + "%'";
+				Cursor rs =   database.rawQuery(command,null);
+				return rs.getString(rs.getColumnIndex("gameID"));
+
+	}
+	public String getRecipeId(String searchValue) throws SQLException {
+        ArrayList<String> ancestorIds;
+        try {
+            ancestorIds = getRowIdOfAncestors(searchValue);
+        }catch(SQLException ex){
+            throw ex;
+        }
+        return ancestorIds.get(0);
+    }
+
+    public Tree getProcessTree(String searchValue) throws SQLException {
 
         Item searchedItem;
 	    try {
-             searchedItem = createItem(searchValue);
+             searchedItem = createItem(searchValue,0);
         }
         catch (SQLException ex) {
             throw ex;
@@ -108,7 +132,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		Tree myTree = new Tree(searchedItem);
 
 
-		ArrayList<String> recipeIds = getRecipeId(searchValue);
+		ArrayList<String> recipeIds = getRowIdOfAncestors(searchValue);
 		try{
 		for(String rowId : recipeIds) {
 			Recipe recipe = createRecipe(rowId);
@@ -123,94 +147,42 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 	
 
 	private Recipe createRecipe(String rowId) throws SQLException {
-		
-		String query = SQLquery.querySpecificRecipeDetails(rowId);
-		Recipe newRecipe = null;
-
-		Cursor rs =   database.rawQuery(query,null);
-        rs.moveToFirst();
-
-        ArrayList<String> parents = new ArrayList<String>();
-        ArrayList<Integer> parQ = new ArrayList<Integer>();
-
-        //TODO: Encapsulate these calls into a do-while to handle multiple input columns
-        ArrayList<String> children = new ArrayList<>();
-        ArrayList<Integer> childQuantity = new ArrayList<Integer>();
-        children.add(rs.getString(rs.getColumnIndex("input1")));
-
+        Recipe newRecipe;
         try {
-            childQuantity.add(Integer.parseInt(rs.getString(rs.getColumnIndex("inQuant1"))));
-        } catch (NumberFormatException e1) {
-            childQuantity.add(0);
+            String query = SQLquery.querySpecificRecipeDetails(rowId);
+            Cursor rs = database.rawQuery(query, null);
+            rs.moveToFirst();
+
+            ItemList children = new ItemList(rs).childList();
+            ArrayList<SuperNode> childItems = children.getChildItems();
+            ArrayList<Integer> childQuant = children.getChildQuant();
+
+
+            ItemList parents = new ItemList(rs).parentList();
+            ArrayList<SuperNode> parentItems = parents.getParentItems();
+            ArrayList<Integer> parentQuant = parents.getParentQuant();
+
+
+            newRecipe = new Recipe("DistillationColumn", rowId, parentItems, childItems, new File("/Distillation_Column.ping"), parentQuant, childQuant);
+            setAsChild(newRecipe, parentItems);
+
+            rs.close();
+        }catch(SQLException ex){
+            throw ex;
         }
+		return newRecipe;
+	}
 
-        int i=1;
-        String par;
-        int parQuantity;
-        do{
-            par = rs.getString(rs.getColumnIndex("output" + i));
-            parents.add(par);
-            try {
-                parQuantity = parseInt(rs.getString(rs.getColumnIndex("outQuant" + i)));
-            }catch(NumberFormatException e) {
-                parQuantity = 0;
-            }
-            parQ.add(parQuantity);
-            i++;
-        }while (i<maxColumns && par.length()>0);
-
-        ArrayList<SuperNode> parentItems = new ArrayList<SuperNode>();
-        for (String itemName : parents) {
-
-            parentItems.add(createItem(itemName));
-        }
-
-        ArrayList<SuperNode> childItems = new ArrayList<SuperNode>();
-        for (String itemName : children) {
-            childItems.add(createItem(itemName));
-        }
-
-        newRecipe = new Recipe("DistillationColumn", rowId, parentItems, childItems, new File("/Distillation_Column.ping"), parQ, childQuantity);
+    private void setAsChild(Recipe newRecipe, ArrayList<SuperNode> parentItems) {
         ArrayList<SuperNode> recArr= new ArrayList<>();
         recArr.add(newRecipe);
         for (SuperNode it : parentItems){
             it.setChildren(recArr);
         }
+    }
 
-
-
-
-		rs.close();
-		return newRecipe;
-	}
-
-	private Item createItem(String itemName) throws SQLException {
-		
-		String query = SQLquery.queryItemDetails(itemName);
-		Item newItem;
-		Cursor rs = database.rawQuery(query,null);
-		if(rs.getCount()<=0) {
-            throw new SQLException("No such item.");
-        }
-		rs.moveToFirst();
-
-        String gameId = rs.getString(rs.getColumnIndex("gameID"));
-        String itmName = rs.getString(rs.getColumnIndex("itemName"));
-        File itmImage = new File(rs.getString(rs.getColumnIndex("itemImage")));
-        String itemURL = rs.getString(rs.getColumnIndex("itemURL"));
-        int itemNatural = parseInt(rs.getString(rs.getColumnIndex("itemNatural")));
-
-        newItem = new Item(gameId, itmName, itmImage, itemURL, itemNatural);
-        return newItem;
-	}
 	
-	private boolean checkBaseCase(Item inputItem) {
-			
-		
-		return false;
-	}
-	
-	private ArrayList <String> getRecipeId(String searchValue) throws SQLException {
+	private ArrayList <String> getRowIdOfAncestors(String searchValue) throws SQLException {
 		ArrayList <String> data = new ArrayList<String>();
 		if(searchValue==null) {// || data.contains(searchValue)){
 				return data;
@@ -219,22 +191,24 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 			//data.add("");
 			return data;
 		}
-		
-		Cursor rs = queryDBRecipeId(searchValue);
-		rs.moveToFirst();
-		if(!rs.isAfterLast()) {
 
-			data.add(rs.getString(rs.getColumnIndex("rowid")));
-			
-			data.addAll(getRecipeId(rs.getString(rs.getColumnIndex("input1"))));
-		}
-		else {
+		try {
+            Cursor rs = queryDBRecipeId(searchValue);
+            rs.moveToFirst();
+            if (!rs.isAfterLast()) {
 
-		}
+                data.add(rs.getString(rs.getColumnIndex("rowid")));
+
+                data.addAll(getRowIdOfAncestors(rs.getString(rs.getColumnIndex("input1"))));
+            } else {
+
+            }
+        }catch(SQLException ex){
+		    throw ex;
+        }
 		return data;
 	}
-	
-	
+
 	
 	private boolean checkBaseCase(String searchValue) throws SQLException {
 		
@@ -255,6 +229,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 
 	
 	private Cursor queryDBRecipeId(String searchValue) throws SQLException {
+        Cursor rs;
 		int params = maxColumns;
 		String query = SQLquery.queryDistillRecipeRowId(params);
 
@@ -262,57 +237,89 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		for(int i = 0; i < params; i++) {
 			selectionArgs[i]=searchValue;
 		}
-		return database.rawQuery(query,selectionArgs);
 
-	}
-	
-	
-	private Cursor queryDB(String searchValue) throws SQLException {
-		int params = maxColumns;
-		String query = SQLquery.queryDistillRecipeData(params);
+        rs = database.rawQuery(query, selectionArgs);
 
-		String[] selectionArgs = new String[params];
-		for(int i = 1; i <= params; i++) {
-			selectionArgs[i]=searchValue;
-		}
-		return database.rawQuery(query,selectionArgs);
+        if(rs.getCount()<=0){
+            throw new SQLException();
+        }
 
+        return rs;
 	}
 
-	
-	private void debugPrinter(Cursor rs) throws SQLException {
-	    int startpos=rs.getPosition();
-		int columns = rs.getColumnCount();
-		for(int i = 0; i<columns; i++) {
-			String columnname = rs.getColumnName(i);
-			System.out.print(columnname + "\t\t");
-		}
-		System.out.print("\n");
 
-		rs.moveToPosition(1);
-		for(int row = 0; row<rs.getCount(); row++) {
-            rs.moveToPosition(row);
+    private class ItemList {
+        private Cursor rs;
+        private ArrayList<Integer> parentQuant;
+        private ArrayList<SuperNode> parentItems;
+        private ArrayList<Integer> childQuant;
+        private ArrayList<SuperNode> childItems;
 
-            for(int i = 0; i<columns; i++) {
-				String value = rs.getString(i);
-				System.out.print(value + "\t\t");
-			}
-			System.out.print("\n");
-		}
-		rs.moveToPosition(startpos);
-	}
-/*
+        public ItemList(Cursor rs) {
+            this.rs = rs;
+        }
 
-	 public static void main(String[] args) {
-	     DatabaseHandler items;
-		 items = new DatabaseHandler(context);
-		 items.printList("Flask (Ethylene)");
-	     items.printList("Vial (Pentane Isomers)");
-	     
-	     items.printList("Bucket");
-	     items.printList("Drum (Light Olefins)");
-	     items.printList("Drum (n-Butane)");
-	     items.printList("Cartridge (Ethane)");
-	    }
-	    */
+        public ArrayList<Integer> getParentQuant() {
+            return parentQuant;
+        }
+
+        public ArrayList<Integer> getChildQuant() {
+            return childQuant;
+        }
+
+        public ArrayList<SuperNode> getChildItems() {
+            return childItems;
+        }
+
+        public ArrayList<SuperNode> getParentItems() {
+            return parentItems;
+        }
+
+        public ItemList parentList() throws SQLException {
+            ArrayList<String> parents = new ArrayList<String>();
+            parentQuant = new ArrayList<Integer>();
+            int i=1;
+            String par;
+            int parQuantity;
+            do{
+                par = rs.getString(rs.getColumnIndex("output" + i));
+                parents.add(par);
+                try {
+                    parQuantity = parseInt(rs.getString(rs.getColumnIndex("outQuant" + i)));
+                }catch(NumberFormatException e) {
+                    parQuantity = 0;
+                }
+                parentQuant.add(parQuantity);
+                i++;
+            }while (i<maxColumns && par.length()>0);
+
+            parentItems = new ArrayList<SuperNode>();
+            for (String itemName : parents) {
+
+                parentItems.add(createItem(itemName,0));
+            }
+            return this;
+        }
+
+        public ItemList childList() throws SQLException {
+            //TODO: Encapsulate these calls into a do-while to handle multiple input columns
+            ArrayList<String> children = new ArrayList<>();
+            childQuant = new ArrayList<Integer>();
+            children.add(rs.getString(rs.getColumnIndex("input1")));
+
+            try {
+                childQuant.add(Integer.parseInt(rs.getString(rs.getColumnIndex("inQuant1"))));
+            } catch (NumberFormatException e1) {
+                childQuant.add(0);
+            }
+
+
+            childItems = new ArrayList<SuperNode>();
+            for (String itemName : children) {
+                childItems.add(createItem(itemName,0));
+            }
+            return this;
+        }
+    }//ItemList Class
+
 }
