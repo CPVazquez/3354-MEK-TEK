@@ -44,6 +44,8 @@ public class GraphSurfaceView extends SurfaceView {
 
     private GestureDetectorCompat detector;
 
+    private final float RADIUS = 50; //FLOAT VALUE.
+
     private Scroller mScroller;
 
     private TypedArray attributes;
@@ -250,20 +252,35 @@ public class GraphSurfaceView extends SurfaceView {
             }else{
                 position = node.getPosition();
             }
-            canvas.drawCircle((float) position.getX(), (float) position.getY(), 40, whitePaint);
+            canvas.drawCircle((float) position.getX(), (float) position.getY(), RADIUS, whitePaint);
             if (node.getIcon() != null) {
                 Bitmap b = ((BitmapDrawable) node.getIcon()).getBitmap();
                 Bitmap bitmap = b.copy(Bitmap.Config.ARGB_8888, true);
                 Bitmap roundBitmap = getCroppedBitmap(bitmap, 75);
                 canvas.drawBitmap(roundBitmap,
-                        (float) position.getX() - 38f, (float) position.getY() - 38f, null);
+                        (float) position.getX() - (38f), (float) position.getY() - (38f), null);
             }
+
+            //Get Text Size and properly size the rectangle around the object
+            Rect mBounds = new Rect();
+            paint.getTextBounds(node.getNode().getLabel(),0, node.getNode().getLabel().length(),mBounds);
+            float mTextWidth = paint.measureText(node.getNode().getLabel());
+            float mTextHeight = mBounds.height();
+            Log.i("RECT", node.getNode().getLabel() + " " + mTextHeight + " " + mTextWidth);
+
             canvas.drawRect(
-                    (float) position.getX() - 20,
-                    (float) position.getY() + 50,
-                    (float) position.getX() + 20, (float) position.getY() + 10, whitePaint);
+                    (float) position.getX() - mTextWidth/2f,
+                    (float) position.getY() + RADIUS + mTextHeight/2f,
+                    (float) position.getX() + mTextWidth/2f,
+                    (float) position.getY() + mTextHeight/2f,
+                    whitePaint);
+
+//            canvas.drawRect(
+//                    (float) position.getX() - 20,
+//                    (float) position.getY() + 50,
+//                    (float) position.getX() + 20, (float) position.getY() + 10, whitePaint);
             canvas.drawText(node.getNode().getLabel(), (float) position.getX(),
-                    (float) position.getY() + 40, paint);
+                    (float) position.getY() + RADIUS, paint);
         }
         canvas.restore();
 
