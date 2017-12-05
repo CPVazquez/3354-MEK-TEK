@@ -141,6 +141,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public boolean inRange(float xTest, float yTest, Point2D position, int range) {
+        return xTest <= position.getX() + range && xTest >= position.getX() - range
+                && yTest<= position.getY() + range && yTest >= position.getY() - range;
+    }
+
     public void drawTree(Tree processTree){
         // Initialize Network Graph
         processGraph = new NetworkGraph();
@@ -230,6 +235,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+
     private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
         private int tapSpacingThing = 40;
         @Override
@@ -246,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
             for(Vertex node : processGraph.getVertex()){
                 Point2D position = node.getPosition();
                 Log.d("Node", "x: " + position.getX() + " y: " + position.getY());
-                if(xTest <= position.getX() + tapSpacingThing && xTest >= position.getX() - tapSpacingThing  && yTest<= position.getY() + tapSpacingThing && yTest >= position.getY() - tapSpacingThing ){
+                if(inRange(xTest, yTest, position, tapSpacingThing)){
                     Log.d("Node", "yay!"); //Able to tap node, now launch Activity
                     new GetSuperNode().execute(node);
                     break;

@@ -45,7 +45,9 @@ public class GraphSurfaceView extends SurfaceView {
 
     private TypedArray attributes;
 
-    private float mScaleFactor = 1.f;
+    private float mScaleFactor = 1.0f;
+    private static float mMinFactor = 0.5f;
+    private static float mMaxFactor = 5.0f;
 
     /**
      * Instantiates a new NetworkGraph surface view.
@@ -240,7 +242,7 @@ public class GraphSurfaceView extends SurfaceView {
         public boolean onScale(ScaleGestureDetector detector) {
             mScaleFactor *= detector.getScaleFactor();
             mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 5.0f));
-            postInvalidate();//nvalidate();
+            postInvalidate();//invalidate();
             return true;
         }
     }
