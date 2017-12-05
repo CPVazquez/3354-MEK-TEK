@@ -1,4 +1,6 @@
-package giwi.org.networkgraph;uto-merging PolycraftApp/.idea/workspace.xml
+package giwi.org.networkgraph;
+
+import android.view.SurfaceView;
 
 
 import net.xqhs.graphs.graph.Edge;
@@ -281,8 +283,25 @@ public class GraphSurfaceView extends SurfaceView {
         paint.setTextSize(20f);
         paint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_defaultColor, mNetworkGraph.getDefaultColor()));
         for (Edge edge : mNetworkGraph.getEdges()) {
-            Point2D p1 = layout.transform(edge.getFrom()); //TODO: REMOVE THIS CALL?
-            Point2D p2 = layout.transform(edge.getTo()); //TODO: REMOVE THIS CALL?
+            Point2D p1 = new Point2D();
+            p1.setLocation(0,0);
+            Point2D p2 = new Point2D();
+            p2.setLocation(0,0);
+            for(Vertex node : mNetworkGraph.getVertex()){
+                if(edge.getFrom() == node.getNode()){
+                    if(node.getPosition() == null)
+                        p1 = layout.transform(edge.getFrom());
+                    else
+                        p1 = node.getPosition();
+                }
+                if(edge.getTo() == node.getNode()){
+                    if(node.getPosition() == null)
+                        p2 = layout.transform(edge.getTo());
+                    else
+                        p2 = node.getPosition();
+
+                }
+            }
             paint.setStrokeWidth(Float.valueOf(edge.getLabel()) + 1f);
             paint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_edgeColor, mNetworkGraph.getEdgeColor()));
             Paint curve = new Paint();
@@ -300,8 +319,14 @@ public class GraphSurfaceView extends SurfaceView {
         paint.setStrokeWidth(0f);
         paint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_nodeColor, mNetworkGraph.getNodeColor()));
         for (Vertex node : mNetworkGraph.getVertex()) {
-            Point2D position = layout.transform(node.getNode()); //TODO: REMOVE THIS CALL
-            node.setPosition(position);
+            Point2D position = new Point2D();
+            position.setLocation(0,0);
+            if(node.getPosition() == null) {
+                position = layout.transform(node.getNode());
+                node.setPosition(position);
+            }else{
+                position = node.getPosition();
+            }
             canvas.drawCircle((float) position.getX(), (float) position.getY(), 40, whitePaint);
             if (node.getIcon() != null) {
                 Bitmap b = ((BitmapDrawable) node.getIcon()).getBitmap();
