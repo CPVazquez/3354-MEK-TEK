@@ -199,6 +199,7 @@ public class GraphSurfaceView extends SurfaceView {
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent ev) {
         detector.onTouchEvent(ev);
+        mScaleDetector.onTouchEvent(ev);
         Log.d("GSV", "Screen was touched");
         return super.onTouchEvent(ev);
     }
@@ -228,6 +229,7 @@ public class GraphSurfaceView extends SurfaceView {
             mScaleFactor *= detector.getScaleFactor();
             mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 5.0f));
             invalidate();
+            Log.d("Scale", "scale detected");
             return true;
         }
     }
