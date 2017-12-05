@@ -45,7 +45,15 @@ public class GraphSurfaceView extends SurfaceView {
 
     private TypedArray attributes;
 
+    private NetworkGraph mNetworkGraph;
+
+    private SurfaceHolder mSurfaceHolder;
+    private Canvas mCanvas;
+
     private float mScaleFactor = 1.f;
+
+    private float positionX = 0;
+    private float positionY = 0;
 
     /**
      * Instantiates a new NetworkGraph surface view.
@@ -92,21 +100,24 @@ public class GraphSurfaceView extends SurfaceView {
      * @param graph the graph
      */
     public void init(final NetworkGraph graph) {
+        mNetworkGraph = graph;
         setZOrderOnTop(true);
         getHolder().setFormat(PixelFormat.TRANSLUCENT);
         //mScroller = new Scroller(getContext());
         getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
-                Canvas canvas = holder.lockCanvas(null);
-                canvas.drawARGB(0, 225, 225, 255);
-                drawGraph(canvas, graph);
-                holder.unlockCanvasAndPost(canvas);
+                Log.d("Surface", "Surface Created Called");
+               // mCanvas = holder.lockCanvas(null);
+               // mCanvas.drawARGB(0, 225, 225, 255);
+                //drawGraph(mCanvas, mNetworkGraph); //TODO: Handle G[0,0],[] for graph.
+               // holder.unlockCanvasAndPost(mCanvas);
             }
 
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
                 // TODO Auto-generated method stub
+                Log.d("Surface", "Surface Changed Called");
 
             }
 
@@ -116,7 +127,11 @@ public class GraphSurfaceView extends SurfaceView {
 
             }
         });
+        invalidate();
+        postInvalidate();
     }
+
+
 
     private void drawGraph(final Canvas canvas, final NetworkGraph graph) {
         Paint paint = new Paint();
@@ -216,6 +231,66 @@ public class GraphSurfaceView extends SurfaceView {
         //return super.onTouchEvent(ev);
     }
 
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
+        super.dispatchDraw(canvas);
+        Log.i("ONDRAW", "onDraw is called");
+        canvas.save();
+        canvas.translate(positionX,positionY);
+        Paint paint = new Paint();
+        Paint whitePaint = new Paint();
+        paint.setAntiAlias(true);
+        FRLayout layout = new FRLayout(mNetworkGraph, new Dimension(getWidth(), getHeight()));
+        whitePaint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_nodeBgColor, mNetworkGraph.getNodeBgColor()));
+        whitePaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        whitePaint.setStrokeWidth(2f);
+        whitePaint.setShadowLayer(5, 0, 0, attributes.getColor(R.styleable.GraphSurfaceView_defaultColor, mNetworkGraph
+                .getDefaultColor()));
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setTextSize(20f);
+        paint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_defaultColor, mNetworkGraph.getDefaultColor()));
+        for (Edge edge : mNetworkGraph.getEdges()) {
+            Point2D p1 = layout.transform(edge.getFrom()); //TODO: REMOVE THIS CALL?
+            Point2D p2 = layout.transform(edge.getTo()); //TODO: REMOVE THIS CALL?
+            paint.setStrokeWidth(Float.valueOf(edge.getLabel()) + 1f);
+            paint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_edgeColor, mNetworkGraph.getEdgeColor()));
+            Paint curve = new Paint();
+            curve.setAntiAlias(true);
+            curve.setStyle(Paint.Style.STROKE);
+            curve.setStrokeWidth(2);
+            curve.setColor(attributes.getColor(R.styleable.GraphSurfaceView_edgeColor, mNetworkGraph.getEdgeColor()));
+            PointF e1 = new PointF((float) p1.getX(), (float) p1.getY());
+            PointF e2 = new PointF((float) p2.getX(), (float) p2.getY());
+            ArcUtils.drawArc(e1, e2, 36f, canvas, curve, paint, whitePaint, Integer.parseInt(edge.getLabel()));
+        }
+        paint.setStyle(Paint.Style.FILL);
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setTextSize(30f);
+        paint.setStrokeWidth(0f);
+        paint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_nodeColor, mNetworkGraph.getNodeColor()));
+        for (Vertex node : mNetworkGraph.getVertex()) {
+            Point2D position = layout.transform(node.getNode()); //TODO: REMOVE THIS CALL
+            node.setPosition(position);
+            canvas.drawCircle((float) position.getX(), (float) position.getY(), 40, whitePaint);
+            if (node.getIcon() != null) {
+                Bitmap b = ((BitmapDrawable) node.getIcon()).getBitmap();
+                Bitmap bitmap = b.copy(Bitmap.Config.ARGB_8888, true);
+                Bitmap roundBitmap = getCroppedBitmap(bitmap, 75);
+                canvas.drawBitmap(roundBitmap,
+                        (float) position.getX() - 38f, (float) position.getY() - 38f, null);
+            }
+            canvas.drawRect(
+                    (float) position.getX() - 20,
+                    (float) position.getY() + 50,
+                    (float) position.getX() + 20, (float) position.getY() + 10, whitePaint);
+            canvas.drawText(node.getNode().getLabel(), (float) position.getX(),
+                    (float) position.getY() + 40, paint);
+        }
+        canvas.restore();
+
+
+    }
+
     /**
      * Gets scale factor.
      *
@@ -252,8 +327,21 @@ public class GraphSurfaceView extends SurfaceView {
         }
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            Log.i("SCROLL", "Screen is scrolled e1 e2 X: " + e1.getX() + " " + e2.getX());
-            return super.onScroll(e1, e2, distanceX, distanceY);
+            Log.i("SCROLL", "Screen is scrolled by X & Y : " + distanceX + " " + distanceY);
+            //mSurfaceHolder = getHolder();
+            //mCanvas = mSurfaceHolder.lockCanvas(null);
+            positionX += distanceX;
+            positionY += distanceY;
+
+            invalidate();
+
+            //getHolder().
+           // drawGraph(mCanvas,mNetworkGraph);
+            //mSurfaceHolder.unlockCanvasAndPost(mCanvas);
+            //mCanvas.
+            //postInvalidate();
+            return true;
+            //return super.onScroll(e1, e2, distanceX, distanceY);
         }
 
         @Override
