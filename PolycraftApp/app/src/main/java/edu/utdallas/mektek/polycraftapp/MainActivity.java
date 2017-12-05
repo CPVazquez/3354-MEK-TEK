@@ -71,8 +71,7 @@ public class MainActivity extends AppCompatActivity {
             process = new GetTree().execute(message).get();
         }
         catch(Exception e){
-            // Handle error
-
+            //Handle Exception
         }
 
         if(process != null){
@@ -158,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         else {
-            TextView textView = (TextView) findViewById(R.id.editText2);
+            TextView textView = (TextView) findViewById(R.id.textView8);
             textView.setText("You Searched A base Item");
             currentRecipe=null;
         }
@@ -171,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
             // Draw the recipe
             Node drawnRecipe = new SimpleNode(currentRecipe.getName());
             processGraph.getVertex().add(new Vertex(drawnRecipe, ContextCompat.getDrawable(this,R.drawable.icon), currentRecipe.getId()));
-
+            
             // Draw parents of recipe
             for(SuperNode parent : currentRecipe.getParents()) {
                 Node nodeToAdd = new SimpleNode(parent.getName());
@@ -248,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
             }
             Log.d("Height", "action bar hight: " +actionBarHeight);
             float xTest = ev.getRawX();
-            float yTest = ev.getRawY() - 280;
+            float yTest = ev.getRawY() - 220;
             Log.d("Gestures", "onDoubleTableEvent: x: " + xTest + " y: " + yTest);
             for(Vertex node : processGraph.getVertex()){
                 Point2D position = node.getPosition();

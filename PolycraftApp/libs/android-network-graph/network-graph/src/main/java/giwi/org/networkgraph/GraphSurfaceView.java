@@ -134,8 +134,31 @@ public class GraphSurfaceView extends SurfaceView {
         paint.setTextSize(20f);
         paint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_defaultColor, graph.getDefaultColor()));
         for (Edge edge : graph.getEdges()) {
-            Point2D p1 = layout.transform(edge.getFrom()); //TODO: REMOVE THIS CALL?
-            Point2D p2 = layout.transform(edge.getTo()); //TODO: REMOVE THIS CALL?
+            Point2D p1 = new Point2D();
+            p1.setLocation(0,0);
+            Point2D p2 = new Point2D();
+            p2.setLocation(0,0);
+
+               //  //TODO: REMOVE THIS CALL?
+               //  //TODO: REMOVE THIS CALL?
+
+            for(Vertex node : graph.getVertex()){
+                if(edge.getFrom() == node.getNode()){
+                    if(node.getPosition() == null)
+                        p1 = layout.transform(edge.getFrom());
+                    else
+                        p1 = node.getPosition();
+                }
+                if(edge.getTo() == node.getNode()){
+                    if(node.getPosition() == null)
+                        p2 = layout.transform(edge.getTo());
+                    else
+                        p2 = node.getPosition();
+
+                }
+            }
+
+
             paint.setStrokeWidth(Float.valueOf(edge.getLabel()) + 1f);
             paint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_edgeColor, graph.getEdgeColor()));
             Paint curve = new Paint();
@@ -153,8 +176,14 @@ public class GraphSurfaceView extends SurfaceView {
         paint.setStrokeWidth(0f);
         paint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_nodeColor, graph.getNodeColor()));
         for (Vertex node : graph.getVertex()) {
-            Point2D position = layout.transform(node.getNode()); //TODO: REMOVE THIS CALL
-            node.setPosition(position);
+            Point2D position = new Point2D();
+            position.setLocation(0,0);
+            if(node.getPosition() == null) {
+                position = layout.transform(node.getNode()); //TODO: REMOVE THIS CALL
+                node.setPosition(position);
+            }else{
+                position = node.getPosition();
+            }
             canvas.drawCircle((float) position.getX(), (float) position.getY(), 40, whitePaint);
             if (node.getIcon() != null) {
                 Bitmap b = ((BitmapDrawable) node.getIcon()).getBitmap();
@@ -204,7 +233,7 @@ public class GraphSurfaceView extends SurfaceView {
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent ev) {
-        boolean result = detector.onTouchEvent(ev);
+       /* boolean result = detector.onTouchEvent(ev);
         if(!result){
             if (ev.getAction() == MotionEvent.ACTION_UP) {
                 //stopScrolling();
@@ -212,10 +241,10 @@ public class GraphSurfaceView extends SurfaceView {
             }
         }
         return result;
-        //mScaleDetector.onTouchEvent(ev);
-        //postInvalidate();
-        //Log.d("GSV", "Screen was touched");
-        //return super.onTouchEvent(ev);
+     */ mScaleDetector.onTouchEvent(ev);
+        postInvalidate();
+        Log.d("GSV", "Screen was touched");
+        return super.onTouchEvent(ev);
     }
 
     /**
@@ -241,7 +270,7 @@ public class GraphSurfaceView extends SurfaceView {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             mScaleFactor *= detector.getScaleFactor();
-            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 5.0f));
+            mScaleFactor = Math.max(mMinFactor, Math.min(mScaleFactor, mMaxFactor));
             postInvalidate();//invalidate();
             return true;
         }

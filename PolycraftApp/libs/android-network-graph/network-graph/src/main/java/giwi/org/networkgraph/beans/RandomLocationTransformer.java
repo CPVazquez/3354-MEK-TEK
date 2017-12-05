@@ -70,10 +70,10 @@ public class RandomLocationTransformer<V> implements Transformer<V, Point2D> {
      * @return the point 2 d
      */
     public Point2D transform(V v) {
-       // return new Point2D(random.nextDouble() * d.width, random.nextDouble() * d.height);
+        return new Point2D(random.nextDouble() * d.width, random.nextDouble() * d.height);
 
-        Log.d("DIMENSIONS?", "width: " + d.width + " height: " + d.height);
-        return new Point2D(d.width, d.height);
+       // Log.d("DIMENSIONS?", "width: " + d.width + " height: " + d.height);
+        //return new Point2D(d.width, d.height);
 
     }
 }
