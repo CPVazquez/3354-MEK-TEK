@@ -29,9 +29,9 @@ public class detail extends AppCompatActivity {
 
         Intent intent = getIntent();
         Item item = (Item)intent.getSerializableExtra("Detail");
-
+        Log.d("ITEM NAME: ", item.toString());
         TextView textView = (TextView) findViewById(R.id.textView5);
-        textView.setText(item.getName());
+        textView.setText("Testing");
         Log.d("DETAIL", "Setting name");
 
         TextView textView2 = (TextView) findViewById(R.id.textView4);

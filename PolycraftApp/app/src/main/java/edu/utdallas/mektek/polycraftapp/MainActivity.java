@@ -228,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
-
+        private int tapSpacingThing = 40;
         @Override
         public boolean onDoubleTap(MotionEvent ev) {
             float actionBarHeight  = 0;
@@ -243,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
             for(Vertex node : processGraph.getVertex()){
                 Point2D position = node.getPosition();
                 Log.d("Node", "x: " + position.getX() + " y: " + position.getY());
-                if(xTest <= position.getX() + 20 && xTest >= position.getX() - 20  && yTest<= position.getY() + 20 && yTest >= position.getY() - 20 ){
+                if(xTest <= position.getX() + tapSpacingThing && xTest >= position.getX() - tapSpacingThing  && yTest<= position.getY() + tapSpacingThing && yTest >= position.getY() - tapSpacingThing ){
                     Log.d("Node", "yay!"); //Able to tap node, now launch Activity
                     new GetSuperNode().execute(node);
                     break;

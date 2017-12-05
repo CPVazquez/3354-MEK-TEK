@@ -4,12 +4,16 @@ import net.xqhs.graphs.graph.Node;
 
 import android.graphics.drawable.Drawable;
 
+//import edu.utdallas.mektek.polycraftapp.*;
+
 /**
  * The type Vertex.
  */
 public class Vertex {
 
     private Node node;
+
+    //public SuperNode node;
 
     private Point2D position; //carla added
 

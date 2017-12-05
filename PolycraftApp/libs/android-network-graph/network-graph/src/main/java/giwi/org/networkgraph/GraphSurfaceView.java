@@ -23,6 +23,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Scroller;
 
 import giwi.org.networkgraph.beans.ArcUtils;
 import giwi.org.networkgraph.beans.Dimension;
@@ -39,6 +40,8 @@ public class GraphSurfaceView extends SurfaceView {
     private ScaleGestureDetector mScaleDetector;
 
     private GestureDetectorCompat detector;
+
+    private Scroller mScroller;
 
     private TypedArray attributes;
 
@@ -91,6 +94,7 @@ public class GraphSurfaceView extends SurfaceView {
     public void init(final NetworkGraph graph) {
         setZOrderOnTop(true);
         getHolder().setFormat(PixelFormat.TRANSLUCENT);
+        //mScroller = new Scroller(getContext());
         getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
@@ -128,8 +132,8 @@ public class GraphSurfaceView extends SurfaceView {
         paint.setTextSize(20f);
         paint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_defaultColor, graph.getDefaultColor()));
         for (Edge edge : graph.getEdges()) {
-            Point2D p1 = layout.transform(edge.getFrom());
-            Point2D p2 = layout.transform(edge.getTo());
+            Point2D p1 = layout.transform(edge.getFrom()); //TODO: REMOVE THIS CALL?
+            Point2D p2 = layout.transform(edge.getTo()); //TODO: REMOVE THIS CALL?
             paint.setStrokeWidth(Float.valueOf(edge.getLabel()) + 1f);
             paint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_edgeColor, graph.getEdgeColor()));
             Paint curve = new Paint();
@@ -147,7 +151,7 @@ public class GraphSurfaceView extends SurfaceView {
         paint.setStrokeWidth(0f);
         paint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_nodeColor, graph.getNodeColor()));
         for (Vertex node : graph.getVertex()) {
-            Point2D position = layout.transform(node.getNode());
+            Point2D position = layout.transform(node.getNode()); //TODO: REMOVE THIS CALL
             node.setPosition(position);
             canvas.drawCircle((float) position.getX(), (float) position.getY(), 40, whitePaint);
             if (node.getIcon() != null) {
@@ -198,9 +202,18 @@ public class GraphSurfaceView extends SurfaceView {
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent ev) {
-        detector.onTouchEvent(ev);
-        Log.d("GSV", "Screen was touched");
-        return super.onTouchEvent(ev);
+        boolean result = detector.onTouchEvent(ev);
+        if(!result){
+            if (ev.getAction() == MotionEvent.ACTION_UP) {
+                //stopScrolling();
+                result = true;
+            }
+        }
+        return result;
+        //mScaleDetector.onTouchEvent(ev);
+        //postInvalidate();
+        //Log.d("GSV", "Screen was touched");
+        //return super.onTouchEvent(ev);
     }
 
     /**
@@ -227,12 +240,21 @@ public class GraphSurfaceView extends SurfaceView {
         public boolean onScale(ScaleGestureDetector detector) {
             mScaleFactor *= detector.getScaleFactor();
             mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 5.0f));
-            invalidate();
+            postInvalidate();//nvalidate();
             return true;
         }
     }
 
     private class MyGestureListener extends GestureDetector.SimpleOnGestureListener{
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            Log.i("SCROLL", "Screen is scrolled e1 e2 X: " + e1.getX() + " " + e2.getX());
+            return super.onScroll(e1, e2, distanceX, distanceY);
+        }
 
         @Override
         public boolean onDoubleTap(MotionEvent ev){
