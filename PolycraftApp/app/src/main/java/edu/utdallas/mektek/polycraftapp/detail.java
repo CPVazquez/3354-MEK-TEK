@@ -26,11 +26,13 @@ public class detail extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+
         Intent intent = getIntent();
         Item item = (Item)intent.getSerializableExtra("Detail");
 
         TextView textView = (TextView) findViewById(R.id.textView5);
         textView.setText(item.getName());
+        Log.d("DETAIL", "Setting name");
 
         TextView textView2 = (TextView) findViewById(R.id.textView4);
         textView2.setText(item.getUrl());

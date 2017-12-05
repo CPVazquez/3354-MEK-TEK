@@ -104,22 +104,30 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class GetSuperNode extends AsyncTask<Vertex, Void, Void>{
+    private class GetSuperNode extends AsyncTask<Vertex, Void, SuperNode>{
         @Override
-        protected Void doInBackground(Vertex ... node){
+        protected SuperNode doInBackground(Vertex ... node){
             dbh.open();
             SuperNode ver = null;
             try{
-                ver = dbh.getRecipeWithId(node[0].getId());
+                ver = dbh.getItemWithId(node[0].getId());
+                Log.d("DEBUG", "Got supernode!!");
+                dbh.close();
+                return ver;
             }catch (SQLException ex){
                 try {
-                    ver = dbh.getItemWithId(node[0].getId());
+                    ver = dbh.getRecipeWithId(node[0].getId());
+                    dbh.close();
+                    return ver;
                 }catch (SQLException ec){
                     Log.d("Details", "no details");
                 }
             }
-            dbh.close();
             return null;
+        }
+        @Override
+        protected void onPostExecute(SuperNode ver){
+            startIntent(ver);
         }
     }
 
@@ -201,11 +209,13 @@ public class MainActivity extends AppCompatActivity {
             intent = new Intent(this, RecipeDetail.class);
             Recipe casted = (Recipe) ver;
             intent.putExtra("Detail", casted);
+            Log.d("Debug", "Recipe was tapped");
         }
         else{
             intent = new Intent(this, detail.class);
             Item casted = (Item) ver;
-            intent.putExtra("Detail", casted);
+            intent.putExtra("Detail",casted);
+            Log.d("Debug", "Item was tapped");
         }
         startActivity(intent);
     }
@@ -228,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
             }
             Log.d("Height", "action bar hight: " +actionBarHeight);
             float xTest = ev.getRawX();
-            float yTest = ev.getRawY() - actionBarHeight;
+            float yTest = ev.getRawY() - 280;
             Log.d("Gestures", "onDoubleTableEvent: x: " + xTest + " y: " + yTest);
             for(Vertex node : processGraph.getVertex()){
                 Point2D position = node.getPosition();

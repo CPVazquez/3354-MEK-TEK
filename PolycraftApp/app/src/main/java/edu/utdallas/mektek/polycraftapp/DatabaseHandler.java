@@ -241,7 +241,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
         rs = database.rawQuery(query, selectionArgs);
 
         if(rs.getCount()<=0){
-            throw new SQLException();
+            //throw new SQLException();
         }
 
         return rs;
