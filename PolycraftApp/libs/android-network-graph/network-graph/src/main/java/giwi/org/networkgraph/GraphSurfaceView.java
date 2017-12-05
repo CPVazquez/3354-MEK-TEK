@@ -135,89 +135,6 @@ public class GraphSurfaceView extends SurfaceView {
         postInvalidate();
     }
 
-
-
-    private void drawGraph(final Canvas canvas, final NetworkGraph graph) {
-        Paint paint = new Paint();
-        Paint whitePaint = new Paint();
-        paint.setAntiAlias(true);
-        FRLayout layout = new FRLayout(graph, new Dimension(getWidth(), getHeight()));
-        whitePaint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_nodeBgColor, graph.getNodeBgColor()));
-        whitePaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        whitePaint.setStrokeWidth(2f);
-        whitePaint.setShadowLayer(5, 0, 0, attributes.getColor(R.styleable.GraphSurfaceView_defaultColor, graph
-                .getDefaultColor()));
-        paint.setTextAlign(Paint.Align.CENTER);
-        paint.setTextSize(20f);
-        paint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_defaultColor, graph.getDefaultColor()));
-        for (Edge edge : graph.getEdges()) {
-            Point2D p1 = new Point2D();
-            p1.setLocation(0,0);
-            Point2D p2 = new Point2D();
-            p2.setLocation(0,0);
-
-               //  //TODO: REMOVE THIS CALL?
-               //  //TODO: REMOVE THIS CALL?
-
-            for(Vertex node : graph.getVertex()){
-                if(edge.getFrom() == node.getNode()){
-                    if(node.getPosition() == null)
-                        p1 = layout.transform(edge.getFrom());
-                    else
-                        p1 = node.getPosition();
-                }
-                if(edge.getTo() == node.getNode()){
-                    if(node.getPosition() == null)
-                        p2 = layout.transform(edge.getTo());
-                    else
-                        p2 = node.getPosition();
-
-                }
-            }
-
-
-            paint.setStrokeWidth(Float.valueOf(edge.getLabel()) + 1f);
-            paint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_edgeColor, graph.getEdgeColor()));
-            Paint curve = new Paint();
-            curve.setAntiAlias(true);
-            curve.setStyle(Paint.Style.STROKE);
-            curve.setStrokeWidth(2);
-            curve.setColor(attributes.getColor(R.styleable.GraphSurfaceView_edgeColor, graph.getEdgeColor()));
-            PointF e1 = new PointF((float) p1.getX(), (float) p1.getY());
-            PointF e2 = new PointF((float) p2.getX(), (float) p2.getY());
-            ArcUtils.drawArc(e1, e2, 36f, canvas, curve, paint, whitePaint, Integer.parseInt(edge.getLabel()));
-        }
-        paint.setStyle(Paint.Style.FILL);
-        paint.setTextAlign(Paint.Align.CENTER);
-        paint.setTextSize(30f);
-        paint.setStrokeWidth(0f);
-        paint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_nodeColor, graph.getNodeColor()));
-        for (Vertex node : graph.getVertex()) {
-            Point2D position = new Point2D();
-            position.setLocation(0,0);
-            if(node.getPosition() == null) {
-                position = layout.transform(node.getNode()); //TODO: REMOVE THIS CALL
-                node.setPosition(position);
-            }else{
-                position = node.getPosition();
-            }
-            canvas.drawCircle((float) position.getX(), (float) position.getY(), 40, whitePaint);
-            if (node.getIcon() != null) {
-                Bitmap b = ((BitmapDrawable) node.getIcon()).getBitmap();
-                Bitmap bitmap = b.copy(Bitmap.Config.ARGB_8888, true);
-                Bitmap roundBitmap = getCroppedBitmap(bitmap, 75);
-                canvas.drawBitmap(roundBitmap,
-                        (float) position.getX() - 38f, (float) position.getY() - 38f, null);
-            }
-            canvas.drawRect(
-                    (float) position.getX() - 20,
-                    (float) position.getY() + 50,
-                    (float) position.getX() + 20, (float) position.getY() + 10, whitePaint);
-            canvas.drawText(node.getNode().getLabel(), (float) position.getX(),
-                    (float) position.getY() + 40, paint);
-        }
-    }
-
     private Bitmap getCroppedBitmap(Bitmap bmp, int radius) {
         Bitmap sbmp;
         if (bmp.getWidth() != radius || bmp.getHeight() != radius) {
@@ -250,18 +167,24 @@ public class GraphSurfaceView extends SurfaceView {
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent ev) {
-       /* boolean result = detector.onTouchEvent(ev);
+        boolean result = detector.onTouchEvent(ev);
         if(!result){
             if (ev.getAction() == MotionEvent.ACTION_UP) {
                 //stopScrolling();
                 result = true;
             }
+            if(ev.getAction() == MotionEvent.ACTION_DOWN) {
+                if (getParent() != null) {
+                    getParent().requestDisallowInterceptTouchEvent(true);
+                    result = true;
+                }
+            }
         }
         return result;
-     */ mScaleDetector.onTouchEvent(ev);
-        postInvalidate();
-        Log.d("GSV", "Screen was touched");
-        return super.onTouchEvent(ev);
+      //  mScaleDetector.onTouchEvent(ev);
+       // postInvalidate();
+      //  Log.d("GSV", "Screen was touched");
+        //return super.onTouchEvent(ev);
     }
 
     @Override
