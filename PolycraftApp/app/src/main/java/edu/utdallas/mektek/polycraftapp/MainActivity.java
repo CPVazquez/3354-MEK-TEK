@@ -12,6 +12,8 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
+import android.widget.TextView;
 
 import net.xqhs.graphs.graph.Node;
 import net.xqhs.graphs.graph.SimpleEdge;
@@ -151,7 +153,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         else {
-            //TODO: Display that they searched a base item
+            TextView textView = (TextView) findViewById(R.id.editText2);
+            textView.setText("You Searched A base Item");
             currentRecipe=null;
         }
 
@@ -252,4 +255,14 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
     }
+
+   /* private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        public boolean onScale(ScaleGestureDetector detector) {
+            mScaleFactor *= detector.getScaleFactor();
+            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 5.0f));
+            invalidate();
+            Log.d("Scale", "scale detected");
+            return true;
+        }
+    }*/
 }
