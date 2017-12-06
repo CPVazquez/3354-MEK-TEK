@@ -41,7 +41,7 @@ public class RecipeDetail extends AppCompatActivity {
         ArrayList<Integer> childQuant = selectedNode.getChildQuantities();
         ArrayList<SuperNode> children = selectedNode.getChildren();
         for(int i=0; i < childQuant.size(); i++){
-            outputBuilder += children.get(i) + " (" + childQuant.get(i) + ") \n";
+            inputBuilder += children.get(i) + " (" + childQuant.get(i) + ") \n";
         }
         inputItems.setText(inputBuilder);
     }
