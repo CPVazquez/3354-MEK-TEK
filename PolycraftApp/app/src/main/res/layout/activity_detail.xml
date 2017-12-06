@@ -25,7 +25,8 @@
         android:layout_width="80dp"
         android:layout_height="27dp"
         android:layout_marginStart="28dp"
-        android:text="Item Wiki:"
+        android:text="Wiki:"
+        android:textSize="18sp"
         app:layout_constraintBaseline_toBaselineOf="@+id/wikiEntry"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -36,6 +37,7 @@
         android:layout_marginBottom="84dp"
         android:layout_marginStart="28dp"
         android:text="Naturally Occuring?"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -54,10 +56,11 @@
 
     <TextView
         android:id="@+id/itemName"
-        android:layout_width="80dp"
-        android:layout_height="32dp"
+        android:layout_width="82dp"
+        android:layout_height="38dp"
         android:layout_marginStart="28dp"
-        android:text="Item Name:"
+        android:text="Name:"
+        android:textSize="18sp"
         app:layout_constraintBaseline_toBaselineOf="@+id/nameEntry"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -65,26 +68,28 @@
         android:id="@+id/wikiEntry"
         android:layout_width="200dp"
         android:layout_height="80dp"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="24dp"
         android:autoLink="web"
         android:text="TextView"
+        android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/naturalEntry"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.442"
         app:layout_constraintStart_toEndOf="@+id/itemWiki"
-        app:layout_constraintTop_toBottomOf="@+id/nameEntry"
-        app:layout_constraintVertical_bias="0.78" />
+        app:layout_constraintTop_toBottomOf="@+id/nameEntry" />
 
     <TextView
         android:id="@+id/naturalEntry"
         android:layout_width="200dp"
         android:layout_height="70dp"
-        android:layout_marginBottom="80dp"
+        android:layout_marginBottom="64dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:text="TextView"
+        android:textSize="32sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.441"
@@ -92,11 +97,12 @@
 
     <TextView
         android:id="@+id/nameEntry"
-        android:layout_width="200dp"
-        android:layout_height="32dp"
+        android:layout_width="201dp"
+        android:layout_height="81dp"
         android:layout_marginRight="16dp"
         android:layout_marginTop="44dp"
         android:text="TextView"
+        android:textSize="24sp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toEndOf="@+id/itemName"
         app:layout_constraintTop_toBottomOf="@+id/imageView" />
