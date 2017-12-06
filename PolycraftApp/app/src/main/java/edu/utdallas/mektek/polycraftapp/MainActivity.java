@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -13,21 +12,21 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.widget.TextView;
 
 import net.xqhs.graphs.graph.Node;
 import net.xqhs.graphs.graph.SimpleEdge;
 import net.xqhs.graphs.graph.SimpleNode;
 
-import java.lang.reflect.Type;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
-import giwi.org.networkgraph.GraphSurfaceView;
-import giwi.org.networkgraph.beans.NetworkGraph;
-import giwi.org.networkgraph.beans.Point2D;
-import giwi.org.networkgraph.beans.Vertex;
+import edu.utdallas.mektek.polycraftapp.beans.*;
+import edu.utdallas.mektek.polycraftapp.layout.*;
+//
+//import giwi.org.networkgraph.GraphSurfaceView;
+//import giwi.org.networkgraph.beans.NetworkGraph;
+//import giwi.org.networkgraph.beans.Point2D;
+//import giwi.org.networkgraph.beans.Vertex;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -227,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onTouchEvent(ev);
     }
 
-    // Pull up node detail
+    // Pull up node DetailView
     public void startIntent(SuperNode ver){
         Intent intent;
         if(ver instanceof Recipe){
@@ -237,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d("Debug", "Recipe was tapped");
         }
         else{
-            intent = new Intent(this, detail.class);
+            intent = new Intent(this, DetailView.class);
             Item casted = (Item) ver;
             intent.putExtra("Detail",casted);
             Log.d("Debug", "Item was tapped");

@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-public class detail extends AppCompatActivity {
+public class DetailView extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
