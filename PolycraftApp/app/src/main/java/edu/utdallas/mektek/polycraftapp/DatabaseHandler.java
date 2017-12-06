@@ -72,20 +72,19 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		}//closes open database
 	}
 
-	/*CARLA: Use this to get your item.
-        Be sure to call this properly from mainActivity:
-
-		this.dbh = DatabaseHandler.getInstance(this);
-		dbh.open() //connects to sql database -> maybe anshu is taking care of this command in the "onCreate() function?"
-		dbh.getItemWithId("123") //will fail if .open() has not been called earlier in the function -> maybe Anshu is taking care of this?
-		dbh.close() //call this at the end to prevent memory leakage -> maybe Anshu is taking care of this on "onPause()"?
-		*/
 
     /**
+     * Returns an Item Object given an itemID to be searched in the database.
      *
-     * @param gameId
-     * @return
-     * @throws ItemNotFoundException
+     * Usage (From mainActivity)
+     *      dbh = DatabaseHandler.getInstance(getContext());
+     *      dbh.open();
+     *      Item myItem = dbh.getItemWithId([itemID]);
+     *      dbh.close();
+     *
+     * @param gameId ItemID that should be searched in the Database.
+     * @return returns an {@link Item} object that has the matching ID from the Database.
+     * @throws ItemNotFoundException if ItemID passed does not exist in the database.
      */
     public Item getItemWithId(String gameId) throws ItemNotFoundException {
         Item item;
@@ -98,11 +97,14 @@ public class DatabaseHandler extends SQLiteAssetHelper{
     }
 
 
-    /*
-		CARLA: use this to get your recipe
-
-	 */
-
+    /**
+     * Similar to getItemWithId above, this queries the DistillRecipe Table in the SQLite database
+     * with a given recipe ID and returns a Recipe object containing the data requested.
+     *
+     * @param rowID the id of the recipe we are searching for.
+     * @return a {@link Recipe} object containing all the information in the rowID passed in
+     * @throws SQLException if rowID does not exist on the table or points to null values
+     */
     public Recipe getRecipeWithId(String rowID) throws SQLException{
         try {
             return createRecipe(rowID);
@@ -111,9 +113,17 @@ public class DatabaseHandler extends SQLiteAssetHelper{
         }
     }
 
-
+    /**
+     * Parameterized method to build an item object, depending on whether the user passes in the
+     * Item's ID number or the Item's Name. Based on Minecraft's design, both must be Unique and
+     * both are valid parameters to query with.
+     * @param key String containing either the name or the id of the item in question
+     * @param method 0 if key is a Name, 1 if key is a ID
+     * @return a {@link Item} object containing the details requested, matching the name/ID passed.
+     * @throws ItemNotFoundException if the key does not match what is in the table
+     * @throws ArrayIndexOutOfBoundsException if the method parameter is not a 0 or 1.
+     */
     private Item createItem(String key, int method) throws ItemNotFoundException, ArrayIndexOutOfBoundsException {
-
         String[] queries = {SQLquery.queryItemDetails(key), SQLquery.queryItemDetailsWithId(key)};
         Item newItem;
         String query;
@@ -136,6 +146,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
         int itemNatural = parseInt(rs.getString(rs.getColumnIndex("itemNatural")));
 
         newItem = new Item(gameId, itmName, itmImage, itemURL, itemNatural);
+        rs.close();
         return newItem;
     }
 
@@ -157,6 +168,21 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 //        return ancestorIds.get(0);
 //    }
 
+
+    /**
+     * Main Process called by Searching that queries the database, performs a recursive Depth-First
+     * Search, and returns a tree object containing connected SuperNodes. The Tree is built from the
+     * item to the first "naturally occuring" item that is computed. This search is performed
+     * sequentially on the SQLite database, returning first the row with the smallest rowID
+     * (closest to the 'top').
+     *
+     * This will return just the base item if a base item is searched.
+     *
+     * @param searchValue the input NAME of the item we want to build a tree around. The query performs
+     *                    an EXACT MATCH search, so typos are not tolerated.
+     * @return a {@link Tree} object containing the matched tree.
+     * @throws SQLException If an invalid input is entered or the searched item doesn't exist in the database.
+     */
     public Tree getProcessTree(String searchValue) throws SQLException {
 
         Item searchedItem;
@@ -167,13 +193,9 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 	        ex.printStackTrace();
             throw ex;
         }
-
         if(!searchedItem.getName().equals(searchValue)){
 	        throw new ItemNotFoundException("False match.");
         }
-
-
-
 
 		Tree myTree = new Tree(searchedItem);
 		ArrayList<String> recipeIds = getRowIdOfAncestors(searchValue);
