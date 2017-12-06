@@ -45,6 +45,8 @@ import static android.support.v4.content.ContextCompat.startActivity;
  */
 public class GraphSurfaceView extends SurfaceView {
 
+    private Context mainContext;
+
     private ScaleGestureDetector mScaleDetector;
 
     private GestureDetectorCompat detector;
@@ -65,6 +67,8 @@ public class GraphSurfaceView extends SurfaceView {
 
     private float positionX = 0;
     private float positionY = 0;
+
+    public Dimension d;
 
     //Painters
     Paint edgePainter;
@@ -201,6 +205,10 @@ public class GraphSurfaceView extends SurfaceView {
         return output;
     }
 
+    public Dimension getDimension(){
+        this.d = new Dimension(getWidth(),getHeight());
+        return this.d;
+    }
     /**
      * On touch event.
      *
@@ -249,8 +257,8 @@ public class GraphSurfaceView extends SurfaceView {
 
 
         final float nodeTextOverlapPercent = 0.2f;
-
-        FRLayout layout = new FRLayout(mNetworkGraph, new Dimension(getWidth(), getHeight()));
+        this.d=new Dimension(getWidth(), getHeight());
+        FRLayout layout = new FRLayout(mNetworkGraph, this.d);
 
         for (Edge edge : mNetworkGraph.getEdges()) {
             Point2D p1 = new Point2D();
