@@ -12,7 +12,6 @@
 | Recipe | A formula consisting of item inputs, input quantities, and item outputs and quantities. Each Inventory has many such associated Recipes. |
 | Naturally found | An Item that is readily available in the game, like a dirt, coal, water, oil, etc. |
 
-<<<<<<< HEAD
 ## System 1: Polycraft App User interface ##
 1. The Adjust view functionality will allow users to interact with the graphically generated tree view
     1. The Adjust view functionality will have the features panning and zooming.
@@ -36,7 +35,7 @@
 ## Use Case Diagrams ##
 [Polycraft App System Use Case Diagram](Diagrams/UseCasePolycraftApp.png)
 [Database System Use Case Diagram](Diagrams/UseCaseDatabaseSystem.png)
-=======
+<!--
 ## Functional Requirements ##
 1. The search function will allow users to search for a specific polymer name
     1. The system shall search for final polymer by full scientific name
@@ -57,5 +56,4 @@
     6. The API, given an item ID, can return item details (frequency of occurrence, typical locations)
     7. The Database API can be given a new tabular data file to update itself
 ## Use Case Diagram ##
-[Diagram can be found here](Diagrams/UseCase.png)
->>>>>>> AnshuAndroid
+[Diagram can be found here](Diagrams/UseCase.png)-->
