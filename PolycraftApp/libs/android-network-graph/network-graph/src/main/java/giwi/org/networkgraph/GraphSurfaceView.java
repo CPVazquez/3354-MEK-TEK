@@ -233,8 +233,14 @@ public class GraphSurfaceView extends SurfaceView {
 
     }
 
+
     @Override
     protected void dispatchDraw(Canvas canvas) {
+        if(mNetworkGraph == null)
+            return;
+        else if(mNetworkGraph.getVertex().isEmpty()){
+            return;
+        }
         super.dispatchDraw(canvas);
         Log.i("ONDRAW", "onDraw is called");
         canvas.save();
