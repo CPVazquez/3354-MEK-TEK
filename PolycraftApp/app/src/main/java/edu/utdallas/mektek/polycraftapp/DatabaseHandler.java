@@ -130,6 +130,10 @@ public class DatabaseHandler extends SQLiteAssetHelper{
             throw ex;
         }
 
+        if(!searchedItem.getName().equals(searchValue)){
+	        throw new ItemNotFoundException("False match.");
+        }
+
 
 
 
