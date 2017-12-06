@@ -49,11 +49,11 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		dbh.getItemWithId("123") //will fail if .open() has not been called earlier in the function -> maybe Anshu is taking care of this?
 		dbh.close() //call this at the end to prevent memory leakage -> maybe Anshu is taking care of this on "onPause()"?
 		*/
-    public Item getItemWithId(String gameId) throws SQLException {
+    public Item getItemWithId(String gameId) throws ItemNotFoundException {
         Item item;
 	    try {
             item=createItem(gameId, 1);
-        }catch(SQLException ex){
+        }catch(ItemNotFoundException ex){
 	        throw ex;
         }
 	 return item;
@@ -74,7 +74,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
     }
 
 
-    private Item createItem(String key, int method) throws SQLException, ArrayIndexOutOfBoundsException {
+    private Item createItem(String key, int method) throws ItemNotFoundException, ArrayIndexOutOfBoundsException {
 
         String[] queries = {SQLquery.queryItemDetails(key), SQLquery.queryItemDetailsWithId(key)};
         Item newItem;
@@ -87,7 +87,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 
         Cursor rs = database.rawQuery(query,null);
         if(rs.getCount()<=0) {
-            throw new SQLException("No such item.");
+            throw new ItemNotFoundException("No such item.");
         }
         rs.moveToFirst();
 
@@ -113,6 +113,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
         try {
             ancestorIds = getRowIdOfAncestors(searchValue);
         }catch(SQLException ex){
+            ex.printStackTrace();
             throw ex;
         }
         return ancestorIds.get(0);
@@ -124,9 +125,12 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 	    try {
              searchedItem = createItem(searchValue,0);
         }
-        catch (SQLException ex) {
+        catch (ItemNotFoundException ex) {
+	        ex.printStackTrace();
             throw ex;
         }
+
+
 
 
 		Tree myTree = new Tree(searchedItem);
@@ -136,7 +140,8 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 			Recipe recipe = createRecipe(rowId);
 			myTree.addNode(recipe);
 		}}
-		catch(SQLException ex) {
+		catch(RecipeNotFoundException ex) {
+		    ex.printStackTrace();
 		    throw ex;
         }
 
@@ -149,6 +154,9 @@ public class DatabaseHandler extends SQLiteAssetHelper{
         try {
             String query = SQLquery.querySpecificRecipeDetails(rowId);
             Cursor rs = database.rawQuery(query, null);
+            if (rs.getCount()<=0){
+                throw new RecipeNotFoundException(query);
+            }
             rs.moveToFirst();
 
             ItemList children = new ItemList(rs).childList();
@@ -166,7 +174,14 @@ public class DatabaseHandler extends SQLiteAssetHelper{
             setAsParent(newRecipe, childItems);
 
             rs.close();
+        }catch(RecipeNotFoundException ex){
+            ex.printStackTrace();
+            throw ex;
+        }catch (ItemNotFoundException ex){
+            ex.printStackTrace();
+            throw ex;
         }catch(SQLException ex){
+            ex.printStackTrace();
             throw ex;
         }
 		return newRecipe;
@@ -199,19 +214,24 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 			return data;
 		}
 
+		Cursor rs;
 		try {
-            Cursor rs = queryDBRecipeId(searchValue);
+            rs = queryDBRecipeId(searchValue);
             rs.moveToFirst();
-            if (!rs.isAfterLast()) {
 
-                data.add(rs.getString(rs.getColumnIndex("rowid")));
 
-                data.addAll(getRowIdOfAncestors(rs.getString(rs.getColumnIndex("input1"))));
-            } else {
+        }catch(RecipeNotFoundException ex){
+		    ex.printStackTrace();
+		    return data;
+        }
 
-            }
-        }catch(SQLException ex){
-		    throw ex;
+        if (!rs.isAfterLast()) {
+
+            data.add(rs.getString(rs.getColumnIndex("rowid")));
+
+            data.addAll(getRowIdOfAncestors(rs.getString(rs.getColumnIndex("input1"))));
+        } else {
+
         }
 		return data;
 	}
@@ -247,8 +267,9 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 
         rs = database.rawQuery(query, selectionArgs);
 
+
         if(rs.getCount()<=0){
-            //throw new SQLException();
+            throw new RecipeNotFoundException(query);
         }
 
         return rs;
@@ -312,7 +333,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
             return this;
         }
 
-        public ItemList childList() throws SQLException {
+        public ItemList childList() throws ItemNotFoundException {
             //TODO: Encapsulate these calls into a do-while to handle multiple input columns
             ArrayList<String> children = new ArrayList<>();
             childQuant = new ArrayList<Integer>();
@@ -327,10 +348,30 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 
             childItems = new ArrayList<SuperNode>();
             for (String itemName : children) {
-                childItems.add(createItem(itemName,0));
+                try {
+                    childItems.add(createItem(itemName, 0));
+                }
+                catch(ItemNotFoundException ex){
+                    ex.printStackTrace();
+                    throw ex;
+                }
             }
             return this;
         }
+
+
     }//ItemList Class
+
+    public class ItemNotFoundException extends SQLException{
+        public ItemNotFoundException(String message){
+            super(message);
+        }
+    }
+
+    public class RecipeNotFoundException extends SQLException{
+        public RecipeNotFoundException(String message){
+            super(message);
+        }
+    }
 
 }
