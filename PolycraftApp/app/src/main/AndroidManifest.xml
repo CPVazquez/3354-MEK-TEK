@@ -41,8 +41,18 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-        <activity android:name=".RecipeDetail" />
-        <activity android:name=".GraphSurfaceView"></activity>
+        <activity android:name=".RecipeDetail"
+            android:label="@string/app_name"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".MainActivity" />
+        </activity>
+
+
+        <!--<activity android:name=".GraphSurfaceView" />-->
+
     </application>
 
 </manifest>
