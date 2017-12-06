@@ -83,14 +83,14 @@ public class Tree {
     private int getY(SuperNode datanode, Dimension d) {
         Log.d("HEIGHT: ",datanode.toString()+String.valueOf(datanode.getHeight()));
         if(datanode instanceof  Recipe){
-            return datanode.getHeight()*600;
+            return datanode.getHeight()*800;
 
         }
         if(datanode instanceof Item){
             if (((Item) datanode).isNatural()){
-                return (datanode.getParents().get(0).getHeight())*600+300;
+                return (datanode.getParents().get(0).getHeight())*800+400;
             }
-            return datanode.getHeight()*600-300;
+            return datanode.getHeight()*800-400;
         }
         return 0;
     }
