@@ -283,6 +283,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
             int parQuantity;
             do{
                 par = rs.getString(rs.getColumnIndex("output" + i));
+                if(par.equals("")) break;
                 parents.add(par);
                 try {
                     parQuantity = parseInt(rs.getString(rs.getColumnIndex("outQuant" + i)));
@@ -291,7 +292,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
                 }
                 parentQuant.add(parQuantity);
                 i++;
-            }while (i<maxColumns && par.length()>0);
+            }while (i<=maxColumns && par.length()>0);
 
             parentItems = new ArrayList<SuperNode>();
             for (String itemName : parents) {

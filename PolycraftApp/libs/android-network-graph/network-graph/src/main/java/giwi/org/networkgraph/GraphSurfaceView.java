@@ -1,5 +1,6 @@
 package giwi.org.networkgraph;
 
+import android.content.Intent;
 import android.view.SurfaceView;
 
 
@@ -39,6 +40,8 @@ import giwi.org.networkgraph.layout.FRLayout;
  * The type NetworkGraph surface view.
  */
 public class GraphSurfaceView extends SurfaceView {
+
+    private Context mainContext;
 
     private ScaleGestureDetector mScaleDetector;
 
@@ -357,7 +360,7 @@ public class GraphSurfaceView extends SurfaceView {
         @Override
         public boolean onDoubleTap(MotionEvent ev){
             Log.d("GSV", "Screen was double tapped");
-
+            //Intent intent = new Intent(mainContext, edu.utdallas.mektek.polycraftapp.RecipeDetail.class);
             return super.onDoubleTap(ev);
         }
     }

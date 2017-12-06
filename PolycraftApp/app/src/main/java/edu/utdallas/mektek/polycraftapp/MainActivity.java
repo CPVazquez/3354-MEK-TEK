@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
             Node drawnRecipe = new SimpleNode(currentRecipe.getName());
             String[] png = currentRecipe.getImage().getName().split("File:");
             try{
-                processGraph.getVertex().add(new Vertex(drawnRecipe, Drawable.createFromStream(getAssets().open("images/distillation.png"), null), currentRecipe.getId(),true));
+                processGraph.getVertex().add(new Vertex(drawnRecipe, Drawable.createFromStream(getAssets().open("images/distillation.png"), null), currentRecipe.getId(),null, true));
             }
             catch(Exception e){
                 //Unhandled
@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
                 Node nodeToAdd = new SimpleNode(parent.getName());
                 String[] png2 = parent.getImage().getName().split("File:");
                 try{
-                    processGraph.getVertex().add(new Vertex(nodeToAdd, Drawable.createFromStream(getAssets().open("images/" + png2[1].toLowerCase()), null), parent.getId()));
+                    processGraph.getVertex().add(new Vertex(nodeToAdd, Drawable.createFromStream(getAssets().open("images/" + png2[1].toLowerCase()), null), parent.getId(), null));
                 }
                 catch(Exception e){
                     // Unhandled
@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
                 processGraph.addEdge(new SimpleEdge(nodeToAdd, drawnRecipe, "1"));
                 // Check if the parent of the recipe is where we make the connection to the old recipe
                 if(oldRecipe != null){
-                    if(parent.getId().equals(oldRecipe.getChildren().get(0))){
+                    if(parent.getId().equals(oldRecipe.getChildren().get(0).getId())){
                         processGraph.addEdge(new SimpleEdge(nodeToAdd, oldDrawnRecipe, "2"));
                     }
                 }
@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
                 Node childToDraw = new SimpleNode(child.getName());
                 try{
                     String[] pngArr = child.getImage().getName().split("File:");
-                    processGraph.getVertex().add(new Vertex(childToDraw, Drawable.createFromStream(getAssets().open("images/" + pngArr[1].toLowerCase()), null), child.getId()));
+                    processGraph.getVertex().add(new Vertex(childToDraw, Drawable.createFromStream(getAssets().open("images/" + pngArr[1].toLowerCase()), null), child.getId(), null));
                 }catch (Exception e){
 
                 }
