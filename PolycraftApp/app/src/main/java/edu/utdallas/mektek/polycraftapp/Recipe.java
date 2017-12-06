@@ -91,12 +91,16 @@ public class Recipe extends SuperNode {
     }
 
     @Override
-    public void setHeight(int height) {
-        this.height=height;
+    public void setHeight(int h) {
+        height=h;
         for (int i=0;i<parents.size();i++){
-            parents.get(i).setHeight(this.height);
+            parents.get(i).setHeight(height);
         }
 
+    }
+
+    public int getHeight(){
+        return this.height;
     }
 
 
@@ -117,6 +121,11 @@ public class Recipe extends SuperNode {
     @Override
     public void setDrawnId(Long id) {
         drawnId = id;
+    }
+
+    @Override
+    public void setParents(ArrayList<SuperNode> par) {
+        this.parents=par;
     }
 
     /**
@@ -140,6 +149,7 @@ public class Recipe extends SuperNode {
     public String toString() {
     	return this.children.get(0).toString();
     }
+
 
     public String getName(){
         return this.inventory;

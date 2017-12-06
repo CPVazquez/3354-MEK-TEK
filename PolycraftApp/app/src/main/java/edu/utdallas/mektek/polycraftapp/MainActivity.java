@@ -169,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
         Node oldDrawnRecipe = null;
 
         while(currentRecipe != null){
+            dim=new Dimension(1000,1000);
 
             // Draw the recipe
             Node drawnRecipe = new SimpleNode(currentRecipe.getId());

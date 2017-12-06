@@ -31,8 +31,10 @@ public class Tree {
     
     public void addNode(SuperNode nodeToAdd){
     	contents+=nodeToAdd.toString()+"\n";
-    	numSteps++;
-    	nodeToAdd.setHeight(numSteps);
+        numSteps++;
+        nodeToAdd.setHeight(numSteps);
+        Log.d("HEIL",String.valueOf(numSteps)+String.valueOf(nodeToAdd.getHeight()));
+
         // This tree was just created, add the node to target
         if(this.pointerNode == null){
             // Make parent and child connection
@@ -73,20 +75,22 @@ public class Tree {
     public Point2D getPosition(Dimension d, Node drawnode){
         String id= drawnode.getLabel();
         SuperNode datanode= get(id);
-        Log.d("DEBUG",String.valueOf(datanode instanceof Recipe));
-       Log.d("DEBUG",String.valueOf(datanode instanceof Item));
         int x= getX(datanode,d);
         int y= getY(datanode,d);
         return new Point2D(x,y);
     }
 
     private int getY(SuperNode datanode, Dimension d) {
+        Log.d("HEIGHT: ",datanode.toString()+String.valueOf(datanode.getHeight()));
         if(datanode instanceof  Recipe){
-            return datanode.height*600;
+            return datanode.getHeight()*600;
 
         }
         if(datanode instanceof Item){
-            return datanode.height*600-300;
+            if (((Item) datanode).isNatural()){
+                return (datanode.getParents().get(0).getHeight())*600+300;
+            }
+            return datanode.getHeight()*600-300;
         }
         return 0;
     }
@@ -100,9 +104,7 @@ public class Tree {
                 int idx =((Item)datanode).getIndex();
                 return idx*600;
             }
-
         }
-
         return d.getWidth()/2;
     }
 

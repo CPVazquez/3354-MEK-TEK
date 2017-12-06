@@ -12,6 +12,7 @@ public class Item extends SuperNode {
     private String url = "";
     private boolean isNatural = false;
     private int index;
+    private int height;
 
     //ITEMS ONLY HAVE ONE CHILD AND ONE PARENT
 
@@ -30,6 +31,10 @@ public class Item extends SuperNode {
     @Override
     public void setHeight(int height) {
         this.height = height;
+    }
+
+    public int getHeight(){
+        return height;
     }
 
     public int getIndex(){
@@ -98,7 +103,12 @@ public class Item extends SuperNode {
         drawnId = id;
     }
 
-	public boolean isNatural() {
+    @Override
+    public void setParents(ArrayList<SuperNode> par) {
+        this.parents=par;
+    }
+
+    public boolean isNatural() {
 		return isNatural;
 	}
 

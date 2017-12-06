@@ -12,7 +12,6 @@ public abstract class SuperNode implements Serializable{
     protected ArrayList<SuperNode> children;
     protected File image;
     protected Long drawnId;
-    protected int height;
 
     public SuperNode(String id, ArrayList<SuperNode> par, ArrayList<SuperNode> chil, File img){
         nodeId = id;
@@ -32,13 +31,16 @@ public abstract class SuperNode implements Serializable{
     //public abstract Long getDrawnId();
     public abstract String getName();
     public abstract void setDrawnId(Long id);
-   // public abstract void setParents(ArrayList<SuperNode> par);
+    public abstract void setParents(ArrayList<SuperNode> par);
     public abstract void setChildren(ArrayList<SuperNode> chi);
 
 
     public abstract SuperNode search(String id) ;
 
     public abstract void setHeight(int numSteps);
+
+
+    public abstract int getHeight();
 
 
 }
