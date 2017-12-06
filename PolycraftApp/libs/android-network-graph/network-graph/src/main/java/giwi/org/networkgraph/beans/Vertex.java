@@ -17,6 +17,8 @@ public class Vertex {
 
     private String id;
 
+    private boolean isRecipe;
+
     public String getId() {
         return id;
     }
@@ -40,6 +42,14 @@ public class Vertex {
         this.node = node;
         this.icon = icon;
         this.id = iden;
+        this.isRecipe = false;
+    }
+
+    public Vertex(final Node node, final Drawable icon, final String iden, boolean isRec){
+        this.node = node;
+        this.icon = icon;
+        this.id = iden;
+        this.isRecipe = isRec;
     }
 
     /**
@@ -76,5 +86,9 @@ public class Vertex {
      */
     public void setIcon(final Drawable icon) {
         this.icon = icon;
+    }
+
+    public boolean isRecipe(){
+        return this.isRecipe;
     }
 }
