@@ -1,6 +1,5 @@
 package edu.utdallas.mektek.polycraftapp;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -17,8 +16,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.view.GestureDetectorCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -71,7 +68,7 @@ public class GraphSurfaceView extends SurfaceView {
 
     //Constants
     private final float nodeCircleRadius = 100; //FLOAT VALUE.
-    private final float bitmapRadius = 200; //BitmapRadius
+    private final float bitmapRadius = 150; //BitmapRadius
 
     /**
      * Instantiates a new NetworkGraph surface view.
@@ -174,8 +171,8 @@ public class GraphSurfaceView extends SurfaceView {
 
             }
         });
-        invalidate();
-        // postInvalidate();
+        //invalidate();
+        postInvalidate();
     }
 
     private Bitmap getCroppedBitmap(Bitmap bmp, int radius) {
@@ -225,11 +222,7 @@ public class GraphSurfaceView extends SurfaceView {
                 }
             }
         }
-        return result; //just commented out
-        //  mScaleDetector.onTouchEvent(ev);
-        // postInvalidate();
-        //  Log.d("GSV", "Screen was touched");
-        //return super.onTouchEvent(ev); this lets double tap work
+        return result;
 
     }
 
@@ -299,7 +292,9 @@ public class GraphSurfaceView extends SurfaceView {
                 Bitmap bitmap = b.copy(Bitmap.Config.ARGB_8888, true);
                 Bitmap roundBitmap = getCroppedBitmap(bitmap, (int) bitmapRadius);
                 canvas.drawBitmap(roundBitmap,
-                        (float) position.getX() - (bitmapRadius/2f), (float) position.getY() - (bitmapRadius/2f), null);
+                        (float) position.getX() - (bitmapRadius/2f),
+                        (float) position.getY() - (bitmapRadius/2f),
+                        null);
             }
 
             //Get Text Size and properly size the rectangle around the object
@@ -349,7 +344,7 @@ public class GraphSurfaceView extends SurfaceView {
         public boolean onScale(ScaleGestureDetector detector) {
             mScaleFactor *= detector.getScaleFactor();
             mScaleFactor = Math.max(mMinFactor, Math.min(mScaleFactor, mMaxFactor));
-            invalidate();
+            postInvalidate();
             return true;
         }
     }
@@ -366,35 +361,52 @@ public class GraphSurfaceView extends SurfaceView {
             positionX -= distanceX;
             positionY -= distanceY;
 
-            invalidate();
+            postInvalidate();
             return true;
         }
 
+        /**
+         * onDoubleTap listens for a user to DoubleTap the screen at a specific position. If the
+         * user double taps a node on the screen (within a reasonable amount of accuracy),
+         * the node detail for that item is launched in a new activity.
+         *
+         * By design, ev measures the tap position relative to the screen pixels: (0,0) on top left,
+         * (width, height) on bottom right. However, the canvas location may not always match this
+         * absolute measurement due to panning and zooming the view.
+         *
+         * According to Android API, Scaling the view will cause a multiplicative effect on the
+         * measured position (and thus, we must divide to negate the effect). Panning is additive.
+         * The sign convention used below is based on user interface need - users are accustomed to
+         * having the screen move in the direction of their finger.
+         *
+         * @param ev Is a {@link android.view.MotionEvent} triggered at the location where the user
+         *           double taps (specifically, their second tap)
+         * @return True to continue listening for additional input (i.e. a drag or pinch event)
+         *           False to block additional listeners.
+         */
         @Override
         public boolean onDoubleTap(MotionEvent ev){
-            Log.d("GSV", "Screen was double tapped");
-            int tapSpacingThing = (int)nodeCircleRadius;
-            float actionBarHeight  = 0; //TEMP VAR.
+            int sensitivityRange = (int)nodeCircleRadius; //equal to drawn node size
+            float actionBarHeight  = 0;
             TypedValue tv = new TypedValue();
-            if( getContext().getApplicationContext().getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)){
-              actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
+
+            //Get the ActionBarHeight for the Device to compensate tap location by that amount.
+            if( getContext().getApplicationContext().getTheme().resolveAttribute(
+                    android.R.attr.actionBarSize, tv,true)) {
+                actionBarHeight = TypedValue.complexToDimensionPixelSize(
+                        tv.data, getResources().getDisplayMetrics());
             }
-            Log.d("Height", "action bar hight: " +actionBarHeight);
-            Log.d("ScaleFactor", "ScaleFactor is: " + mScaleFactor);
-            float xTest = (ev.getRawX() + -1f*positionX)/mScaleFactor;
-            float yTest = (ev.getRawY() + -1f*positionY - actionBarHeight)/mScaleFactor;
-            Log.d("Gestures", "onDoubleTableEvent: x: " + xTest + " y: " + yTest);
+            //Correction for positioning
+            float xTap = (ev.getRawX()/mScaleFactor + -1f*positionX);
+            float yTap = (ev.getRawY()/mScaleFactor + -1f*positionY - actionBarHeight);
             for(Vertex node : mNetworkGraph.getVertex()){
                 Point2D position = node.getPosition();
-                Log.d("Node", "x: " + position.getX() + " y: " + position.getY());
-                if(inRange(xTest, yTest, position, tapSpacingThing)){
-                    Log.d("Node", "yay!"); //Able to tap node, now launch Activity
-                    new GetSuperNode().execute(node);
+                if(inRange(xTap, yTap, position, sensitivityRange)){
+                    new GetNodeDetails().execute(node);
                     break;
                 }
             }
             return true;
-            //return super.onDoubleTap(ev);
         }
     }
 
@@ -405,11 +417,11 @@ public class GraphSurfaceView extends SurfaceView {
     }
 
 
-    private class GetSuperNode extends AsyncTask<Vertex, Void, SuperNode> {
+    private class GetNodeDetails extends AsyncTask<Vertex, Void, SuperNode> {
         @Override
         protected SuperNode doInBackground(Vertex ... node){
             dbh.open();
-            SuperNode ver = null;
+            SuperNode ver;
             try{
                 if(node[0].isRecipe()){
                     ver = dbh.getRecipeWithId(node[0].getId());
@@ -438,12 +450,14 @@ public class GraphSurfaceView extends SurfaceView {
             intent = new Intent(getContext(), RecipeDetail.class);
             Recipe casted = (Recipe) ver;
             intent.putExtra("Detail", casted);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             Log.d("Debug", "Recipe was tapped");
         }
         else{
             intent = new Intent(getContext(), DetailView.class);
             Item casted = (Item) ver;
             intent.putExtra("Detail",casted);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             Log.d("Debug", "Item was tapped");
         }
         getContext().getApplicationContext().startActivity(intent);

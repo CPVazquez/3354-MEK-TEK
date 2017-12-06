@@ -130,8 +130,6 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 
 
 		Tree myTree = new Tree(searchedItem);
-
-
 		ArrayList<String> recipeIds = getRowIdOfAncestors(searchValue);
 		try{
 		for(String rowId : recipeIds) {
