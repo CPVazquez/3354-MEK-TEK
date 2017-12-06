@@ -11,10 +11,40 @@ public class Item extends SuperNode {
     private String name;
     private String url = "";
     private boolean isNatural = false;
+    private int index;
+    private int height;
 
     //ITEMS ONLY HAVE ONE CHILD AND ONE PARENT
-    
-    
+
+
+
+    public SuperNode search(String id){
+        SuperNode match;
+        if (this.getName().equals(id)) {
+            return this;
+        }
+        else{
+            return this.getChildren().get(0).search(id);
+        }
+    }
+
+    @Override
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public int getHeight(){
+        return height;
+    }
+
+    public int getIndex(){
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
     public Item (String id, ArrayList<SuperNode> par, ArrayList<SuperNode> child, File img, String name){
         super(id, par, child, img);
         this.name = name;
@@ -73,7 +103,12 @@ public class Item extends SuperNode {
         drawnId = id;
     }
 
-	public boolean isNatural() {
+    @Override
+    public void setParents(ArrayList<SuperNode> par) {
+        this.parents=par;
+    }
+
+    public boolean isNatural() {
 		return isNatural;
 	}
 
