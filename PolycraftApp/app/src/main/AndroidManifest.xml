@@ -33,7 +33,7 @@
                 android:value=".Search" />
         </activity>
         <activity
-            android:name=".detail"
+            android:name=".DetailView"
             android:label="@string/app_name"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
@@ -41,7 +41,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-        <activity android:name=".RecipeDetail"></activity>
+        <activity android:name=".RecipeDetail" />
+        <activity android:name=".GraphSurfaceView"></activity>
     </application>
 
 </manifest>

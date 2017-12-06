@@ -23,7 +23,7 @@
     <include layout="@layout/content_main" />
 
 
-    <giwi.org.networkgraph.GraphSurfaceView
+    <edu.utdallas.mektek.polycraftapp.GraphSurfaceView
         android:id="@+id/mysurface"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
