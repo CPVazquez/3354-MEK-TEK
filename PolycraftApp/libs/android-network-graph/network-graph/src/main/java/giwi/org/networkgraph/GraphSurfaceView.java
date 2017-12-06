@@ -192,11 +192,18 @@ public class GraphSurfaceView extends SurfaceView {
 
     }
 
+
     @Override
     protected void dispatchDraw(Canvas canvas) {
+        if(mNetworkGraph == null)
+            return;
+        else if(mNetworkGraph.getVertex().isEmpty()){
+            return;
+        }
         super.dispatchDraw(canvas);
         Log.i("ONDRAW", "onDraw is called");
         canvas.save();
+        canvas.scale(mScaleFactor,mScaleFactor);
         canvas.translate(positionX,positionY);
         Paint paint = new Paint();
         Paint whitePaint = new Paint();
@@ -285,7 +292,7 @@ public class GraphSurfaceView extends SurfaceView {
             canvas.drawText(node.getNode().getLabel(), (float) position.getX(),
                     (float) position.getY() + RADIUS, paint);
         }
-        canvas.scale(mScaleFactor,mScaleFactor);
+
         canvas.restore();
 
 
