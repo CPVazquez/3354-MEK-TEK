@@ -72,13 +72,15 @@ public class MainActivity extends AppCompatActivity {
             process = new GetTree().execute(message).get();
         }
         catch(Exception e){
-            //Handle Exception
+           //Handle Exception
         }
 
         if(process != null){
             new DrawTree().execute(process);
+        }else {
+            TextView textView = (TextView) findViewById(R.id.textView8);
+            textView.setText("You searched an invalid item");
         }
-
         Log.d("TREE", "Tree is drawn");
     }
 
@@ -154,11 +156,9 @@ public class MainActivity extends AppCompatActivity {
         SuperNode currentRecipe;
         if(target.getChildren().size()>0) {
             currentRecipe = target.getChildren().get(0);
-        }
-
-        else {
+        }else {
             TextView textView = (TextView) findViewById(R.id.textView8);
-            textView.setText("You Searched A base Item");
+            textView.setText("You searched a base item");
             currentRecipe=null;
         }
 
@@ -258,6 +258,7 @@ public class MainActivity extends AppCompatActivity {
         private int tapSpacingThing = 40;
         @Override
         public boolean onDoubleTap(MotionEvent ev) {
+            int tapSpacingThing = 40;
             float actionBarHeight  = 0;
             TypedValue tv = new TypedValue();
             if( getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)){
