@@ -2,6 +2,7 @@ package edu.utdallas.mektek.polycraftapp;
 
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -111,18 +112,17 @@ public class MainActivity extends AppCompatActivity {
             dbh.open();
             SuperNode ver = null;
             try{
-                ver = dbh.getItemWithId(node[0].getId());
-                Log.d("DEBUG", "Got supernode!!");
+                if(node[0].isRecipe()){
+                    ver = dbh.getRecipeWithId(node[0].getId());
+                }
+                else{
+                    ver = dbh.getItemWithId(node[0].getId());
+                }
+                Log.d("DEBUG", node[0].getId());
                 dbh.close();
                 return ver;
             }catch (SQLException ex){
-                try {
-                    ver = dbh.getRecipeWithId(node[0].getId());
-                    dbh.close();
-                    return ver;
-                }catch (SQLException ec){
-                    Log.d("Details", "no details");
-                }
+                // Unhandled
             }
             return null;
         }
@@ -169,12 +169,24 @@ public class MainActivity extends AppCompatActivity {
 
             // Draw the recipe
             Node drawnRecipe = new SimpleNode(currentRecipe.getName());
-            processGraph.getVertex().add(new Vertex(drawnRecipe, ContextCompat.getDrawable(this,R.drawable.icon), currentRecipe.getId()));
-            
+            String[] png = currentRecipe.getImage().getName().split("File:");
+            try{
+                processGraph.getVertex().add(new Vertex(drawnRecipe, Drawable.createFromStream(getAssets().open("images/distillation.png"), null), currentRecipe.getId(),true));
+            }
+            catch(Exception e){
+                //Unhandled
+            }
+
             // Draw parents of recipe
             for(SuperNode parent : currentRecipe.getParents()) {
                 Node nodeToAdd = new SimpleNode(parent.getName());
-                processGraph.getVertex().add(new Vertex(nodeToAdd, ContextCompat.getDrawable(this, R.drawable.icon), parent.getId()));
+                String[] png2 = parent.getImage().getName().split("File:");
+                try{
+                    processGraph.getVertex().add(new Vertex(nodeToAdd, Drawable.createFromStream(getAssets().open("images/" + png2[1].toLowerCase()), null), parent.getId()));
+                }
+                catch(Exception e){
+                    // Unhandled
+                }
                 processGraph.addEdge(new SimpleEdge(nodeToAdd, drawnRecipe, "1"));
                 // Check if the parent of the recipe is where we make the connection to the old recipe
                 if(oldRecipe != null){
@@ -192,7 +204,13 @@ public class MainActivity extends AppCompatActivity {
                 // Draw child!!!
                 SuperNode child = currentRecipe.getChildren().get(0);
                 Node childToDraw = new SimpleNode(child.getName());
-                processGraph.getVertex().add(new Vertex(childToDraw, ContextCompat.getDrawable(this, R.drawable.icon), child.getId()));
+                try{
+                    String[] pngArr = child.getImage().getName().split("File:");
+                    processGraph.getVertex().add(new Vertex(childToDraw, Drawable.createFromStream(getAssets().open("images/" + pngArr[1].toLowerCase()), null), child.getId()));
+                }catch (Exception e){
+
+                }
+
                 processGraph.addEdge(new SimpleEdge(drawnRecipe, childToDraw, "3" ));
                 currentRecipe = null;
             }
