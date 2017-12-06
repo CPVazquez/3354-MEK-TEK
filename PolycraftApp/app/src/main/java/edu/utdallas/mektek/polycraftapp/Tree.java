@@ -45,12 +45,13 @@ public class Tree {
         }
         else{
             // Loop through pointerNode's children
-            for (SuperNode child : this.pointerNode.getChildren()) {
+            for (int i=0; i < this.pointerNode.getChildren().size(); i++){
                 // Loop through nodeToAdd's parents
-                for (SuperNode parent : nodeToAdd.getParents()) {
+                for (int j=0; j < nodeToAdd.getParents().size(); j++) {
                     // Parent and child IDs match we make the connection here
-                    if(child.getId().equals(parent.getId())){
-                        child = parent;
+                    if(this.pointerNode.getChildren().get(i).getId().equals(nodeToAdd.getParents().get(j).getId())){
+                        this.pointerNode.getChildren().set(i,nodeToAdd.getParents().get(j));
+                        nodeToAdd.getParents().set(j, this.pointerNode.getChildren().get(i));
                         this.pointerNode = nodeToAdd;
                         break;
                     }

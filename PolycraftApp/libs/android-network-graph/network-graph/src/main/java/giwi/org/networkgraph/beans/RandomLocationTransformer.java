@@ -14,7 +14,10 @@ package giwi.org.networkgraph.beans;
 
 import android.util.Log;
 
+import net.xqhs.graphs.graph.SimpleNode;
+
 import org.apache.commons.collections4.Transformer;
+import org.w3c.dom.Node;
 
 import java.util.Date;
 import java.util.Random;
@@ -39,7 +42,7 @@ public class RandomLocationTransformer<V> implements Transformer<V, Point2D> {
 
     private static double previousWidth;
     private static double previousHeight;
-    private static double iterator = 0;
+    public static double iterator = 0;
 
     /**
      * The Random.
@@ -78,8 +81,15 @@ public class RandomLocationTransformer<V> implements Transformer<V, Point2D> {
     public Point2D transform(V v) {
 
         Log.d("DIMENSIONS?", "width: " + d.width + " height: " + d.height);
-        //iterator += 100;
-        //return new Point2D(previousWidth, previousHeight + iterator);
-        return new Point2D(random.nextDouble() * d.width, random.nextDouble() * d.height);
+        if(v instanceof Node){
+            Log.d("TRANSFORM", "V is instance of Node");
+        } else {
+            Log.d("FAILED_TRANSFORM", v.getClass().toString());
+            //SimpleNode sn = (SimpleNode) v;
+            //sn.getLabel();
+        }
+        iterator += 350;
+        return new Point2D(previousWidth, previousHeight + iterator);
+        //return new Point2D(random.nextDouble() * d.width, random.nextDouble() * d.height);
     }
 }
