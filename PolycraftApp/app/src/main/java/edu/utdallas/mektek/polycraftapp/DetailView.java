@@ -55,11 +55,8 @@ public class DetailView extends AppCompatActivity {
             icon.setImageDrawable(img);
         }
         catch(Exception e){
-            // Unhandled
+            // Unhandled - Sad.
         }
-
-
-        //new GetBitmap((ImageView) findViewById(R.id.imageView)).execute("https://minecraft.gamepedia.com/media/minecraft.gamepedia.com/c/c2/Potato.png");
     }
 
     @Override
@@ -68,37 +65,5 @@ public class DetailView extends AppCompatActivity {
         return true;
     }
 
-    /*private class GetBitmap extends AsyncTask<String, Void, Bitmap> {
 
-        private Exception exception;
-        private String link;
-        private Bitmap image;
-        private ImageView view;
-
-        public GetBitmap(ImageView imgview){
-            this.view = imgview;
-        }
-
-        @Override
-        protected Bitmap doInBackground(String... urls) {
-            String urldisplay = urls[0];
-            Bitmap mIcon11 = null;
-            try {
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inSampleSize = 2;
-                options.inJustDecodeBounds = false;
-                InputStream in = new BufferedInputStream(new java.net.URL(urldisplay).openStream());
-                mIcon11 = BitmapFactory.decodeStream(in);
-                in.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return mIcon11;
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            this.view.setImageBitmap(result);
-        }
-    }*/
 }
