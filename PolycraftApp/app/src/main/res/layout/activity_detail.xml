@@ -32,10 +32,11 @@
     <TextView
         android:id="@+id/naturallyOccurring"
         android:layout_width="81dp"
-        android:layout_height="70dp"
+        android:layout_height="69dp"
+        android:layout_marginBottom="84dp"
         android:layout_marginStart="28dp"
         android:text="Naturally Occuring?"
-        app:layout_constraintBaseline_toBaselineOf="@+id/naturalEntry"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
@@ -80,12 +81,14 @@
         android:id="@+id/naturalEntry"
         android:layout_width="200dp"
         android:layout_height="70dp"
+        android:layout_marginBottom="80dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:text="TextView"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/naturallyOccurring"
-        tools:layout_editor_absoluteY="413dp" />
+        app:layout_constraintHorizontal_bias="0.441"
+        app:layout_constraintStart_toEndOf="@+id/naturallyOccurring" />
 
     <TextView
         android:id="@+id/nameEntry"

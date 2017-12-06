@@ -23,6 +23,7 @@ public class RecipeDetail extends AppCompatActivity {
 
         Intent intent = getIntent();
         this.selectedNode = (Recipe) intent.getSerializableExtra("Detail");
+
         TextView nameView = (TextView) findViewById(R.id.recipeName);
         nameView.setText(selectedNode.getInventory());
 
