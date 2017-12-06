@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
     public void drawTree(Tree processTree){
         // Initialize Network Graph
         this.surface = (GraphSurfaceView) findViewById(R.id.mysurface);
-        Dimension dim = this.surface.getDimension();
+        Dimension dim;// = this.surface.getDimension();
         processGraph = new NetworkGraph();
 
         // Set a pointer to the current Recipe and a graphPointer will be the last recipe drawn

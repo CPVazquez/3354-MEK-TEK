@@ -6,8 +6,7 @@ import net.xqhs.graphs.graph.Node;
 
 import java.util.ArrayList;
 
-import giwi.org.networkgraph.beans.Dimension;
-import giwi.org.networkgraph.beans.Point2D;
+import edu.utdallas.mektek.polycraftapp.beans.*;//Dimension;
 
 public class Tree {
 

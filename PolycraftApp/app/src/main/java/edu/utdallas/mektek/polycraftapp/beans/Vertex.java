@@ -42,18 +42,20 @@ public class Vertex {
      * @param node the node
      * @param icon the icon
      */
-    public Vertex(final Node node, final Drawable icon, final String iden) {
+    public Vertex(final Node node, final Drawable icon, final String iden, Point2D point) {
         this.node = node;
         this.icon = icon;
         this.id = iden;
         this.isRecipe = false;
+        this.position = point;
     }
 
-    public Vertex(final Node node, final Drawable icon, final String iden, boolean isRec){
+    public Vertex(final Node node, final Drawable icon, final String iden, Point2D point, boolean isRec){
         this.node = node;
         this.icon = icon;
         this.id = iden;
         this.isRecipe = isRec;
+        this.position = point;
     }
 
     /**
