@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import giwi.org.networkgraph.GraphSurfaceView;
+import giwi.org.networkgraph.beans.Dimension;
 import giwi.org.networkgraph.beans.NetworkGraph;
 import giwi.org.networkgraph.beans.Point2D;
 import giwi.org.networkgraph.beans.Vertex;
@@ -149,6 +150,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void drawTree(Tree processTree){
         // Initialize Network Graph
+        this.surface = (GraphSurfaceView) findViewById(R.id.mysurface);
+        Dimension dim = this.surface.getDimension();
         processGraph = new NetworkGraph();
 
         // Set a pointer to the current Recipe and a graphPointer will be the last recipe drawn
@@ -168,10 +171,10 @@ public class MainActivity extends AppCompatActivity {
         while(currentRecipe != null){
 
             // Draw the recipe
-            Node drawnRecipe = new SimpleNode(currentRecipe.getName());
+            Node drawnRecipe = new SimpleNode(currentRecipe.getId());
             String[] png = currentRecipe.getImage().getName().split("File:");
             try{
-                processGraph.getVertex().add(new Vertex(drawnRecipe, Drawable.createFromStream(getAssets().open("images/distillation.png"), null), currentRecipe.getId(),null, true));
+                processGraph.getVertex().add(new Vertex(drawnRecipe, Drawable.createFromStream(getAssets().open("images/distillation.png"), null), currentRecipe.getId(),processTree.getPosition(dim,drawnRecipe), true));
             }
             catch(Exception e){
                 //Unhandled
@@ -181,8 +184,11 @@ public class MainActivity extends AppCompatActivity {
             for(SuperNode parent : currentRecipe.getParents()) {
                 Node nodeToAdd = new SimpleNode(parent.getName());
                 String[] png2 = parent.getImage().getName().split("File:");
+
                 try{
-                    processGraph.getVertex().add(new Vertex(nodeToAdd, Drawable.createFromStream(getAssets().open("images/" + png2[1].toLowerCase()), null), parent.getId(), null));
+                    processGraph.getVertex().add(
+                            new Vertex(nodeToAdd, Drawable.createFromStream(getAssets().open("images/" + png2[1].toLowerCase()), null),
+                                    parent.getId(), processTree.getPosition(dim,nodeToAdd)));
                 }
                 catch(Exception e){
                     // Unhandled
@@ -206,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
                 Node childToDraw = new SimpleNode(child.getName());
                 try{
                     String[] pngArr = child.getImage().getName().split("File:");
-                    processGraph.getVertex().add(new Vertex(childToDraw, Drawable.createFromStream(getAssets().open("images/" + pngArr[1].toLowerCase()), null), child.getId(), null));
+                    processGraph.getVertex().add(new Vertex(childToDraw, Drawable.createFromStream(getAssets().open("images/" + pngArr[1].toLowerCase()), null), child.getId(), processTree.getPosition(dim,childToDraw)));
                 }catch (Exception e){
 
                 }
@@ -216,7 +222,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        this.surface = (GraphSurfaceView) findViewById(R.id.mysurface);
         surface.init(processGraph);
     }
 

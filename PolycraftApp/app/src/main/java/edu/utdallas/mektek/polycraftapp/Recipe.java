@@ -93,8 +93,8 @@ public class Recipe extends SuperNode {
     @Override
     public void setHeight(int height) {
         this.height=height;
-        for (int i=0;i<children.size();i++){
-            children.get(i).setHeight(this.height);
+        for (int i=0;i<parents.size();i++){
+            parents.get(i).setHeight(this.height);
         }
 
     }
@@ -148,4 +148,6 @@ public class Recipe extends SuperNode {
     public ArrayList<Integer> getChildQuantities(){ return this.childQuantities; }
 
     public ArrayList<Integer> getParentQuantities(){ return this.parentQuantities; }
+
+
 }
