@@ -12,7 +12,12 @@
 package giwi.org.networkgraph.beans;
 
 
+import android.util.Log;
+
+import net.xqhs.graphs.graph.SimpleNode;
+
 import org.apache.commons.collections4.Transformer;
+import org.w3c.dom.Node;
 
 import java.util.Date;
 import java.util.Random;
@@ -34,6 +39,10 @@ public class RandomLocationTransformer<V> implements Transformer<V, Point2D> {
      * The D.
      */
     private Dimension d;
+
+    private static double previousWidth;
+    private static double previousHeight;
+    public static double iterator = 0;
 
     /**
      * The Random.
@@ -59,6 +68,8 @@ public class RandomLocationTransformer<V> implements Transformer<V, Point2D> {
     private RandomLocationTransformer(final Dimension d, long seed) {
         this.d = d;
         this.random = new Random(seed);
+        this.previousWidth = random.nextDouble() * d.width;
+        this.previousHeight = random.nextDouble() * d.height;
     }
 
     /**
@@ -68,6 +79,17 @@ public class RandomLocationTransformer<V> implements Transformer<V, Point2D> {
      * @return the point 2 d
      */
     public Point2D transform(V v) {
-        return new Point2D(random.nextDouble() * d.width, random.nextDouble() * d.height);
+
+        Log.d("DIMENSIONS?", "width: " + d.width + " height: " + d.height);
+        if(v instanceof Node){
+            Log.d("TRANSFORM", "V is instance of Node");
+        } else {
+            Log.d("FAILED_TRANSFORM", v.getClass().toString());
+            //SimpleNode sn = (SimpleNode) v;
+            //sn.getLabel();
+        }
+        iterator += 350;
+        return new Point2D(previousWidth, previousHeight + iterator);
+        //return new Point2D(random.nextDouble() * d.width, random.nextDouble() * d.height);
     }
 }

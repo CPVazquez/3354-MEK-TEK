@@ -4,6 +4,8 @@ import net.xqhs.graphs.graph.Node;
 
 import android.graphics.drawable.Drawable;
 
+//import edu.utdallas.mektek.polycraftapp.*;
+
 /**
  * The type Vertex.
  */
@@ -11,11 +13,15 @@ public class Vertex {
 
     private Node node;
 
+    //public SuperNode node;
+
     private Point2D position; //carla added
 
     private Drawable icon; //not carla added
 
     private String id;
+
+    private boolean isRecipe;
 
     public String getId() {
         return id;
@@ -36,10 +42,20 @@ public class Vertex {
      * @param node the node
      * @param icon the icon
      */
-    public Vertex(final Node node, final Drawable icon, final String iden) {
+    public Vertex(final Node node, final Drawable icon, final String iden, Point2D point) {
         this.node = node;
         this.icon = icon;
         this.id = iden;
+        this.isRecipe = false;
+        this.position = point;
+    }
+
+    public Vertex(final Node node, final Drawable icon, final String iden, Point2D point, boolean isRec){
+        this.node = node;
+        this.icon = icon;
+        this.id = iden;
+        this.isRecipe = isRec;
+        this.position = point;
     }
 
     /**
@@ -76,5 +92,9 @@ public class Vertex {
      */
     public void setIcon(final Drawable icon) {
         this.icon = icon;
+    }
+
+    public boolean isRecipe(){
+        return this.isRecipe;
     }
 }

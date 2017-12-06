@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="edu.utdallas.mektek.polycraftapp.detail">
+    tools:context="edu.utdallas.mektek.polycraftapp.DetailView">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -21,24 +21,23 @@
     </android.support.design.widget.AppBarLayout>
 
     <TextView
-        android:id="@+id/textView2"
-        android:layout_width="82dp"
+        android:id="@+id/itemWiki"
+        android:layout_width="80dp"
         android:layout_height="27dp"
-        android:layout_marginStart="52dp"
-        android:layout_marginTop="36dp"
-        android:text="@string/item_wiki"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        android:layout_marginStart="28dp"
+        android:text="Item Wiki:"
+        app:layout_constraintBaseline_toBaselineOf="@+id/wikiEntry"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/naturallyOccurring"
         android:layout_width="81dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="52dp"
-        android:layout_marginTop="36dp"
-        android:text="@string/naturally_ocurring"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+        android:layout_height="69dp"
+        android:layout_marginBottom="84dp"
+        android:layout_marginStart="28dp"
+        android:text="Naturally Occuring?"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/imageView"
@@ -54,13 +53,52 @@
         app:layout_constraintVertical_bias="0.144" />
 
     <TextView
-        android:id="@+id/textView"
-        android:layout_width="82dp"
-        android:layout_height="27dp"
-        android:layout_marginStart="52dp"
+        android:id="@+id/itemName"
+        android:layout_width="80dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="28dp"
+        android:text="Item Name:"
+        app:layout_constraintBaseline_toBaselineOf="@+id/nameEntry"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/wikiEntry"
+        android:layout_width="200dp"
+        android:layout_height="80dp"
+        android:layout_marginBottom="40dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:autoLink="web"
+        android:text="TextView"
+        app:layout_constraintBottom_toTopOf="@+id/naturalEntry"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/itemWiki"
+        app:layout_constraintTop_toBottomOf="@+id/nameEntry"
+        app:layout_constraintVertical_bias="0.78" />
+
+    <TextView
+        android:id="@+id/naturalEntry"
+        android:layout_width="200dp"
+        android:layout_height="70dp"
+        android:layout_marginBottom="80dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:text="TextView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.441"
+        app:layout_constraintStart_toEndOf="@+id/naturallyOccurring" />
+
+    <TextView
+        android:id="@+id/nameEntry"
+        android:layout_width="200dp"
+        android:layout_height="32dp"
+        android:layout_marginRight="16dp"
         android:layout_marginTop="44dp"
-        android:text="@string/item_name"
-        app:layout_constraintStart_toStartOf="parent"
+        android:text="TextView"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/itemName"
         app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
 </android.support.constraint.ConstraintLayout>

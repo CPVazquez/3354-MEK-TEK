@@ -2,9 +2,9 @@ package edu.utdallas.mektek.polycraftapp;
 
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -12,19 +12,23 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.widget.TextView;
 
 import net.xqhs.graphs.graph.Node;
 import net.xqhs.graphs.graph.SimpleEdge;
 import net.xqhs.graphs.graph.SimpleNode;
 
-import java.lang.reflect.Type;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
-import giwi.org.networkgraph.GraphSurfaceView;
-import giwi.org.networkgraph.beans.NetworkGraph;
-import giwi.org.networkgraph.beans.Point2D;
-import giwi.org.networkgraph.beans.Vertex;
+
+import edu.utdallas.mektek.polycraftapp.beans.*;
+import edu.utdallas.mektek.polycraftapp.layout.*;
+//
+//import giwi.org.networkgraph.GraphSurfaceView;
+//import giwi.org.networkgraph.beans.NetworkGraph;
+//import giwi.org.networkgraph.beans.Point2D;
+//import giwi.org.networkgraph.beans.Vertex;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -69,14 +73,15 @@ public class MainActivity extends AppCompatActivity {
             process = new GetTree().execute(message).get();
         }
         catch(Exception e){
-            // Handle error
-
+           //Handle Exception
         }
 
         if(process != null){
             new DrawTree().execute(process);
+        }else {
+            TextView textView = (TextView) findViewById(R.id.textView8);
+            textView.setText("You searched an invalid item");
         }
-
         Log.d("TREE", "Tree is drawn");
     }
 
@@ -104,22 +109,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class GetSuperNode extends AsyncTask<Vertex, Void, Void>{
+    private class GetSuperNode extends AsyncTask<Vertex, Void, SuperNode>{
         @Override
-        protected Void doInBackground(Vertex ... node){
+        protected SuperNode doInBackground(Vertex ... node){
             dbh.open();
             SuperNode ver = null;
             try{
-                ver = dbh.getRecipeWithId(node[0].getId());
-            }catch (SQLException ex){
-                try {
-                    ver = dbh.getItemWithId(node[0].getId());
-                }catch (SQLException ec){
-                    Log.d("Details", "no details");
+                if(node[0].isRecipe()){
+                    ver = dbh.getRecipeWithId(node[0].getId());
                 }
+                else{
+                    ver = dbh.getItemWithId(node[0].getId());
+                }
+                Log.d("DEBUG", node[0].getId());
+                dbh.close();
+                return ver;
+            }catch (SQLException ex){
+                // Unhandled
             }
-            dbh.close();
             return null;
+        }
+        @Override
+        protected void onPostExecute(SuperNode ver){
+            startIntent(ver);
         }
     }
 
@@ -131,8 +143,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public boolean inRange(float xTest, float yTest, Point2D position, int range) {
+        return xTest <= position.getX() + range && xTest >= position.getX() - range
+                && yTest<= position.getY() + range && yTest >= position.getY() - range;
+    }
+
     public void drawTree(Tree processTree){
         // Initialize Network Graph
+        this.surface = (GraphSurfaceView) findViewById(R.id.mysurface);
+        Dimension dim;// = this.surface.getDimension();
         processGraph = new NetworkGraph();
 
         // Set a pointer to the current Recipe and a graphPointer will be the last recipe drawn
@@ -140,10 +159,9 @@ public class MainActivity extends AppCompatActivity {
         SuperNode currentRecipe;
         if(target.getChildren().size()>0) {
             currentRecipe = target.getChildren().get(0);
-        }
-
-        else {
-            //TODO: Display that they searched a base item
+        }else {
+            TextView textView = (TextView) findViewById(R.id.textView8);
+            textView.setText("You searched a base item");
             currentRecipe=null;
         }
 
@@ -151,19 +169,35 @@ public class MainActivity extends AppCompatActivity {
         Node oldDrawnRecipe = null;
 
         while(currentRecipe != null){
+            dim=new Dimension(1000,1000);
 
             // Draw the recipe
-            Node drawnRecipe = new SimpleNode(currentRecipe.getName());
-            processGraph.getVertex().add(new Vertex(drawnRecipe, ContextCompat.getDrawable(this,R.drawable.icon), currentRecipe.getId()));
+            Node drawnRecipe = new SimpleNode(currentRecipe.getId());
+            String[] png = currentRecipe.getImage().getName().split("File:");
+            try{
+                processGraph.getVertex().add(new Vertex(drawnRecipe, Drawable.createFromStream(getAssets().open("images/distillation.png"), null), currentRecipe.getId(),processTree.getPosition(dim,drawnRecipe), true));
+            }
+            catch(Exception e){
+                //Unhandled
+            }
 
             // Draw parents of recipe
             for(SuperNode parent : currentRecipe.getParents()) {
                 Node nodeToAdd = new SimpleNode(parent.getName());
-                processGraph.getVertex().add(new Vertex(nodeToAdd, ContextCompat.getDrawable(this, R.drawable.icon), parent.getId()));
+                String[] png2 = parent.getImage().getName().split("File:");
+
+                try{
+                    processGraph.getVertex().add(
+                            new Vertex(nodeToAdd, Drawable.createFromStream(getAssets().open("images/" + png2[1].toLowerCase()), null),
+                                    parent.getId(), processTree.getPosition(dim,nodeToAdd)));
+                }
+                catch(Exception e){
+                    // Unhandled
+                }
                 processGraph.addEdge(new SimpleEdge(nodeToAdd, drawnRecipe, "1"));
                 // Check if the parent of the recipe is where we make the connection to the old recipe
                 if(oldRecipe != null){
-                    if(parent.getId().equals(oldRecipe.getChildren().get(0))){
+                    if(parent.getId().equals(oldRecipe.getChildren().get(0).getId())){
                         processGraph.addEdge(new SimpleEdge(nodeToAdd, oldDrawnRecipe, "2"));
                     }
                 }
@@ -177,13 +211,18 @@ public class MainActivity extends AppCompatActivity {
                 // Draw child!!!
                 SuperNode child = currentRecipe.getChildren().get(0);
                 Node childToDraw = new SimpleNode(child.getName());
-                processGraph.getVertex().add(new Vertex(childToDraw, ContextCompat.getDrawable(this, R.drawable.icon), child.getId()));
+                try{
+                    String[] pngArr = child.getImage().getName().split("File:");
+                    processGraph.getVertex().add(new Vertex(childToDraw, Drawable.createFromStream(getAssets().open("images/" + pngArr[1].toLowerCase()), null), child.getId(), processTree.getPosition(dim,childToDraw)));
+                }catch (Exception e){
+
+                }
+
                 processGraph.addEdge(new SimpleEdge(drawnRecipe, childToDraw, "3" ));
                 currentRecipe = null;
             }
         }
 
-        this.surface = (GraphSurfaceView) findViewById(R.id.mysurface);
         surface.init(processGraph);
     }
 
@@ -194,14 +233,21 @@ public class MainActivity extends AppCompatActivity {
         return super.onTouchEvent(ev);
     }
 
-    // Pull up node detail
+    // Pull up node DetailView
     public void startIntent(SuperNode ver){
         Intent intent;
-        if(ver instanceof Recipe)
+        if(ver instanceof Recipe){
             intent = new Intent(this, RecipeDetail.class);
-        else
-            intent = new Intent(this, detail.class);
-        intent.putExtra("Detail", ver);
+            Recipe casted = (Recipe) ver;
+            intent.putExtra("Detail", casted);
+            Log.d("Debug", "Recipe was tapped");
+        }
+        else{
+            intent = new Intent(this, DetailView.class);
+            Item casted = (Item) ver;
+            intent.putExtra("Detail",casted);
+            Log.d("Debug", "Item was tapped");
+        }
         startActivity(intent);
     }
 
@@ -212,10 +258,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
 
+
+    private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+        private int tapSpacingThing = 40;
         @Override
         public boolean onDoubleTap(MotionEvent ev) {
+            int tapSpacingThing = 40;
             float actionBarHeight  = 0;
             TypedValue tv = new TypedValue();
             if( getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)){
@@ -223,12 +272,12 @@ public class MainActivity extends AppCompatActivity {
             }
             Log.d("Height", "action bar hight: " +actionBarHeight);
             float xTest = ev.getRawX();
-            float yTest = ev.getRawY() - actionBarHeight;
+            float yTest = ev.getRawY() - 220;
             Log.d("Gestures", "onDoubleTableEvent: x: " + xTest + " y: " + yTest);
             for(Vertex node : processGraph.getVertex()){
                 Point2D position = node.getPosition();
                 Log.d("Node", "x: " + position.getX() + " y: " + position.getY());
-                if(xTest <= position.getX() + 20 && xTest >= position.getX() - 20  && yTest<= position.getY() + 20 && yTest >= position.getY() - 20 ){
+                if(inRange(xTest, yTest, position, tapSpacingThing)){
                     Log.d("Node", "yay!"); //Able to tap node, now launch Activity
                     new GetSuperNode().execute(node);
                     break;
@@ -237,4 +286,14 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
     }
+
+   /* private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        public boolean onScale(ScaleGestureDetector detector) {
+            mScaleFactor *= detector.getScaleFactor();
+            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 5.0f));
+            invalidate();
+            Log.d("Scale", "scale detected");
+            return true;
+        }
+    }*/
 }

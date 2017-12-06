@@ -15,7 +15,7 @@ public class Point2D {
      * @param x the x
      * @param y the y
      */
-    Point2D(double x, double y) {
+    public Point2D(double x, double y) {
         this.x = x;
         this.y = y;
     }
