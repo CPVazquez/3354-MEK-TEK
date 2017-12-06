@@ -23,11 +23,7 @@ import java.sql.SQLException;
 
 import edu.utdallas.mektek.polycraftapp.beans.*;
 import edu.utdallas.mektek.polycraftapp.layout.*;
-//
-//import giwi.org.networkgraph.GraphSurfaceView;
-//import giwi.org.networkgraph.beans.NetworkGraph;
-//import giwi.org.networkgraph.beans.Point2D;
-//import giwi.org.networkgraph.beans.Vertex;
+
 
 
 public class MainActivity extends AppCompatActivity {
@@ -36,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
     private GraphSurfaceView surface;
     private NetworkGraph processGraph;
-    private GestureDetectorCompat mDetector;
+    //private GestureDetectorCompat mDetector;
     private DatabaseHandler dbh;
 
     @Override
@@ -47,23 +43,8 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mDetector = new GestureDetectorCompat(this, new MyGestureListener());
+       // mDetector = new GestureDetectorCompat(this, new MyGestureListener());
 
-       /* Item mockA = new Item("a", null, null, null, "element-a");
-        Tree process = new Tree(mockA);
-        Item elementA = new Item("a", new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), null, "element-a");
-        Item elementB = new Item("b", new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), null, "element-b");
-        Item water = new Item("water", new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), null, "water");
-        SuperNode recipe = new Recipe("distill", new ArrayList<SuperNode>(), new ArrayList<SuperNode>(), null, "recipie", null, null);
-        recipe.getParents().add(elementA);
-        recipe.getParents().add(elementB);
-        recipe.getChildren().add(water);
-        elementA.getChildren().add(recipe);
-        elementB.getChildren().add(recipe);
-        water.getParents().add(recipe);
-
-        process.addNode(recipe);
-*/
         Intent intent = getIntent();
         String message = intent.getStringExtra(Search.EXTRA_MESSAGE);
 
@@ -109,31 +90,31 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class GetSuperNode extends AsyncTask<Vertex, Void, SuperNode>{
-        @Override
-        protected SuperNode doInBackground(Vertex ... node){
-            dbh.open();
-            SuperNode ver = null;
-            try{
-                if(node[0].isRecipe()){
-                    ver = dbh.getRecipeWithId(node[0].getId());
-                }
-                else{
-                    ver = dbh.getItemWithId(node[0].getId());
-                }
-                Log.d("DEBUG", node[0].getId());
-                dbh.close();
-                return ver;
-            }catch (SQLException ex){
-                // Unhandled
-            }
-            return null;
-        }
-        @Override
-        protected void onPostExecute(SuperNode ver){
-            startIntent(ver);
-        }
-    }
+//    private class GetSuperNode extends AsyncTask<Vertex, Void, SuperNode>{
+//        @Override
+//        protected SuperNode doInBackground(Vertex ... node){
+//            dbh.open();
+//            SuperNode ver = null;
+//            try{
+//                if(node[0].isRecipe()){
+//                    ver = dbh.getRecipeWithId(node[0].getId());
+//                }
+//                else{
+//                    ver = dbh.getItemWithId(node[0].getId());
+//                }
+//                Log.d("DEBUG", node[0].getId());
+//                dbh.close();
+//                return ver;
+//            }catch (SQLException ex){
+//                // Unhandled
+//            }
+//            return null;
+//        }
+//        @Override
+//        protected void onPostExecute(SuperNode ver){
+//            startIntent(ver);
+//        }
+//    }
 
     private class DrawTree extends AsyncTask<Tree, Object, Void> {
         @Override
@@ -226,13 +207,6 @@ public class MainActivity extends AppCompatActivity {
         surface.init(processGraph);
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        this.mDetector.onTouchEvent(ev);
-        Log.d("GRAPH", "graph is tapped");
-        return super.onTouchEvent(ev);
-    }
-
     // Pull up node DetailView
     public void startIntent(SuperNode ver){
         Intent intent;
@@ -257,43 +231,4 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-
-
-
-    private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
-        private int tapSpacingThing = 40;
-        @Override
-        public boolean onDoubleTap(MotionEvent ev) {
-            int tapSpacingThing = 40;
-            float actionBarHeight  = 0;
-            TypedValue tv = new TypedValue();
-            if( getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)){
-                actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
-            }
-            Log.d("Height", "action bar hight: " +actionBarHeight);
-            float xTest = ev.getRawX();
-            float yTest = ev.getRawY() - 220;
-            Log.d("Gestures", "onDoubleTableEvent: x: " + xTest + " y: " + yTest);
-            for(Vertex node : processGraph.getVertex()){
-                Point2D position = node.getPosition();
-                Log.d("Node", "x: " + position.getX() + " y: " + position.getY());
-                if(inRange(xTest, yTest, position, tapSpacingThing)){
-                    Log.d("Node", "yay!"); //Able to tap node, now launch Activity
-                    new GetSuperNode().execute(node);
-                    break;
-                }
-            }
-            return true;
-        }
-    }
-
-   /* private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        public boolean onScale(ScaleGestureDetector detector) {
-            mScaleFactor *= detector.getScaleFactor();
-            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 5.0f));
-            invalidate();
-            Log.d("Scale", "scale detected");
-            return true;
-        }
-    }*/
 }
