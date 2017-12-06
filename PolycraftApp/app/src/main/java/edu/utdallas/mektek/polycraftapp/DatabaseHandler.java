@@ -194,17 +194,22 @@ public class DatabaseHandler extends SQLiteAssetHelper{
     private void setAsParent(Recipe newRecipe, ArrayList<SuperNode> childItems) {
         ArrayList<SuperNode> recArr= new ArrayList<>();
         recArr.add(newRecipe);
-        for (SuperNode it : childItems){
-            it.setParents(recArr);
+        for (int i=0; i<childItems.size(); i++){
+            childItems.get(i).setParents(recArr);
+
+            if(childItems.get(i).getChildren().size()==0){
+                ((Item)childItems.get(i)).isNatural=true;
+            }
         }
     }
 
     private void setAsChild(Recipe newRecipe, ArrayList<SuperNode> parentItems) {
         ArrayList<SuperNode> recArr= new ArrayList<>();
         recArr.add(newRecipe);
-        for (SuperNode it : parentItems){
-            it.setChildren(recArr);
+        for(int i=0; i<parentItems.size(); i++) {
+          parentItems.get(i).setChildren(recArr);
         }
+
     }
 
 	

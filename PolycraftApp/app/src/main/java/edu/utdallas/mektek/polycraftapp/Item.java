@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class Item extends SuperNode {
     private String name;
     private String url = "";
-    private boolean isNatural = false;
+    protected boolean isNatural = false;
     private int index;
     private int height;
 
