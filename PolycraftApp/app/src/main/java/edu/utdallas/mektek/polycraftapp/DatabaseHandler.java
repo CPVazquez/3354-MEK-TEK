@@ -165,6 +165,7 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 
             newRecipe = new Recipe("DistillationColumn", rowId, parentItems, childItems, new File("/Distillation_Column.ping"), parentQuant, childQuant);
             setAsChild(newRecipe, parentItems);
+            setAsParent(newRecipe, childItems);
 
             rs.close();
         }catch(SQLException ex){
@@ -172,6 +173,14 @@ public class DatabaseHandler extends SQLiteAssetHelper{
         }
 		return newRecipe;
 	}
+
+    private void setAsParent(Recipe newRecipe, ArrayList<SuperNode> childItems) {
+        ArrayList<SuperNode> recArr= new ArrayList<>();
+        recArr.add(newRecipe);
+        for (SuperNode it : childItems){
+            it.setParents(recArr);
+        }
+    }
 
     private void setAsChild(Recipe newRecipe, ArrayList<SuperNode> parentItems) {
         ArrayList<SuperNode> recArr= new ArrayList<>();
@@ -295,9 +304,12 @@ public class DatabaseHandler extends SQLiteAssetHelper{
             }while (i<=maxColumns && par.length()>0);
 
             parentItems = new ArrayList<SuperNode>();
+            int j=0;
             for (String itemName : parents) {
 
                 parentItems.add(createItem(itemName,0));
+                ((Item) parentItems.get(j)).setIndex(j);
+                j++;
             }
             return this;
         }
