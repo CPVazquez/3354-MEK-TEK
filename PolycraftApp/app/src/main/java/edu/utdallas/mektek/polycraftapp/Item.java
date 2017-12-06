@@ -11,10 +11,35 @@ public class Item extends SuperNode {
     private String name;
     private String url = "";
     private boolean isNatural = false;
+    private int index;
 
     //ITEMS ONLY HAVE ONE CHILD AND ONE PARENT
-    
-    
+
+
+
+    public SuperNode search(String id){
+        SuperNode match;
+        if (this.getName().equals(id)) {
+            return this;
+        }
+        else{
+            return this.getChildren().get(0).search(id);
+        }
+    }
+
+    @Override
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public int getIndex(){
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
     public Item (String id, ArrayList<SuperNode> par, ArrayList<SuperNode> child, File img, String name){
         super(id, par, child, img);
         this.name = name;

@@ -294,9 +294,12 @@ public class DatabaseHandler extends SQLiteAssetHelper{
             }while (i<maxColumns && par.length()>0);
 
             parentItems = new ArrayList<SuperNode>();
+            int j=0;
             for (String itemName : parents) {
 
                 parentItems.add(createItem(itemName,0));
+                ((Item) parentItems.get(j)).setIndex(j);
+                j++;
             }
             return this;
         }

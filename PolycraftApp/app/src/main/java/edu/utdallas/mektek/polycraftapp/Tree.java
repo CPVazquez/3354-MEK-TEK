@@ -1,6 +1,11 @@
 package edu.utdallas.mektek.polycraftapp;
 
+import net.xqhs.graphs.graph.Node;
+
 import java.util.ArrayList;
+
+import giwi.org.networkgraph.beans.Dimension;
+import giwi.org.networkgraph.beans.Point2D;
 
 public class Tree {
 
@@ -25,6 +30,7 @@ public class Tree {
     public void addNode(SuperNode nodeToAdd){
     	contents+=nodeToAdd.toString()+"\n";
     	numSteps++;
+    	nodeToAdd.setHeight(numSteps);
         // This tree was just created, add the node to target
         if(this.pointerNode == null){
             // Make parent and child connection
@@ -55,6 +61,34 @@ public class Tree {
 
     public void deleteNode(SuperNode node){
         // Unimplemented
+    }
+
+    public SuperNode get(String id){
+        return targetNode.search(id);
+    }
+
+    public Point2D getPosition(Dimension d, Node drawnode){
+        SuperNode datanode= get(drawnode.getLabel());
+        int x= getX(datanode,d);
+        int y= getY(datanode,d);
+        return new Point2D(x,y);
+    }
+
+    private int getY(SuperNode datanode, Dimension d) {
+        return datanode.height;
+    }
+
+    private int getX(SuperNode datanode, Dimension d) {
+        if (datanode instanceof  Recipe){
+            return d.getWidth()/2;
+        }
+        else if (datanode instanceof Item){
+           return ((Item)datanode).getIndex();
+        }
+
+        else {
+            return 0;
+        }
     }
 
     public ArrayList<SuperNode> getDrawnNodes()

@@ -13,6 +13,7 @@ public class Recipe extends SuperNode {
     private HashMap<SuperNode, Integer> parentQuant;
     private ArrayList<Integer> childQuantities;
     private ArrayList<Integer> parentQuantities;
+    private int height;
     
     //parent is polycraft output
     //child is polycraft input
@@ -72,6 +73,33 @@ public class Recipe extends SuperNode {
     public void setChildren(ArrayList<SuperNode> chi){
         this.children=chi;
     }
+
+    @Override
+    public SuperNode search(String id) {
+        if (this.getId().equals(id)) {
+            return this;
+        }
+        else{
+           for (SuperNode par : this.getParents()){
+               if(par.getName().equals(id)){
+                   return par;
+               }
+           }
+
+            return this.getChildren().get(0).search(id);
+        }
+    }
+
+    @Override
+    public void setHeight(int height) {
+        this.height=height;
+        for (int i=0;i<children.size();i++){
+            children.get(i).setHeight(this.height);
+        }
+
+    }
+
+
     @Override
     public File getImage() {
         return image;
