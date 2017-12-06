@@ -258,6 +258,7 @@ public class MainActivity extends AppCompatActivity {
         private int tapSpacingThing = 40;
         @Override
         public boolean onDoubleTap(MotionEvent ev) {
+            int tapSpacingThing = 40;
             float actionBarHeight  = 0;
             TypedValue tv = new TypedValue();
             if( getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)){

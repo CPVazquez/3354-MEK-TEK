@@ -1,6 +1,8 @@
 package giwi.org.networkgraph;
 
+import android.content.Intent;
 import android.content.IntentSender;
+import android.util.TypedValue;
 import android.view.SurfaceView;
 
 
@@ -32,8 +34,11 @@ import giwi.org.networkgraph.beans.ArcUtils;
 import giwi.org.networkgraph.beans.Dimension;
 import giwi.org.networkgraph.beans.NetworkGraph;
 import giwi.org.networkgraph.beans.Point2D;
+import giwi.org.networkgraph.beans.RandomLocationTransformer;
 import giwi.org.networkgraph.beans.Vertex;
 import giwi.org.networkgraph.layout.FRLayout;
+
+import static android.support.v4.content.ContextCompat.startActivity;
 
 /**
  * The type NetworkGraph surface view.
@@ -65,6 +70,10 @@ public class GraphSurfaceView extends SurfaceView {
     Paint edgePainter;
     Paint whitePaint;
     Paint vertexPainter;
+
+    //Constants
+    private final float nodeCircleRadius = 100; //FLOAT VALUE.
+    private final float bitmapRadius = 200; //BitmapRadius
 
     /**
      * Instantiates a new NetworkGraph surface view.
@@ -112,7 +121,7 @@ public class GraphSurfaceView extends SurfaceView {
      */
     public void init(final NetworkGraph graph) {
         mNetworkGraph = graph;
-
+        RandomLocationTransformer.iterator = 0;
         this.edgePainter = new Paint();
         edgePainter.setAntiAlias(true);
         edgePainter.setTextAlign(Paint.Align.CENTER);
@@ -156,6 +165,12 @@ public class GraphSurfaceView extends SurfaceView {
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
                 // TODO Auto-generated method stub
+                Log.d("Surface", "Surface Destroy Called");
+
+                //Canvas canvas = holder.getSurface().lockCanvas(null);
+                //canvas.sa
+
+                //holder.getSurface().release();
 
             }
         });
@@ -226,8 +241,7 @@ public class GraphSurfaceView extends SurfaceView {
         canvas.scale(mScaleFactor,mScaleFactor);
         canvas.translate(positionX,positionY);
 
-        final float nodeCircleRadius = 100; //FLOAT VALUE.
-        final float bitmapRadius = 200; //BitmapRadius
+
         final float nodeTextOverlapPercent = 0.2f;
 
         FRLayout layout = new FRLayout(mNetworkGraph, new Dimension(getWidth(), getHeight()));
@@ -353,9 +367,33 @@ public class GraphSurfaceView extends SurfaceView {
         @Override
         public boolean onDoubleTap(MotionEvent ev){
             Log.d("GSV", "Screen was double tapped");
-
+            int tapSpacingThing = (int)nodeCircleRadius;
+            float actionBarHeight  = 160; //TEMP VAR.
+            TypedValue tv = new TypedValue();
+            //if( getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)){
+              //  actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
+            //}
+            Log.d("Height", "action bar hight: " +actionBarHeight);
+            float xTest = ev.getRawX() + -1f*positionX;
+            float yTest = ev.getRawY() + -1f*positionY;
+            Log.d("Gestures", "onDoubleTableEvent: x: " + xTest + " y: " + yTest);
+            for(Vertex node : mNetworkGraph.getVertex()){
+                Point2D position = node.getPosition();
+                Log.d("Node", "x: " + position.getX() + " y: " + position.getY());
+                if(inRange(xTest, yTest, position, tapSpacingThing)){
+                    Log.d("Node", "yay!"); //Able to tap node, now launch Activity
+                   // new GetSuperNode().execute(node);
+                    break;
+                }
+            }
             return super.onDoubleTap(ev);
         }
     }
+
+    public boolean inRange(float xTest, float yTest, Point2D position, int range) {
+        return xTest <= position.getX() + range && xTest >= position.getX() - range
+                && yTest<= position.getY() && yTest >= position.getY() - 2*range;
+    }
+
 
 }

@@ -42,7 +42,7 @@ public class RandomLocationTransformer<V> implements Transformer<V, Point2D> {
 
     private static double previousWidth;
     private static double previousHeight;
-    private static double iterator = 0;
+    public static double iterator = 0;
 
     /**
      * The Random.
