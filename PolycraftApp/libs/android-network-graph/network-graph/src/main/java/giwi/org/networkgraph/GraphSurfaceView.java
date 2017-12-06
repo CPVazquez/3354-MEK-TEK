@@ -61,6 +61,10 @@ public class GraphSurfaceView extends SurfaceView {
     private float positionX = 0;
     private float positionY = 0;
 
+    //Painters
+    Paint paint;
+    Paint whitePaint;
+
     /**
      * Instantiates a new NetworkGraph surface view.
      *
@@ -107,6 +111,17 @@ public class GraphSurfaceView extends SurfaceView {
      */
     public void init(final NetworkGraph graph) {
         mNetworkGraph = graph;
+
+        this.paint = new Paint();
+        this.whitePaint = new Paint();
+        paint.setAntiAlias(true);
+        whitePaint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_nodeBgColor, mNetworkGraph.getNodeBgColor()));
+        whitePaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        whitePaint.setStrokeWidth(2f);
+        whitePaint.setShadowLayer(5, 0, 0, attributes.getColor(R.styleable.GraphSurfaceView_defaultColor, mNetworkGraph
+                .getDefaultColor()));
+
+
         setZOrderOnTop(true);
         getHolder().setFormat(PixelFormat.TRANSLUCENT);
         //mScroller = new Scroller(getContext());
@@ -134,7 +149,7 @@ public class GraphSurfaceView extends SurfaceView {
             }
         });
         invalidate();
-        postInvalidate();
+       // postInvalidate();
     }
 
     private Bitmap getCroppedBitmap(Bitmap bmp, int radius) {
@@ -197,19 +212,14 @@ public class GraphSurfaceView extends SurfaceView {
         super.dispatchDraw(canvas);
         Log.i("ONDRAW", "onDraw is called");
         canvas.save();
+        canvas.scale(mScaleFactor,mScaleFactor);
         canvas.translate(positionX,positionY);
-        Paint paint = new Paint();
-        Paint whitePaint = new Paint();
-        paint.setAntiAlias(true);
-        FRLayout layout = new FRLayout(mNetworkGraph, new Dimension(getWidth(), getHeight()));
-        whitePaint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_nodeBgColor, mNetworkGraph.getNodeBgColor()));
-        whitePaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        whitePaint.setStrokeWidth(2f);
-        whitePaint.setShadowLayer(5, 0, 0, attributes.getColor(R.styleable.GraphSurfaceView_defaultColor, mNetworkGraph
-                .getDefaultColor()));
+
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setTextSize(20f);
         paint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_defaultColor, mNetworkGraph.getDefaultColor()));
+        FRLayout layout = new FRLayout(mNetworkGraph, new Dimension(getWidth(), getHeight()));
+
         for (Edge edge : mNetworkGraph.getEdges()) {
             Point2D p1 = new Point2D();
             p1.setLocation(0,0);
@@ -285,7 +295,7 @@ public class GraphSurfaceView extends SurfaceView {
             canvas.drawText(node.getNode().getLabel(), (float) position.getX(),
                     (float) position.getY() + RADIUS, paint);
         }
-        canvas.scale(mScaleFactor,mScaleFactor);
+
         canvas.restore();
 
 
