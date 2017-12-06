@@ -13,6 +13,8 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
+import android.widget.TextView;
 
 import net.xqhs.graphs.graph.Node;
 import net.xqhs.graphs.graph.SimpleEdge;
@@ -70,8 +72,7 @@ public class MainActivity extends AppCompatActivity {
             process = new GetTree().execute(message).get();
         }
         catch(Exception e){
-            // Handle error
-
+            //Handle Exception
         }
 
         if(process != null){
@@ -139,6 +140,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public boolean inRange(float xTest, float yTest, Point2D position, int range) {
+        return xTest <= position.getX() + range && xTest >= position.getX() - range
+                && yTest<= position.getY() + range && yTest >= position.getY() - range;
+    }
+
     public void drawTree(Tree processTree){
         // Initialize Network Graph
         processGraph = new NetworkGraph();
@@ -151,7 +157,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         else {
-            //TODO: Display that they searched a base item
+            TextView textView = (TextView) findViewById(R.id.textView8);
+            textView.setText("You Searched A base Item");
             currentRecipe=null;
         }
 
@@ -245,8 +252,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
 
+
+    private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+        private int tapSpacingThing = 40;
         @Override
         public boolean onDoubleTap(MotionEvent ev) {
             float actionBarHeight  = 0;
@@ -256,12 +265,12 @@ public class MainActivity extends AppCompatActivity {
             }
             Log.d("Height", "action bar hight: " +actionBarHeight);
             float xTest = ev.getRawX();
-            float yTest = ev.getRawY() - 280;
+            float yTest = ev.getRawY() - 220;
             Log.d("Gestures", "onDoubleTableEvent: x: " + xTest + " y: " + yTest);
             for(Vertex node : processGraph.getVertex()){
                 Point2D position = node.getPosition();
                 Log.d("Node", "x: " + position.getX() + " y: " + position.getY());
-                if(xTest <= position.getX() + 20 && xTest >= position.getX() - 20  && yTest<= position.getY() + 20 && yTest >= position.getY() - 20 ){
+                if(inRange(xTest, yTest, position, tapSpacingThing)){
                     Log.d("Node", "yay!"); //Able to tap node, now launch Activity
                     new GetSuperNode().execute(node);
                     break;
@@ -270,4 +279,14 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
     }
+
+   /* private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        public boolean onScale(ScaleGestureDetector detector) {
+            mScaleFactor *= detector.getScaleFactor();
+            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 5.0f));
+            invalidate();
+            Log.d("Scale", "scale detected");
+            return true;
+        }
+    }*/
 }

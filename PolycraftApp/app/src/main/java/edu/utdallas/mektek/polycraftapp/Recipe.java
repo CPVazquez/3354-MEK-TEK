@@ -17,6 +17,17 @@ public class Recipe extends SuperNode {
     //parent is polycraft output
     //child is polycraft input
 
+
+    /**
+     * Constructor for the Recipe class, none of the inputs should be null
+     * @param id takes an id value for the Recipe node
+     * @param par takes an array list of parent nodes for the Recipe node
+     * @param child takes an array list of child nodes for the recipe node
+     * @param img takes the image name as a String for the recipe node
+     * @param in takes the inventory of the Recipe
+     * @param parQ takes an array list of the quantities of the parent nodes
+     * @param chiQ takes an array list of the quantities of the child nodes
+     */
     public Recipe(String id, ArrayList<SuperNode> par, ArrayList<SuperNode> child,
     		File img, String in, HashMap<SuperNode, Integer> parQ, HashMap<SuperNode, Integer> chiQ){
         super(id, par, child, img);
@@ -24,7 +35,17 @@ public class Recipe extends SuperNode {
         parentQuant = parQ;
         this.inventory = in;
     }
-    
+
+    /**
+     * Constructor for the Recipe class, none of the inputs should be null
+     * @param in takes the inventory of the Recipe
+     * @param id takes an id value for the Recipe node
+     * @param par takes an array list of parent nodes for the Recipe node
+     * @param child takes an array list of child nodes for the recipe node
+     * @param img takes the image name as a String for the recipe node
+     * @param parQ takes an array list of the quantities of the parent nodes
+     * @param chiQ takes an array list of the quantities of the child nodes
+     */
     public Recipe(String in, String id, ArrayList<SuperNode> par, ArrayList<SuperNode> child,
     		File img, ArrayList<Integer> parQ, ArrayList<Integer> chiQ){
         super(id, par, child, img);
@@ -35,6 +56,7 @@ public class Recipe extends SuperNode {
     
     //Testing Constructor:
    // public Recipe()
+
 
     @Override
     public ArrayList<SuperNode> getChildren() {
@@ -69,10 +91,20 @@ public class Recipe extends SuperNode {
         drawnId = id;
     }
 
+    /**
+     * a method for retrieving the quantity required for a child node
+     * @param id given the string id of the node
+     * @return integer value of the quantity required
+     */
     public Integer getChildQuant(String id) {
         return childQuant.get(id);
     }
 
+    /**
+     * a method for retrieving the quantity required for a parent node
+     * @param id given the string id of the node
+     * @return integer value of the quantity required
+     */
     public Integer getParentQuant(String id) {
         return parentQuant.get(id);
     }
