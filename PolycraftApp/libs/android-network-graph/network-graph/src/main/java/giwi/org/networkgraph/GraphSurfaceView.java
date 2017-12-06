@@ -169,6 +169,8 @@ public class GraphSurfaceView extends SurfaceView {
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent ev) {
+        mScaleDetector.onTouchEvent(ev);
+        //super.onTouchEvent(ev);
         boolean result = detector.onTouchEvent(ev);
         if(!result){
             if (ev.getAction() == MotionEvent.ACTION_UP) {
@@ -182,11 +184,12 @@ public class GraphSurfaceView extends SurfaceView {
                 }
             }
         }
-        return result;
+        return result; //just commented out
       //  mScaleDetector.onTouchEvent(ev);
        // postInvalidate();
       //  Log.d("GSV", "Screen was touched");
-        //return super.onTouchEvent(ev);
+        //return super.onTouchEvent(ev); this lets double tap work
+
     }
 
     @Override
@@ -282,6 +285,7 @@ public class GraphSurfaceView extends SurfaceView {
             canvas.drawText(node.getNode().getLabel(), (float) position.getX(),
                     (float) position.getY() + RADIUS, paint);
         }
+        canvas.scale(mScaleFactor,mScaleFactor);
         canvas.restore();
 
 
@@ -311,7 +315,7 @@ public class GraphSurfaceView extends SurfaceView {
         public boolean onScale(ScaleGestureDetector detector) {
             mScaleFactor *= detector.getScaleFactor();
             mScaleFactor = Math.max(mMinFactor, Math.min(mScaleFactor, mMaxFactor));
-            postInvalidate();//invalidate();
+            invalidate();
             return true;
         }
     }
@@ -343,7 +347,8 @@ public class GraphSurfaceView extends SurfaceView {
         @Override
         public boolean onDoubleTap(MotionEvent ev){
             Log.d("GSV", "Screen was double tapped");
-            return true;
+
+            return super.onDoubleTap(ev);
         }
     }
 
