@@ -40,3 +40,5 @@ All of these systems "end" but their root nodes are not "Naturally Occuring". Th
 Please note - while a lot of these items have similar names (e.g. Beaker (Heavy Naphtha), Drum (Heavy Naphtha)), they are very different items and are not interchangeable in game. 
 To convert, the user needs to use a different "inventory" that is not a distillation column. Since the scope of our project only includes implementation of one such inventory (namely distillation column), this 'type' conversion is not accounted for.
 Otherwise, yes, "Beaker (Light Naphtha)" Should be able to follow a similar path as "Drum (Heavy Naphtha)", if it were converted using a different inventory. 
+
+This app uses a modified version of the NetworkGraph library found at https://github.com/Giwi/android-network-graph for the graphical display of nodes and edges. Credit to Giwi.
