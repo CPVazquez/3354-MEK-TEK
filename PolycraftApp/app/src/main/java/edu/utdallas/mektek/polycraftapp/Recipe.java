@@ -171,4 +171,16 @@ public class Recipe extends SuperNode {
      * @return parentQuantities - an ArrayList of Integers holding the quantities of each parent
      */
     public ArrayList<Integer> getParentQuantities(){ return parentQuantities; }
+
+    /**
+     * getFileNamePath
+     * gets the png asset for a given node; used to display image on tree
+     * @return String - asset path name
+     */
+    public String getFileNamePath(){
+        String pngFileName = this.getImage().getName();
+        String[] pngArray = pngFileName.split("File:");
+        String assetName = pngArray[1].toLowerCase();
+        return assetName;
+    }
 }
