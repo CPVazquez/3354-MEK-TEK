@@ -115,19 +115,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * getFileNamePath
-     * gets the png asset for a given node; used to display image on tree
-     * @param node - node to get the image file
-     * @return String - asset path name
-     */
-    public String getFileNamePath(SuperNode node){
-        String pngFileName = node.getImage().getName();
-        String[] pngArray = pngFileName.split("File:");
-        String assetName = pngArray[1].toLowerCase();
-        return assetName;
-    }
-
-    /**
      * drawTree
      * creates the vertices and edges for the tree to be drawn
      * @param processTree - a Tree object built by database handler
@@ -171,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
             // Draw parents of recipe
             for(SuperNode parent : currentRecipe.getParents()) {
                 Node nodeToAdd = new SimpleNode(parent.getName());
-                String asset = getFileNamePath(parent);
+                String asset = parent.getFileNamePath();
 
                 try{
                     processGraph.getVertex().add(
@@ -204,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
                 SuperNode child = currentRecipe.getChildren().get(0);
                 Node childToDraw = new SimpleNode(child.getName());
                 try{
-                    String assetName = getFileNamePath(child);
+                    String assetName = child.getFileNamePath();
                     processGraph.getVertex().add(new Vertex(childToDraw,
                             Drawable.createFromStream(getAssets().open("images/" + assetName), null),
                             child.getId(), processTree.getPosition(dim,childToDraw)));

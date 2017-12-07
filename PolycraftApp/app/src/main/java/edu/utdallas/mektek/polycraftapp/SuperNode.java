@@ -57,4 +57,6 @@ public abstract class SuperNode implements Serializable{
     public abstract void setHeight(int numSteps);
 
     public abstract int getHeight();
+
+    public abstract String getFileNamePath();
 }
