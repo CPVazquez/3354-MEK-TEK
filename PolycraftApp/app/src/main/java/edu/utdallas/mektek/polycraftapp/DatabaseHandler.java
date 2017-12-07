@@ -13,7 +13,10 @@ import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 import static java.lang.Integer.parseInt;
 
 /**
- * DatabaseHandler is a Singleton class that extends SQLiteAssetHelper, an Android SDK Class that
+ * Author:  Keene Chin
+ * Date:    11/15/2017
+ * Version: 1
+ * DatabaseHandler - a Singleton class that extends SQLiteAssetHelper, an Android SDK Class that
  * Provides useful helper classes to interact with a SQLiteAsset.
  *
  * An instance of this Class is instantiated when mainActivity is called. This class provides the
@@ -156,24 +159,6 @@ public class DatabaseHandler extends SQLiteAssetHelper{
         return newItem;
     }
 
-//	public String getItemID(String searchValue) {
-//				String command = SQLquery.selectIdsAndNames;
-//				command += " WHERE itemName LIKE '%" + searchValue + "%'";
-//				Cursor rs =   database.rawQuery(command,null);
-//				return rs.getString(rs.getColumnIndex("gameID"));
-//
-//	}
-//	public String getRecipeId(String searchValue) throws SQLException {
-//        ArrayList<String> ancestorIds;
-//        try {
-//            ancestorIds = getRowIdOfAncestors(searchValue);
-//        }catch(SQLException ex){
-//            ex.printStackTrace();
-//            throw ex;
-//        }
-//        return ancestorIds.get(0);
-//    }
-
 
     /**
      * Main Process called by Searching that queries the database, performs a recursive Depth-First
@@ -217,7 +202,15 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 
 		return myTree;
 	}
-	
+
+    /**
+     * createRecipe - called in {@link DatabaseHandler#getProcessTree} to instantiate Recipe items
+     * @param rowId the SQLite row id of the recipe we want to instantiate. The query performs
+     *                    an EXACT MATCH search, so typos are not tolerated.
+     * @return      the {@link Recipe#Recipe(String, String, ArrayList, ArrayList, File, ArrayList, ArrayList)} object instantiated by rowId
+     * @throws SQLException If an invalid input is entered or the searched item doesn't exist in the database.
+     */
+
 
 	private Recipe createRecipe(String rowId) throws SQLException {
         Recipe newRecipe;
@@ -257,6 +250,12 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		return newRecipe;
 	}
 
+    /** Sets the {@link Item#parents} pointer in a list of child Items to a passed Recipe. Defaults the {@link Item#isNatural} value to true, which is overwritten in all cases except for
+     * the case where earliest ancestor is not naturally occurring. This does not change the data returned to the user, and is only used when drawing the tree so this case is consistent with
+     * actual natural ancestors.
+     * @param newRecipe the Recipe object in {@link DatabaseHandler#createRecipe(String)}
+     * @param childItems the children of newRecipe
+     */
     private void setAsParent(Recipe newRecipe, ArrayList<SuperNode> childItems) {
         ArrayList<SuperNode> recArr= new ArrayList<>();
         recArr.add(newRecipe);
@@ -269,6 +268,11 @@ public class DatabaseHandler extends SQLiteAssetHelper{
         }
     }
 
+    /** Sets the {@link Item#children} pointer in a list of parent Items to a passed Recipe.
+     *
+     * @param newRecipe the Recipe object in {@link DatabaseHandler#createRecipe(String)}
+     * @param parentItems the children of newRecipe
+     */
     private void setAsChild(Recipe newRecipe, ArrayList<SuperNode> parentItems) {
         ArrayList<SuperNode> recArr= new ArrayList<>();
         recArr.add(newRecipe);
