@@ -170,5 +170,17 @@ public class Item extends SuperNode {
     public void setIndex(int index) {
         this.index = index;
     }
+
+    /**
+     * getFileNamePath
+     * gets the png asset for a given node; used to display image on tree
+     * @return String - asset path name
+     */
+    public String getFileNamePath(){
+        String pngFileName = this.getImage().getName();
+        String[] pngArray = pngFileName.split("File:");
+        String assetName = pngArray[1].toLowerCase();
+        return assetName;
+    }
 }
 
