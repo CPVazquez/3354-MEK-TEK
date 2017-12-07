@@ -21,19 +21,30 @@ import edu.utdallas.mektek.polycraftapp.beans.*;
 public class MainActivity extends AppCompatActivity {
     private DatabaseHandler dbh;
 
+    /**
+     * onCreate
+     * launched when MainActivity is created
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //set up toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        //receive intent and receive the passed string
         Intent intent = getIntent();
         String message = intent.getStringExtra(Search.EXTRA_MESSAGE);
 
+        //create dbh instance for DatabaseHandler singleton
         this.dbh = DatabaseHandler.getInstance(this);
         Tree process = null;
+
+        //create Tree
         try {
             process = new GetTree().execute(message).get();
         }
@@ -41,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
            failedProcess();
         }
 
+        //draw graphical tree
         if(process != null){
             new DrawTree().execute(process);
         }else {
