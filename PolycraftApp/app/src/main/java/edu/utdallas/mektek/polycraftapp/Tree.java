@@ -1,20 +1,22 @@
 package edu.utdallas.mektek.polycraftapp;
 
 import android.util.Log;
-
 import net.xqhs.graphs.graph.Node;
-
-import java.util.ArrayList;
-
 import edu.utdallas.mektek.polycraftapp.beans.*;//Dimension;
 
+/**
+ * Tree - a data structure made up of SuperNodes
+ */
 public class Tree {
+    private SuperNode targetNode;  //the Item we are searching for
+    private SuperNode pointerNode; //the SuperNode we are adding SuperNodes too
+    private String contents="";    //the String object holding name of the current SuperNode
+    private int numSteps=0;        //the int value od the depth of the Tree
 
-    private SuperNode targetNode;
-    private SuperNode pointerNode;
-    private String contents="";
-    private int numSteps=0;
-
+    /**
+     * Tree constructor
+     * @param target - the SuperNode that acts as the root of the Tree
+     */
     public Tree(SuperNode target){
 
         this.targetNode = target;
@@ -22,19 +24,17 @@ public class Tree {
         this.pointerNode = null;
     }
 
-    // Attach this node to pointerNode
-    public void addAllNodes(ArrayList<SuperNode> nodes) {
-    		//iterator for arraylist
-    		//addNode(nodes.next();)
-    }
-    
+    /**
+     * addNode
+     * @param nodeToAdd - the SuperNode being added to the Tree
+     */
     public void addNode(SuperNode nodeToAdd){
     	contents+=nodeToAdd.toString()+"\n";
         numSteps++;
         nodeToAdd.setHeight(numSteps);
         Log.d("HEIL",String.valueOf(numSteps)+String.valueOf(nodeToAdd.getHeight()));
 
-        // This tree was just created, add the node to target
+        // This tree was just created, add the SuperNode to target
         if(this.pointerNode == null){
             // Make parent and child connection
             for (SuperNode parent : nodeToAdd.getParents()){
@@ -63,61 +63,80 @@ public class Tree {
         }
     }
 
-    public void deleteNode(SuperNode node){
-        // Unimplemented
-    }
-
+    /**
+     * get
+     * @param id - the String id of the node you are searching target for
+     * @return the SuperNode that was found
+     */
     public SuperNode get(String id){
         return targetNode.search(id);
     }
 
-    public Point2D getPosition(Dimension d, Node drawnode){
-        String id= drawnode.getLabel();
-        SuperNode datanode= get(id);
-        int x= getX(datanode,d);
-        int y= getY(datanode,d);
+    /**
+     * getPosition
+     * @param d - a dimension object
+     * @param drawNode - a Node object
+     * @return a Point2D object holding the Node's position on the canvas
+     */
+    public Point2D getPosition(Dimension d, Node drawNode){
+        String id= drawNode.getLabel();
+        SuperNode dataNode= get(id);
+        int x= getX(dataNode,d);
+        int y= getY(dataNode,d);
         return new Point2D(x,y);
     }
 
-    private int getY(SuperNode datanode, Dimension d) {
-        Log.d("HEIGHT: ",datanode.toString()+String.valueOf(datanode.getHeight()));
-        if(datanode instanceof  Recipe){
-            return datanode.getHeight()*800;
+    /**
+     * getY
+     * @param dataNode - a SuperNode object
+     * @param d - a Dimension object
+     * @return int value representing the Y coordinate of the SuperNode
+     */
+    private int getY(SuperNode dataNode, Dimension d) {
+        Log.d("HEIGHT: ",dataNode.toString()+String.valueOf(dataNode.getHeight()));
+        if(dataNode instanceof  Recipe){
+            return dataNode.getHeight()*800;
 
         }
-        if(datanode instanceof Item){
-            if (((Item) datanode).isNatural()){
-                return (datanode.getParents().get(0).getHeight())*800+400;
+        if(dataNode instanceof Item){
+            if (((Item) dataNode).isNatural()){
+                return (dataNode.getParents().get(0).getHeight())*800+400;
             }
-            return datanode.getHeight()*800-400;
+            return dataNode.getHeight()*800-400;
         }
         return 0;
     }
 
-    private int getX(SuperNode datanode, Dimension d) {
-        if (datanode instanceof  Recipe){
+    /**
+     * getX
+     * @param dataNode - a SuperNode object
+     * @param d - a Dimension object
+     * @return int value representing the X coordinate of the SuperNode
+     */
+    private int getX(SuperNode dataNode, Dimension d) {
+        if (dataNode instanceof  Recipe){
             return d.getWidth()/2;
         }
         else {
-            if (datanode instanceof Item) {
-                int idx =((Item)datanode).getIndex();
+            if (dataNode instanceof Item) {
+                int idx =((Item)dataNode).getIndex();
                 return idx*600;
             }
         }
         return d.getWidth()/2;
     }
 
-    public ArrayList<SuperNode> getDrawnNodes()
-    {
-        return null;
-    }
-
+    /**
+     * getTargetNode
+     * @return the SuperNode targetNode
+     */
     public SuperNode getTargetNode(){
         return this.targetNode;
     }
-    
-    public String toString() {
-    	
-    	return numSteps+" steps to get "+contents;
-    }
+
+    /**
+     * toString
+     * @return a String message
+     */
+    public String toString() { return numSteps + " steps to get " + contents; }
 }

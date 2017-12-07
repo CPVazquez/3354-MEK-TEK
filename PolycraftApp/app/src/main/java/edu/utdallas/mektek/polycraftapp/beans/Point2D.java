@@ -28,6 +28,19 @@ public class Point2D {
         this.y = 0;
     }
 
+    /**THIS FUNCTION ADDED BY US
+     *
+     * @param xTest
+     * @param yTest
+     * @param range
+     * @param scale
+     * @return
+     */
+    public boolean inRange(float xTest,float yTest,int range, float scale){
+        double newRange = range/scale;
+        return xTest <= x + newRange && xTest >= x - newRange
+                && yTest<= y + 2*newRange && yTest >= y - 1.25*newRange;
+    }
     /**
      * Gets x.
      *

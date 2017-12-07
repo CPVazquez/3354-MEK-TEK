@@ -9,24 +9,37 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+/**
+ * Author: Anshu Rao
+ * Version: 1.0
+ * RecipeDetail - an Activity that displays Recipe details
+ */
 public class RecipeDetail extends AppCompatActivity {
 
-    private Recipe selectedNode;
-
+    /**
+     * onCreate
+     * launches when RecipeDetail is created
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_detail);
+
+        //sets up toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        //retrieves the intent and retrieves the passed Recipe
         Intent intent = getIntent();
-        this.selectedNode = (Recipe) intent.getSerializableExtra("Detail");
+        Recipe selectedNode = (Recipe) intent.getSerializableExtra("Detail");
 
+        //Displays Recipe inventory
         TextView nameView = (TextView) findViewById(R.id.recipeName);
         nameView.setText(selectedNode.getInventory());
 
+        //Displays Recipe's parents and the required quantities
         TextView outputItems = (TextView) findViewById(R.id.outputItems);
         String outputBuilder = "";
         ArrayList<Integer> parentQuant = selectedNode.getParentQuantities();
@@ -36,6 +49,7 @@ public class RecipeDetail extends AppCompatActivity {
         }
         outputItems.setText(outputBuilder);
 
+        //Displays Recipe's children and the required quantities
         TextView inputItems = (TextView) findViewById(R.id.inputItems);
         String inputBuilder = "";
         ArrayList<Integer> childQuant = selectedNode.getChildQuantities();
@@ -46,6 +60,7 @@ public class RecipeDetail extends AppCompatActivity {
         inputItems.setText(inputBuilder);
     }
 
+    //supports backbutton navigation
     @Override
     public boolean onSupportNavigateUp(){
         finish();

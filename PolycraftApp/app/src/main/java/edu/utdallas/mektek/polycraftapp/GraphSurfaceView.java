@@ -401,7 +401,7 @@ public class GraphSurfaceView extends SurfaceView {
             float yTap = (ev.getRawY()/mScaleFactor + -1f*positionY - actionBarHeight);
             for(Vertex node : mNetworkGraph.getVertex()){
                 Point2D position = node.getPosition();
-                if(inRange(xTap, yTap, position, sensitivityRange)){
+                if(position.inRange(xTap, yTap, sensitivityRange, mScaleFactor)){
                     new GetNodeDetails().execute(node);
                     break;
                 }
@@ -410,11 +410,7 @@ public class GraphSurfaceView extends SurfaceView {
         }
     }
 
-    public boolean inRange(float xTest, float yTest, Point2D position, int range) {
-        double newRange = range/mScaleFactor;
-        return xTest <= position.getX() + newRange && xTest >= position.getX() - newRange
-                && yTest<= position.getY() + 2*newRange && yTest >= position.getY() - 1.25*newRange;
-    }
+
 
 
     private class GetNodeDetails extends AsyncTask<Vertex, Void, SuperNode> {
