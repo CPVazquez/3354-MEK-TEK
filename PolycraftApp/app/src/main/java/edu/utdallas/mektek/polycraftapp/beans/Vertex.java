@@ -4,43 +4,32 @@ import android.graphics.drawable.Drawable;
 
 import net.xqhs.graphs.graph.Node;
 
-//import edu.utdallas.mektek.polycraftapp.*;
-
 /**
  * The type Vertex.
+ * THIS CLASS WAS IMPORTED BUT HAS BEEN CHANGED
+ * CHANGES ARE NOTED
  */
 public class Vertex {
 
     private Node node;
 
-    //public SuperNode node;
+    private Drawable icon;
 
-    private Point2D position; //carla added
+    //ADDED START
+    private Point2D position; //the Point2D position on the canvas
 
-    private Drawable icon; //not carla added
+    private String id; //String id of the node
 
-    private String id;
+    private boolean isRecipe; //notes whether the node is a Recipe
 
-    private boolean isRecipe;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setPosition(Point2D point){
-        this.position = point;
-    }
-
-    public Point2D getPosition(){
-        return position;
-    }
-    //end carla added
 
     /**
-     * Instantiates a new Vertex.
-     *
-     * @param node the node
-     * @param icon the icon
+     * CONSTRUCTOR MODIFIED
+     * Vertex Constructor
+     * @param node - the Node to be drawn
+     * @param icon - Drawable that hold the Node image
+     * @param iden - the id of the SuperNode the Node came from
+     * @param point - Point2D holding the position of where the Node will be drawn
      */
     public Vertex(final Node node, final Drawable icon, final String iden, Point2D point) {
         this.node = node;
@@ -50,6 +39,15 @@ public class Vertex {
         this.position = point;
     }
 
+    /**
+     * CONSTRUCTOR MODIFIED
+     * Vertex Constructor
+     * @param node - the Node to be drawn
+     * @param icon - Drawable that hold the Node image
+     * @param iden - the id of the SuperNode the Node came from
+     * @param point - Point2D holding the position of where the Node will be drawn
+     * @param isRec - boolean indicating whether the Node is a Recipe
+     */
     public Vertex(final Node node, final Drawable icon, final String iden, Point2D point, boolean isRec){
         this.node = node;
         this.icon = icon;
@@ -57,6 +55,39 @@ public class Vertex {
         this.isRecipe = isRec;
         this.position = point;
     }
+
+    /**
+     * getId
+     * @return id - the id of the Vertex
+     */
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * setPosition
+     * @param point - the Point2D where the Vertex is located
+     */
+    public void setPosition(Point2D point){
+        this.position = point;
+    }
+
+    /**
+     * getPosition
+     * @return position - the Point2D where the Vertex is located
+     */
+    public Point2D getPosition(){
+        return position;
+    }
+
+    /**
+     * isRecipe
+     * @return a boolean indicating whether the Vertex is a recipe
+     */
+    public boolean isRecipe(){
+        return this.isRecipe;
+    }
+    //END ADDED
 
     /**
      * Gets node.
@@ -94,7 +125,4 @@ public class Vertex {
         this.icon = icon;
     }
 
-    public boolean isRecipe(){
-        return this.isRecipe;
-    }
 }

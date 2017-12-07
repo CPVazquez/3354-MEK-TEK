@@ -21,6 +21,8 @@ import java.util.Date;
 import java.util.Random;
 
 /**
+ *
+ * THIS CLASS WAS IMPORTED AND IS UNCHANGED
  * Transforms the input type into a random location within
  * the bounds of the Dimension property.
  * This is used as the backing Transformer for the LazyMap

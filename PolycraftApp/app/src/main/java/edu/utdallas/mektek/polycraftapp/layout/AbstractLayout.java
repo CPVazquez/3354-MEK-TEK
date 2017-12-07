@@ -20,6 +20,7 @@ import edu.utdallas.mektek.polycraftapp.beans.Point2D;
 
 /**
  * The type Abstract layout.
+ * THIS CLASS WAS IMPORTED AND IS UNCHANGED
  */
 abstract class AbstractLayout implements Layout {
 

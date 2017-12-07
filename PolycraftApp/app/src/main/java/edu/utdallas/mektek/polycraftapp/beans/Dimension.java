@@ -2,6 +2,7 @@ package edu.utdallas.mektek.polycraftapp.beans;
 
 /**
  * The type Dimension.
+ * THIS CLASS WAS IMPORTED AND IS UNCHANGED
  */
 public class Dimension {
 

@@ -1,7 +1,9 @@
 package edu.utdallas.mektek.polycraftapp.beans;
 
 /**
- * The type Point 2 d.
+ * The type Point 2D.
+ * THIS CLASS WAS IMPORTED IN AND REMAINS LARGELY UNCHANGED
+ * CHANGES ARE NOTED
  */
 public class Point2D {
 
@@ -29,11 +31,12 @@ public class Point2D {
     }
 
     /**THIS FUNCTION ADDED BY US
-     *
-     * @param xTest
-     * @param yTest
-     * @param range
-     * @param scale
+     * inRange
+     * checks whether a tap on a node is valid
+     * @param xTest - a float representing the x coordinate of the tap
+     * @param yTest - a float representing the y coordinate of the tap
+     * @param range - an int representing the range in which the tap is valid
+     * @param scale - when scaled the new scale must be taken into acount
      * @return
      */
     public boolean inRange(float xTest,float yTest,int range, float scale){

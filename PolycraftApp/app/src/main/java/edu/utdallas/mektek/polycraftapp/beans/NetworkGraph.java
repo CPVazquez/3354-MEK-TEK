@@ -5,6 +5,7 @@ import java.util.List;
 
 /**
  * The type Network graph.
+ * THIS CLASS WAS IMPORTED AND IS UNCHANGED
  */
 public class NetworkGraph extends net.xqhs.graphs.graph.SimpleGraph {
 

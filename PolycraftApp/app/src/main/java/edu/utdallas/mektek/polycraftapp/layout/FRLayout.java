@@ -19,6 +19,7 @@ import edu.utdallas.mektek.polycraftapp.beans.RandomLocationTransformer;
 
 /**
  * The type FR layout.
+ * THIS CLASS WAS IMPORTED IS UNCHANGED
  */
 public class FRLayout extends AbstractLayout {
 

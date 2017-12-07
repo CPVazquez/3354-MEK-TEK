@@ -24,7 +24,6 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.Scroller;
 
 import net.xqhs.graphs.graph.Edge;
 
@@ -444,26 +443,6 @@ public class GraphSurfaceView extends SurfaceView {
             return true;
         }
     }
-
-
-    /**
-     * Checks to see if the precise location of a tap is within a certain range of a given Point2D
-     * position object. Magic scaling numbers are used to account for the shapes drawn (e.g. a circle
-     * for the image, a rectangle for the text). These numbers are independent of the drawn radius
-     * or the quantity of text. Thus, they shall remain as hidden magic numbers.
-     *
-     * @param xTest X-coordinate of the users' tap
-     * @param yTest Y-coordinate of the users' tap
-     * @param position {@link Point2D} position object we want to compare to
-     * @param range the radius (half the total range) within where a position is considered "tapped"
-     * @return True if the tap is within range. False if the tap is not in range.
-     */
-    public boolean inRange(float xTest, float yTest, Point2D position, int range) {
-        double newRange = range/mScaleFactor;
-        return xTest <= position.getX() + newRange && xTest >= position.getX() - newRange
-                && yTest<= position.getY() + 2*newRange && yTest >= position.getY() - 1.25*newRange;
-    }
-
 
     /**
      * GetNodeDetails is a backgroundTask that queries the database when passed a given node and
