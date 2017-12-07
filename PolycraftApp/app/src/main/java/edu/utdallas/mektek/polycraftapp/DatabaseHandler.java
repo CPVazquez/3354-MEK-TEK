@@ -210,8 +210,6 @@ public class DatabaseHandler extends SQLiteAssetHelper{
      * @return      the {@link Recipe#Recipe(String, String, ArrayList, ArrayList, File, ArrayList, ArrayList)} object instantiated by rowId
      * @throws SQLException If an invalid input is entered or the searched item doesn't exist in the database.
      */
-
-
 	private Recipe createRecipe(String rowId) throws SQLException {
         Recipe newRecipe;
         try {
@@ -282,32 +280,32 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 
     }
 
+    /** Recursively searches the SQLite database for the names of items, and returns the rowIds of all Recipes needed to create the searched item
+     * Base case of recursion is when the searched item is naturally occuring as determined by {@link DatabaseHandler#checkBaseCase(String)}
+     * @param searchValue The string value passed in from {@link DatabaseHandler#getProcessTree(String)} which indicates the desired item to build the tree around
+     * @return a Array list of Strings containing the rowIds
+     * @throws SQLException
+     */
 	
 	private ArrayList <String> getRowIdOfAncestors(String searchValue) throws SQLException {
 		ArrayList <String> data = new ArrayList<String>();
-		if(searchValue==null) {// || data.contains(searchValue)){
+		if(searchValue==null) {
 				return data;
 			}
 		if(checkBaseCase(searchValue)) {
-			//data.add("");
 			return data;
 		}
-
-		Cursor rs;
+        Cursor rs;
 		try {
             rs = queryDBRecipeId(searchValue);
             rs.moveToFirst();
-
-
         }catch(RecipeNotFoundException ex){
 		    ex.printStackTrace();
 		    return data;
         }
 
         if (!rs.isAfterLast()) {
-
             data.add(rs.getString(rs.getColumnIndex("rowid")));
-
             data.addAll(getRowIdOfAncestors(rs.getString(rs.getColumnIndex("input1"))));
         } else {
 
@@ -315,7 +313,11 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		return data;
 	}
 
-	
+    /** This method is used to determine when to stop querying the SQLite database, as naturally occurring items are not output by any Recipes
+     * @param searchValue the string value which indicates the desired Item's name
+     * @return true when the searchValue is the name of an Item that is naturally occurring in PolyCraft and false otherwise
+     * @throws SQLException
+     */
 	private boolean checkBaseCase(String searchValue) throws SQLException {
 		String query = SQLquery.queryItemIsNatural(searchValue);
 		Cursor rs = database.rawQuery(query,null); //
@@ -329,7 +331,12 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		return false;
 	}
 
-	
+
+    /**Handles the SQLite query for finding the rowId and input Item for a recipe which outputs a searched item
+     * @param searchValue the name of the item that will be searched for in the SQLite database
+     * @return a {@link Cursor} object containing the rowId of the recipe containing the searched item as well as the name of the input Item to that recipe
+     * @throws SQLException when the searched recipe does not exist
+     */
 	private Cursor queryDBRecipeId(String searchValue) throws SQLException {
         Cursor rs;
 		int params = maxColumns;
@@ -345,7 +352,11 @@ public class DatabaseHandler extends SQLiteAssetHelper{
         return rs;
 	}
 
-
+    /**Author: Keene Chin
+     *Date: 12/2/2017
+     * ItemList - class to produce ItemList objects for the purposes of passing data around between {@link DatabaseHandler#createRecipe(String)}, {@link DatabaseHandler#setAsChild(Recipe, ArrayList)}
+     *and {@link edu.utdallas.mektek.polycraftapp.DatabaseHandler#setAsParent(edu.utdallas.mektek.polycraftapp.Recipe, java.util.ArrayList)}
+     * */
     private class ItemList {
         private Cursor rs;
         private ArrayList<Integer> parentQuant;
@@ -373,6 +384,11 @@ public class DatabaseHandler extends SQLiteAssetHelper{
             return parentItems;
         }
 
+        /**
+         *
+         * @return ItemList object containing the parent Items of the Recipe which calls this
+         * @throws SQLException
+         */
         public ItemList parentList() throws SQLException {
             ArrayList<String> parents = new ArrayList<String>();
             parentQuant = new ArrayList<Integer>();
@@ -403,8 +419,13 @@ public class DatabaseHandler extends SQLiteAssetHelper{
             return this;
         }
 
+
+        /**
+         *
+         * @return ItemList object containing the children Items of the Recipe which calls this
+         * @throws SQLException
+         */
         public ItemList childList() throws ItemNotFoundException {
-            //TODO: FUTURE: Encapsulate these calls into a do-while to handle multiple input columns
             ArrayList<String> children = new ArrayList<>();
             childQuant = new ArrayList<Integer>();
             children.add(rs.getString(rs.getColumnIndex("input1")));
@@ -432,12 +453,22 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 
     }//ItemList Class
 
+    /**
+     * Author: Keene Chin
+     * Date: 12/5/2017
+     * ItemNotFoundException for better stack tracing
+     */
     public class ItemNotFoundException extends SQLException{
         public ItemNotFoundException(String message){
             super(message);
         }
     }
 
+    /**
+     * Author: Keene Chin
+     * Date: 12/5/2017
+     * RecipeNotFoundException for better stack tracing
+     */
     public class RecipeNotFoundException extends SQLException{
         public RecipeNotFoundException(String message){
             super(message);
