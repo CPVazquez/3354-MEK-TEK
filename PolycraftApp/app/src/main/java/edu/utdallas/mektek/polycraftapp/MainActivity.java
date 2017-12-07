@@ -1,38 +1,24 @@
 package edu.utdallas.mektek.polycraftapp;
 
-
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.TypedValue;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.widget.TextView;
-
 import net.xqhs.graphs.graph.Node;
 import net.xqhs.graphs.graph.SimpleEdge;
 import net.xqhs.graphs.graph.SimpleNode;
-
 import java.sql.SQLException;
-
-
 import edu.utdallas.mektek.polycraftapp.beans.*;
-import edu.utdallas.mektek.polycraftapp.layout.*;
 
-
+/**
+ * MainActivity - the Activity where the graph is drawn
+ */
 
 public class MainActivity extends AppCompatActivity {
-
-    public static final String EXTRA_INFO = "edu.utdallas.mektek.polycraftapp.INFO";
-
-    private GraphSurfaceView surface;
-    private NetworkGraph processGraph;
-    //private GestureDetectorCompat mDetector;
     private DatabaseHandler dbh;
 
     @Override
@@ -43,8 +29,6 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-       // mDetector = new GestureDetectorCompat(this, new MyGestureListener());
-
         Intent intent = getIntent();
         String message = intent.getStringExtra(Search.EXTRA_MESSAGE);
 
@@ -54,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
             process = new GetTree().execute(message).get();
         }
         catch(Exception e){
-           //Handle Exception
+           Log.d("Exception", e.toString());
         }
 
         if(process != null){
@@ -66,13 +50,18 @@ public class MainActivity extends AppCompatActivity {
         Log.d("TREE", "Tree is drawn");
     }
 
-
+    //makes sure the database closes on pause
     @Override
     public void onPause() {
         super.onPause();
         this.dbh.close();
     }
 
+    /**
+     * GetTree
+     * all accesses to the database should be in an AsyncTask
+     * this class creates the graph of SuperNodes and returns a Tree
+     */
     private class GetTree extends AsyncTask<String, Object, Tree>{
         @Override
         protected Tree doInBackground(String... query){
@@ -90,32 +79,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//    private class GetSuperNode extends AsyncTask<Vertex, Void, SuperNode>{
-//        @Override
-//        protected SuperNode doInBackground(Vertex ... node){
-//            dbh.open();
-//            SuperNode ver = null;
-//            try{
-//                if(node[0].isRecipe()){
-//                    ver = dbh.getRecipeWithId(node[0].getId());
-//                }
-//                else{
-//                    ver = dbh.getItemWithId(node[0].getId());
-//                }
-//                Log.d("DEBUG", node[0].getId());
-//                dbh.close();
-//                return ver;
-//            }catch (SQLException ex){
-//                // Unhandled
-//            }
-//            return null;
-//        }
-//        @Override
-//        protected void onPostExecute(SuperNode ver){
-//            startIntent(ver);
-//        }
-//    }
-
+    /**
+     * DrawTree
+     * a AsyncTask wrapper class for the drawTree function
+     */
     private class DrawTree extends AsyncTask<Tree, Object, Void> {
         @Override
         protected Void doInBackground(Tree... processTree) {
@@ -124,16 +91,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public boolean inRange(float xTest, float yTest, Point2D position, int range) {
-        return xTest <= position.getX() + range && xTest >= position.getX() - range
-                && yTest<= position.getY() + range && yTest >= position.getY() - range;
-    }
-
+    /**
+     * drawTree
+     * creates the vertices and edges for the tree to be drawn
+     * @param processTree - a Tree object built by database handler
+     */
     public void drawTree(Tree processTree){
         // Initialize Network Graph
-        this.surface = (GraphSurfaceView) findViewById(R.id.mysurface);
+        GraphSurfaceView surface = (GraphSurfaceView) findViewById(R.id.mysurface);
         Dimension dim;// = this.surface.getDimension();
-        processGraph = new NetworkGraph();
+        NetworkGraph processGraph = new NetworkGraph();
 
         // Set a pointer to the current Recipe and a graphPointer will be the last recipe drawn
         SuperNode target=processTree.getTargetNode();
@@ -159,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
                 processGraph.getVertex().add(new Vertex(drawnRecipe, Drawable.createFromStream(getAssets().open("images/distillation.png"), null), currentRecipe.getId(),processTree.getPosition(dim,drawnRecipe), true));
             }
             catch(Exception e){
-                //Unhandled
+                Log.d("Exception", e.toString());
             }
 
             // Draw parents of recipe
@@ -173,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                                     parent.getId(), processTree.getPosition(dim,nodeToAdd)));
                 }
                 catch(Exception e){
-                    // Unhandled
+                    Log.d("Exception", e.toString());
                 }
                 processGraph.addEdge(new SimpleEdge(nodeToAdd, drawnRecipe, "1"));
                 // Check if the parent of the recipe is where we make the connection to the old recipe
@@ -207,24 +174,8 @@ public class MainActivity extends AppCompatActivity {
         surface.init(processGraph);
     }
 
-    // Pull up node DetailView
-    public void startIntent(SuperNode ver){
-        Intent intent;
-        if(ver instanceof Recipe){
-            intent = new Intent(this, RecipeDetail.class);
-            Recipe casted = (Recipe) ver;
-            intent.putExtra("Detail", casted);
-            Log.d("Debug", "Recipe was tapped");
-        }
-        else{
-            intent = new Intent(this, DetailView.class);
-            Item casted = (Item) ver;
-            intent.putExtra("Detail",casted);
-            Log.d("Debug", "Item was tapped");
-        }
-        startActivity(intent);
-    }
 
+    //supports backbutton navigation
     @Override
     public boolean onSupportNavigateUp(){
         finish();

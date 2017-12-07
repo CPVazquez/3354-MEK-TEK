@@ -9,6 +9,7 @@ import android.graphics.RectF;
 
 /**
  * The type Arc utils.
+ * THIS CLASS WAS IMPORTED AS IS UNCHANGED
  */
 public class ArcUtils {
 
