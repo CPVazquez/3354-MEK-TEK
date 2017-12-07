@@ -6,12 +6,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.widget.TextView;
 import net.xqhs.graphs.graph.Node;
 import net.xqhs.graphs.graph.SimpleEdge;
 import net.xqhs.graphs.graph.SimpleNode;
 import java.sql.SQLException;
+
 import edu.utdallas.mektek.polycraftapp.beans.*;
 
 /**
@@ -21,36 +21,50 @@ import edu.utdallas.mektek.polycraftapp.beans.*;
 public class MainActivity extends AppCompatActivity {
     private DatabaseHandler dbh;
 
+    /**
+     * onCreate
+     * launched when MainActivity is created
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //set up toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        //receive intent and receive the passed string
         Intent intent = getIntent();
         String message = intent.getStringExtra(Search.EXTRA_MESSAGE);
 
+        //create dbh instance for DatabaseHandler singleton
         this.dbh = DatabaseHandler.getInstance(this);
         Tree process = null;
+
+        //create Tree
         try {
             process = new GetTree().execute(message).get();
         }
         catch(Exception e){
-           Log.d("Exception", e.toString());
+           failedProcess();
         }
 
+        //draw graphical tree
         if(process != null){
             new DrawTree().execute(process);
         }else {
             TextView textView = (TextView) findViewById(R.id.textView8);
             textView.setText("You searched an invalid item");
         }
-        Log.d("TREE", "Tree is drawn");
     }
 
-    //makes sure the database closes on pause
+    /**
+     * onPause
+     * make sure the database closes on pause
+     */
     @Override
     public void onPause() {
         super.onPause();
@@ -92,6 +106,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * failedProcess
+     * display a failure message when the process is unable to execute
+     */
+    public void failedProcess(){
+        TextView textView = (TextView) findViewById(R.id.textView8);
+        textView.setText("Could not execute query");
+    }
+
+    /**
+     * getFileNamePath
+     * gets the png asset for a given node; used to display image on tree
+     * @param node - node to get the image file
+     * @return String - asset path name
+     */
+    public String getFileNamePath(SuperNode node){
+        String pngFileName = node.getImage().getName();
+        String[] pngArray = pngFileName.split("File:");
+        String assetName = pngArray[1].toLowerCase();
+        return assetName;
+    }
+
+    /**
      * drawTree
      * creates the vertices and edges for the tree to be drawn
      * @param processTree - a Tree object built by database handler
@@ -99,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
     public void drawTree(Tree processTree){
         // Initialize Network Graph
         GraphSurfaceView surface = (GraphSurfaceView) findViewById(R.id.mysurface);
-        Dimension dim;// = this.surface.getDimension();
+        Dimension dim;
         NetworkGraph processGraph = new NetworkGraph();
 
         // Set a pointer to the current Recipe and a graphPointer will be the last recipe drawn
@@ -121,26 +157,34 @@ public class MainActivity extends AppCompatActivity {
 
             // Draw the recipe
             Node drawnRecipe = new SimpleNode(currentRecipe.getId());
-            String[] png = currentRecipe.getImage().getName().split("File:");
             try{
                 processGraph.getVertex().add(new Vertex(drawnRecipe, Drawable.createFromStream(getAssets().open("images/distillation.png"), null), currentRecipe.getId(),processTree.getPosition(dim,drawnRecipe), true));
             }
+            // Unable to grab image, just leave it as a null drawable
             catch(Exception e){
-                Log.d("Exception", e.toString());
+                processGraph.getVertex().add(new Vertex(drawnRecipe,
+                        null,
+                        currentRecipe.getId(),
+                        processTree.getPosition(dim,drawnRecipe), true));
             }
 
             // Draw parents of recipe
             for(SuperNode parent : currentRecipe.getParents()) {
                 Node nodeToAdd = new SimpleNode(parent.getName());
-                String[] png2 = parent.getImage().getName().split("File:");
+                String asset = getFileNamePath(parent);
 
                 try{
                     processGraph.getVertex().add(
-                            new Vertex(nodeToAdd, Drawable.createFromStream(getAssets().open("images/" + png2[1].toLowerCase()), null),
+                            new Vertex(nodeToAdd,
+                                    Drawable.createFromStream(getAssets().open("images/" + asset), null),
                                     parent.getId(), processTree.getPosition(dim,nodeToAdd)));
                 }
+                // Could not pull image, set drawable to null
                 catch(Exception e){
-                    Log.d("Exception", e.toString());
+                    processGraph.getVertex().add(
+                            new Vertex(nodeToAdd,
+                                    null,
+                                    parent.getId(), processTree.getPosition(dim,nodeToAdd)));
                 }
                 processGraph.addEdge(new SimpleEdge(nodeToAdd, drawnRecipe, "1"));
                 // Check if the parent of the recipe is where we make the connection to the old recipe
@@ -160,10 +204,16 @@ public class MainActivity extends AppCompatActivity {
                 SuperNode child = currentRecipe.getChildren().get(0);
                 Node childToDraw = new SimpleNode(child.getName());
                 try{
-                    String[] pngArr = child.getImage().getName().split("File:");
-                    processGraph.getVertex().add(new Vertex(childToDraw, Drawable.createFromStream(getAssets().open("images/" + pngArr[1].toLowerCase()), null), child.getId(), processTree.getPosition(dim,childToDraw)));
-                }catch (Exception e){
-
+                    String assetName = getFileNamePath(child);
+                    processGraph.getVertex().add(new Vertex(childToDraw,
+                            Drawable.createFromStream(getAssets().open("images/" + assetName), null),
+                            child.getId(), processTree.getPosition(dim,childToDraw)));
+                }
+                // Could not pull image, set drawable to null
+                catch (Exception e){
+                    processGraph.getVertex().add(new Vertex(childToDraw,
+                            null,
+                            child.getId(), processTree.getPosition(dim,childToDraw)));
                 }
 
                 processGraph.addEdge(new SimpleEdge(drawnRecipe, childToDraw, "3" ));
@@ -174,8 +224,11 @@ public class MainActivity extends AppCompatActivity {
         surface.init(processGraph);
     }
 
-
-    //supports backbutton navigation
+    /**
+     * onSupportNavigateUp
+     * supports back button navigation
+     * @return return to previous page
+     */
     @Override
     public boolean onSupportNavigateUp(){
         finish();
