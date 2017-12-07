@@ -41,23 +41,17 @@ import edu.utdallas.mektek.polycraftapp.layout.FRLayout;
 public class GraphSurfaceView extends SurfaceView {
 
     private ScaleGestureDetector mScaleDetector;
-
     private GestureDetectorCompat detector;
-
     private DatabaseHandler dbh;
-
-    private Scroller mScroller;
-
     private TypedArray attributes;
-
-    private float mScaleFactor = 1.0f;
-    private static float mMinFactor = 0.5f;
-    private static float mMaxFactor = 5.0f;
     private NetworkGraph mNetworkGraph;
 
-    private SurfaceHolder mSurfaceHolder;
-    private Canvas mCanvas;
+    //scaling constants and class variables.
+    private float mScaleFactor = 1.0f;
+    private final static float mMinFactor = 0.5f;
+    private final static float mMaxFactor = 5.0f;
 
+    //Panning variables
     private float positionX = 0;
     private float positionY = 0;
 
@@ -66,12 +60,12 @@ public class GraphSurfaceView extends SurfaceView {
     Paint whitePaint;
     Paint vertexPainter;
 
-    //Constants
+    //GraphNode Constants
     private final float nodeCircleRadius = 100; //FLOAT VALUE.
     private final float bitmapRadius = 150; //BitmapRadius
 
     /**
-     * Instantiates a new NetworkGraph surface view.
+     * Instantiates a new Graph surface view. from SurfaceView
      *
      * @param context the context
      */
@@ -110,15 +104,19 @@ public class GraphSurfaceView extends SurfaceView {
 
 
     /**
-     * Init.
+     * Initialization function called from MainActivity . Instantiates the class variables above
+     * and sets up the fonts, texts and colors of objects to be drawn on the canvas. The SurfaceView
+     * is also created and callbacks are found here.
+     * Additionally, the {@link DatabaseHandler} singleton instance is stored here.
      *
-     * @param graph the graph
+     * @param graph the graph object that needs to be drawn on the canvas
      */
     public void init(final NetworkGraph graph) {
         mNetworkGraph = graph;
         RandomLocationTransformer.iterator = 0;
         this.dbh = DatabaseHandler.getInstance(getContext());
 
+        //Define all the Paint Object Styles
         this.edgePainter = new Paint();
         edgePainter.setAntiAlias(true);
         edgePainter.setTextAlign(Paint.Align.CENTER);
@@ -129,8 +127,14 @@ public class GraphSurfaceView extends SurfaceView {
         whitePaint.setColor(attributes.getColor(R.styleable.GraphSurfaceView_nodeBgColor, mNetworkGraph.getNodeBgColor()));
         whitePaint.setStyle(Paint.Style.FILL_AND_STROKE);
         whitePaint.setStrokeWidth(2f);
-        whitePaint.setShadowLayer(5, 0, 0, attributes.getColor(R.styleable.GraphSurfaceView_defaultColor, mNetworkGraph
-                .getDefaultColor()));
+        whitePaint.setShadowLayer(
+                5,
+                0,
+                0,
+                attributes.getColor(
+                        R.styleable.GraphSurfaceView_defaultColor,
+                        mNetworkGraph.getDefaultColor()
+                ));
 
         this.vertexPainter = new Paint();
         vertexPainter.setStyle(Paint.Style.FILL);
@@ -139,42 +143,35 @@ public class GraphSurfaceView extends SurfaceView {
         vertexPainter.setStrokeWidth(0f);
         vertexPainter.setColor(attributes.getColor(R.styleable.GraphSurfaceView_nodeColor, mNetworkGraph.getNodeColor()));
 
+        //Position and Format SurfaceView
         setZOrderOnTop(true);
         getHolder().setFormat(PixelFormat.TRANSLUCENT);
-        //mScroller = new Scroller(getContext());
+
+        //Define the SurfaceCallback so that it can safely be created and destroyed during state changes
         getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
-                Log.d("Surface", "Surface Created Called");
-                // mCanvas = holder.lockCanvas(null);
-                // mCanvas.drawARGB(0, 225, 225, 255);
-                //drawGraph(mCanvas, mNetworkGraph); //TODO: Handle G[0,0],[] for graph.
-                // holder.unlockCanvasAndPost(mCanvas);
             }
 
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-                // TODO Auto-generated method stub
-                Log.d("Surface", "Surface Changed Called");
-
             }
 
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
-                // TODO Auto-generated method stub
-                Log.d("Surface", "Surface Destroy Called");
-
-                //Canvas canvas = holder.getSurface().lockCanvas(null);
-                //canvas.sa
-
-                //holder.getSurface().release();
-
+                holder.getSurface().release();
             }
         });
-        //invalidate();
-        postInvalidate();
+        postInvalidate(); //call postInvalidate instead of invalidate() because this is not the UI thread
     }
 
+    /**
+     * This function takes an input bitmap (i.e. png) image, and crops it to fit inside a given
+     * circular radius. This is used to generate the node images drawn on the graph view.
+      * @param bmp input bitmap image to be cropped/resized
+     * @param radius the radius of the circle we need to scale the image to fit inside
+     * @return the cropped/scaled image.
+     */
     private Bitmap getCroppedBitmap(Bitmap bmp, int radius) {
         Bitmap sbmp;
         if (bmp.getWidth() != radius || bmp.getHeight() != radius) {
@@ -199,20 +196,25 @@ public class GraphSurfaceView extends SurfaceView {
     }
 
     /**
-     * On touch event.
+     * Detects an OnTouchEvent and properly handles this call, passing it to the appropriate
+     * handlers when necessary. The Zoom and Pan Gesture listeners are properly tipped off at the beginning
      *
-     * @param ev the ev
-     * @return the boolean
+     * To prevent issues with onTouchEvent blocking the callback stack, we pass true to:
+     * {@link android.view.ViewParent#requestDisallowInterceptTouchEvent(boolean)} so that we allow
+     * our gestureDetectors below [mScaleDetector and detector] to listen for multi-touch zoom and
+     * pan gestures, respectviely.
+     *
+     * @param ev the Touch Event.
+     * @return True to prevent "blocking" of the callback stack. False to block/ignore subsequent
+     * input temporarily.
      */
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent ev) {
         mScaleDetector.onTouchEvent(ev);
-        //super.onTouchEvent(ev);
         boolean result = detector.onTouchEvent(ev);
         if(!result){
             if (ev.getAction() == MotionEvent.ACTION_UP) {
-                //stopScrolling();
                 result = true;
             }
             if(ev.getAction() == MotionEvent.ACTION_DOWN) {
@@ -226,7 +228,22 @@ public class GraphSurfaceView extends SurfaceView {
 
     }
 
-
+    /**
+     * Overrides {@link android.view.View#dispatchDraw(Canvas)} to write objects to a {@link Canvas}
+     * object that is displayed on the View.
+     *
+     * This method returns null (does not run) if the mNetworkGraph passed to the {@link #init(NetworkGraph)}
+     * function is NULL or contains no vertices.
+     *
+     * This method first scales and transforms the canvas, using the global parameters. Then, this
+     * method iterates through all the nodes in the mNetworkGraph, peforming the following operations:
+     *      1) Drawing Edges of Nodes
+     *      2) Drawing Arcs to connect these "edges"
+     *      3) Drawing the Vertices of the nodes (including text and image)
+     *
+     *
+     * @param canvas Canvas to write to.
+     */
     @Override
     protected void dispatchDraw(Canvas canvas) {
         if(mNetworkGraph == null)
@@ -235,16 +252,17 @@ public class GraphSurfaceView extends SurfaceView {
             return;
         }
         super.dispatchDraw(canvas);
-        Log.i("ONDRAW", "onDraw is called");
+        //modify canvas: scale+pan
         canvas.save();
         canvas.scale(mScaleFactor,mScaleFactor);
         canvas.translate(positionX,positionY);
 
-
+        //local param that adjusts how much the node label overlaps the node image.
         final float nodeTextOverlapPercent = 0.2f;
 
         FRLayout layout = new FRLayout(mNetworkGraph, new Dimension(getWidth(), getHeight()));
 
+        //Draw all edges between nodes in the graph
         for (Edge edge : mNetworkGraph.getEdges()) {
             Point2D p1 = new Point2D();
             p1.setLocation(0,0);
@@ -315,30 +333,24 @@ public class GraphSurfaceView extends SurfaceView {
                     (float) position.getY() + (1f - nodeTextOverlapPercent)*nodeCircleRadius + mTextHeight, vertexPainter);
         }
 
+        //display on canvas.
         canvas.restore();
-
-
     }
 
     /**
-     * Gets scale factor.
-     *
-     * @return the scale factor
-     */
-    public float getScaleFactor() {
-        return mScaleFactor;
-    }
-
-    /**
-     * The type Scale listener.
+     * Private ScaleListener that listens for the user to pinch or expand two fingers on the screen.
+     * This class overrides the onScale() function to store how much the user adjusts the screen in
+     * local variables
      */
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
         /**
-         * On scale.
+         * If onScale is triggered by the UI, store the amount of "scaling" in mScaleFactor.
+         * Ensure that it is within the limits defined in mMaxFactor and mMinFactor above. This
+         * ensures the view stays visible and is not unweildy.
          *
-         * @param detector the detector
-         * @return the boolean
+         * @param detector the detector that detected the event.
+         * @return True to prevent further calls to the listeners from being blocked.
          */
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
@@ -349,19 +361,42 @@ public class GraphSurfaceView extends SurfaceView {
         }
     }
 
+    /**
+     * Listener to handle Pan events
+     */
     private class MyGestureListener extends GestureDetector.SimpleOnGestureListener{
+        /**
+         * onDown must return TRUE to allow onScroll() to activate
+         * @param e motionevent triggered by a user touching and then dragging the screen
+         * @return True to allow onScroll() to activate.
+         */
         @Override
         public boolean onDown(MotionEvent e) {
             return true;
         }
+
+        /**
+         * Activated when the user "scrolls" on the screen. While this provides a lot of useful
+         * information, allowing for detection of exactly where on the screen the user is dragging,
+         * we do not have a lot of location-specific scrolling that needs detecting. Thus, we ignore
+         * all but the scroll distances measured. The scroll distances are additive
+         * (you can scroll one way, then another, so the total change should be summed).
+         *
+         * Our sign convention uses "-=" because the screen should move along with the user's finger
+         *
+         * @param e1 initial position of the drag event (location and acceleration of finger)
+         * @param e2 final position of the drag event (location and accel. of finger)
+         * @param distanceX change in the "X" dimension (screen width, when viewed vertically)
+         * @param distanceY change in the "Y" dimension (screen height, when viewed vertically)
+         * @return True to prevent blocking of additional listeners
+         */
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            // Log.i("SCROLL", "Screen is scrolled by X & Y : " + distanceX + " " + distanceY);
 
             positionX -= distanceX;
             positionY -= distanceY;
 
-            postInvalidate();
+            postInvalidate(); //updates the canvas
             return true;
         }
 
@@ -411,8 +446,31 @@ public class GraphSurfaceView extends SurfaceView {
     }
 
 
+    /**
+     * Checks to see if the precise location of a tap is within a certain range of a given Point2D
+     * position object. Magic scaling numbers are used to account for the shapes drawn (e.g. a circle
+     * for the image, a rectangle for the text). These numbers are independent of the drawn radius
+     * or the quantity of text. Thus, they shall remain as hidden magic numbers.
+     *
+     * @param xTest X-coordinate of the users' tap
+     * @param yTest Y-coordinate of the users' tap
+     * @param position {@link Point2D} position object we want to compare to
+     * @param range the radius (half the total range) within where a position is considered "tapped"
+     * @return True if the tap is within range. False if the tap is not in range.
+     */
+    public boolean inRange(float xTest, float yTest, Point2D position, int range) {
+        double newRange = range/mScaleFactor;
+        return xTest <= position.getX() + newRange && xTest >= position.getX() - newRange
+                && yTest<= position.getY() + 2*newRange && yTest >= position.getY() - 1.25*newRange;
+    }
 
 
+    /**
+     * GetNodeDetails is a backgroundTask that queries the database when passed a given node and
+     * returns either an {@link Item} or {@link Recipe} object containing their information.
+     * After query, the onPostExecute() is called and starts the intent. An ASyncTask is used because
+     * calls to SQLite databases could block the UI thread and cause performance issues.
+     */
     private class GetNodeDetails extends AsyncTask<Vertex, Void, SuperNode> {
         @Override
         protected SuperNode doInBackground(Vertex ... node){
@@ -425,11 +483,11 @@ public class GraphSurfaceView extends SurfaceView {
                 else{
                     ver = dbh.getItemWithId(node[0].getId());
                 }
-                Log.d("DEBUG", node[0].getId());
-                dbh.close();
                 return ver;
             }catch (SQLException ex){
-                // Unhandled
+                //ignore problems and do nothing.
+            }finally{
+                dbh.close(); //this prevents memory leaks -> ignore the warnings above.
             }
             return null;
         }
@@ -439,24 +497,29 @@ public class GraphSurfaceView extends SurfaceView {
         }
     }
 
-    // Pull up node DetailView
+    /**
+     * Given a SuperNode object returned from the GetNodeDetails().execute(Node) function above,
+     * this casts the object to its appropriate type and starts either the DetailView or RecipeDetail
+     * Activity.
+     *
+     * @param ver the SuperNode object returned by the ASyncTask GetNodeDetails.
+     */
     public void startIntent(SuperNode ver){
         Intent intent;
         if(ver instanceof Recipe){
             intent = new Intent(getContext(), RecipeDetail.class);
             Recipe casted = (Recipe) ver;
             intent.putExtra("Detail", casted);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            Log.d("Debug", "Recipe was tapped");
         }
         else{
             intent = new Intent(getContext(), DetailView.class);
             Item casted = (Item) ver;
             intent.putExtra("Detail",casted);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            Log.d("Debug", "Item was tapped");
+
         }
-        getContext().getApplicationContext().startActivity(intent);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //flag needed to launch an activity from non-UI thread
+
+        getContext().getApplicationContext().startActivity(intent); //launch the intent.
     }
 
 }
