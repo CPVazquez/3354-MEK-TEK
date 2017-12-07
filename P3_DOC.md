@@ -6,6 +6,7 @@
 	Please note: Both AndroidTest (for UI Tests) and Test (JUnit Tests) were implemented
 
 3. Installation Instructions
+
 	- Clone the repo (download as Zip)
 	- Unzip the file and place the directory in an easily accessible location
 	- Open the folder using Android Studio
@@ -15,6 +16,7 @@
 	
 4. How to Use the App:
 This app uses the distillRecipe.csv and itemInfo.csv tables that are preloaded onto a SQLite Database handled within the app. Valid element searches are as follows (please search the exact string, or you will not see any results and receive instead an "invalid item" error).
+
 	- Drum (Kerosene)
 	- Drum (Light Olefins)
 	- Drum (Light Parrafins)
@@ -26,7 +28,8 @@ If you scroll to the root node (bottom-most node), you will see that it is Drum 
 	
 Because of the incompleteness of the table, there are possible "trees" that can be built with a root node that is not "naturally occuring". 
 This incompleteness requires the user to utilize multiple Polycraft Inventories that contain more recipes bridging the gap. 
-An example of this "incompleteness" can be seen when searching:
+An example of this "incompleteness" can be seen when searching.
+
 	- Beaker (Heavy Naphtha)
 	- Flask (Nitrogen)
 	- Flask (Ethane) *This is cool!! Would recommend trying this one out*
