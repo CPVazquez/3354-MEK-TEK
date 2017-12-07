@@ -50,9 +50,6 @@
             android:value=".MainActivity" />
         </activity>
 
-
-        <!--<activity android:name=".GraphSurfaceView" />-->
-
     </application>
 
 </manifest>

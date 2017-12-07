@@ -2,6 +2,7 @@ package edu.utdallas.mektek.polycraftapp;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -127,13 +128,18 @@ public class DatabaseHandler extends SQLiteAssetHelper{
         String[] queries = {SQLquery.queryItemDetails(key), SQLquery.queryItemDetailsWithId(key)};
         Item newItem;
         String query;
+        Cursor rs;
 
         if(method!=0 && method!=1){
             throw new ArrayIndexOutOfBoundsException();
         }
         query = queries[method];
+        try {
+             rs = database.rawQuery(query, null);
+        }catch(SQLiteException sqlException){ //catches invalid sql injection attempts - sneaky but effective.
+            throw new ItemNotFoundException("Invalid Input");
+        }
 
-        Cursor rs = database.rawQuery(query,null);
         if(rs.getCount()<=0) {
             throw new ItemNotFoundException("No such item.");
         }
