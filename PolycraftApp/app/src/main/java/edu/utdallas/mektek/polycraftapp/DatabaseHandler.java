@@ -13,7 +13,7 @@ import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 import static java.lang.Integer.parseInt;
 
 /**
- * Author:  Keene Chin
+ * Author:  Keene Chin, Dhruv Narayanan
  * Date:    11/15/2017
  * Version: 1
  * DatabaseHandler - a Singleton class that extends SQLiteAssetHelper, an Android SDK Class that
@@ -199,7 +199,6 @@ public class DatabaseHandler extends SQLiteAssetHelper{
 		    ex.printStackTrace();
 		    throw ex;
         }
-
 		return myTree;
 	}
 
@@ -277,7 +276,6 @@ public class DatabaseHandler extends SQLiteAssetHelper{
         for(int i=0; i<parentItems.size(); i++) {
           parentItems.get(i).setChildren(recArr);
         }
-
     }
 
     /** Recursively searches the SQLite database for the names of items, and returns the rowIds of all Recipes needed to create the searched item
@@ -286,7 +284,6 @@ public class DatabaseHandler extends SQLiteAssetHelper{
      * @return a Array list of Strings containing the rowIds
      * @throws SQLException
      */
-	
 	private ArrayList <String> getRowIdOfAncestors(String searchValue) throws SQLException {
 		ArrayList <String> data = new ArrayList<String>();
 		if(searchValue==null) {
